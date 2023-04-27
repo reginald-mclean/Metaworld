@@ -435,7 +435,10 @@ ML1_args_kwargs = {
 }
 
 MT50_V2 = OrderedDict((
-    ('assembly-v2', SawyerNutAssemblyEnvV2),
+    ('push-v2', SawyerPushEnvV2),
+    ('reach-v2', SawyerReachEnvV2),
+    ('sweep-v2', SawyerSweepEnvV2),
+    # ('assembly-v2', SawyerNutAssemblyEnvV2),
 ))
 
 '''
@@ -472,22 +475,7 @@ MT50_V2 = OrderedDict((
     ('reach-v2', SawyerReachEnvV2),
     ('push-back-v2', SawyerPushBackEnvV2),
     ('push-v2', SawyerPushEnvV2),
-    ('pick-place-v2', SawyerPickPlaceEnvV2),
-    ('plate-slide-v2', SawyerPlateSlideEnvV2),
-    ('plate-slide-side-v2', SawyerPlateSlideSideEnvV2),
-    ('plate-slide-back-v2', SawyerPlateSlideBackEnvV2),
-    ('plate-slide-back-side-v2', SawyerPlateSlideBackSideEnvV2),
-    ('peg-insert-side-v2', SawyerPegInsertionSideEnvV2),
-    ('peg-unplug-side-v2', SawyerPegUnplugSideEnvV2),
-    ('soccer-v2', SawyerSoccerEnvV2),
-    ('stick-push-v2', SawyerStickPushEnvV2),
-    ('stick-pull-v2', SawyerStickPullEnvV2),
-    ('push-wall-v2', SawyerPushWallEnvV2),
-    ('push-v2', SawyerPushEnvV2),
-    ('reach-wall-v2', SawyerReachWallEnvV2),
     ('reach-v2', SawyerReachEnvV2),
-    ('shelf-place-v2', SawyerShelfPlaceEnvV2),
-    ('sweep-into-v2', SawyerSweepIntoGoalEnvV2),
     ('sweep-v2', SawyerSweepEnvV2),
     ('window-open-v2', SawyerWindowOpenEnvV2),
     ('window-close-v2', SawyerWindowCloseEnvV2),'''

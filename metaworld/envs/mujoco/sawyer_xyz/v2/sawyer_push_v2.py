@@ -95,7 +95,7 @@ class SawyerPushEnvV2(SawyerXYZEnv):
 
     def _get_quat_objects(self):
         return Rotation.from_matrix(
-            self.data.get_geom_xmat('objGeom')
+            self.data.geom('objGeom').xmat.reshape((3,3))
         ).as_quat()
 
     def _get_pos_objects(self):
