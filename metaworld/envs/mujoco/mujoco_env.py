@@ -7,12 +7,12 @@ from os import path
 import glfw
 from gymnasium import error
 from gym.utils import seeding
-
+import mujoco
 try:
-    import mujoco_py
+    import mujoco
 except ImportError as e:
     raise error.DependencyNotInstalled(
-        "{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(
+        "{}. (HINT: you need to install mujoco, and also perform the setup instructions here: https://github.com/deepmind/mujoco/.)".format(
             e
         )
     )
@@ -60,6 +60,7 @@ class MujocoEnv(gym.Env, abc.ABC):
         self.frame_skip = frame_skip
         self.model = mujoco.MjModel.from_xml_path(filename=model_path)
         self.data = mujoco.MjData(self.model)
+
         self.viewer = None
         self._viewers = {}
         self.renderer = None
@@ -108,7 +109,6 @@ class MujocoEnv(gym.Env, abc.ABC):
             self.seed(seed)
         self._did_see_sim_exception = False
         mujoco.mj_resetData(self.model, self.data)
-        mujoco.mj_forward(self.model, self.data)
         ob = self.reset_model()
         if self.viewer is not None:
             self.viewer_setup()
@@ -119,6 +119,7 @@ class MujocoEnv(gym.Env, abc.ABC):
         self.data.qvel = qvel
         self.data.qpos = qpos
         mujoco.mj_forward(self.model, self.data)
+
 
     @property
     def dt(self):

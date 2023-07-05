@@ -501,6 +501,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         done = True if int(info['success']) == 1 else False
         return np.array(self._last_stable_obs, dtype=np.float64), reward, done, False, info
 
+
     def evaluate_state(self, obs, action):
         """Does the heavy-lifting for `step()` -- namely, calculating reward and populating the `info` dict with training metrics.
 
