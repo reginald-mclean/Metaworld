@@ -73,13 +73,11 @@ def _sigmoids(x, value_at_1, sigmoid):
     else:
         raise ValueError(f"Unknown sigmoid type {sigmoid!r}.")
 
-def tolerance(
-    x,
-    bounds=(0.0, 0.0),
-    margin=0.0,
-    sigmoid="gaussian",
-    value_at_margin=_DEFAULT_VALUE_AT_MARGIN,
-):
+def tolerance(x,
+              bounds=(0.0, 0.0),
+              margin=0.0,
+              sigmoid='gaussian',
+              value_at_margin=0.1):
     """Returns 1 when `x` falls inside the bounds, between 0 and 1 otherwise.
 
     Args:

@@ -174,6 +174,7 @@ class MujocoEnv(gym.Env, abc.ABC):
             glfw.destroy_window(self.viewer.window)
             self.viewer = None
 
+
     def get_body_com(self, body_name):
         try:
             return self.data.geom(body_name + '_geom').xpos

@@ -117,8 +117,9 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         self.mocap_low = np.hstack(mocap_low)
         self.mocap_high = np.hstack(mocap_high)
         self.curr_path_length = 0
+
         self.seeded_rand_vec = False
-        self._freeze_rand_vec = True
+        self._freeze_rand_vec = False
         self._last_rand_vec = None
         self.num_resets = 0
         self.current_seed = None
@@ -141,9 +142,8 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         self.init_right_pad = self.get_body_com("rightpad")
 
         self.action_space = Box(
-            np.array([-1, -1, -1, -1]),
-            np.array([+1, +1, +1, +1]),
-            dtype=np.float64,
+            np.array([-1, -1, -1, -1], dtype=np.float64),
+            np.array([+1, +1, +1, +1], dtype=np.float64)
         )
 
         # Technically these observation lengths are different between v1 and v2,
@@ -448,6 +448,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
     @property
     def observation_space(self):
         obs_obj_max_len = 14
+
         obj_low = np.full(obs_obj_max_len, -np.inf, dtype=np.float64)
         obj_high = np.full(obs_obj_max_len, +np.inf, dtype=np.float64)
         goal_low = np.zeros(3) if self._partially_observable \
@@ -459,8 +460,8 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         return Box(
             np.hstack((self._HAND_SPACE.low, gripper_low, obj_low, self._HAND_SPACE.low, gripper_low, obj_low, goal_low)),
             np.hstack((self._HAND_SPACE.high, gripper_high, obj_high, self._HAND_SPACE.high, gripper_high, obj_high, goal_high)),
-            dtype=np.float64
-        )
+            dtype=np.float64)
+
 
     @_assert_task_is_set
     def step(self, action):
@@ -495,6 +496,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
                                         a_max=self.observation_space.high,
                                         a_min=self.observation_space.low,
                                         dtype=np.float64)
+
         reward, info = self.evaluate_state(self._last_stable_obs, action)
         done = True if int(info['success']) == 1 else False
         return np.array(self._last_stable_obs, dtype=np.float64), reward, done, False, info
@@ -512,6 +514,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         # Throw error rather than making this an @abc.abstractmethod so that
         # V1 environments don't have to implement it
         raise NotImplementedError
+
 
     def reset(self, seed=None, options=None):
         if seed is not None:
@@ -534,19 +537,17 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
             self.do_simulation([-1, 1], self.frame_skip)
         self.init_tcp = self.tcp_center
 
-        self.init_tcp = self.tcp_center
-
     def _get_state_rand_vec(self):
         if self._freeze_rand_vec:
             assert self._last_rand_vec is not None
             return self._last_rand_vec
-        else: 
-            rand_vec = np.random.uniform(
+        rand_vec = self.np_random.uniform(
                 self._random_reset_space.low,
                 self._random_reset_space.high,
                 size=self._random_reset_space.low.size).astype(np.float64)
-            self._last_rand_vec = rand_vec
-            return rand_vec
+        self._last_rand_vec = rand_vec
+        return rand_vec
+
 
     def _gripper_caging_reward(
         self,

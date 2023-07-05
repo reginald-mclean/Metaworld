@@ -29,8 +29,14 @@ class SawyerPlateSlideBackV2Policy(Policy):
 
     @staticmethod
     def _desired_pos(o_d):
+<<<<<<< HEAD
         pos_curr = o_d["hand_pos"]
         pos_puck = o_d["puck_pos"] + np.array([0.0, -0.065, 0.025])
+=======
+        pos_curr = o_d['hand_pos']
+        pos_puck = o_d['puck_pos'] + np.array([.0, -.065, .025])
+
+>>>>>>> 152a686d4 (updated environments to mujoco bindings)
         if np.linalg.norm(pos_curr[:2] - pos_puck[:2]) > 0.1:
             return pos_puck + np.array([.0, .0, .1])
         elif abs(pos_curr[2] - pos_puck[2]) > 0.1:

@@ -51,9 +51,16 @@ class SawyerPickPlaceV2Policy(Policy):
 
     @staticmethod
     def _grab_effort(o_d):
+<<<<<<< HEAD
         pos_curr = o_d["hand_pos"]
         pos_puck = o_d["puck_pos"]
         if np.linalg.norm(pos_curr - pos_puck) < 0.07:
             return 1.0
+=======
+        pos_curr = o_d['hand_pos']
+        pos_puck = o_d['puck_pos']
+        if np.linalg.norm(pos_curr - pos_puck) < 0.045:
+            return 1.
+>>>>>>> 152a686d4 (updated environments to mujoco bindings)
         else:
             return 0.0

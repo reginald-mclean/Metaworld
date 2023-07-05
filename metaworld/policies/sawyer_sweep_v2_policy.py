@@ -36,8 +36,13 @@ class SawyerSweepV2Policy(Policy):
 
         if pos_curr[0] < 0.2:
             if np.linalg.norm(pos_curr[:2] - pos_cube[:2]) > 0.04:
+<<<<<<< HEAD
                 return pos_cube + np.array([0.0, 0.0, 0.3])
             elif abs(pos_curr[2] - pos_cube[2]) > 0.04:
+=======
+                return pos_cube + np.array([0., 0., 0.3])
+            elif abs(pos_curr[2] - pos_cube[2]) > 0.09:
+>>>>>>> 152a686d4 (updated environments to mujoco bindings)
                 return pos_cube
 
         return pos_goal + np.array([0, 0, 0.1])

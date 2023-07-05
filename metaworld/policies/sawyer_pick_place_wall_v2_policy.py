@@ -71,6 +71,11 @@ class SawyerPickPlaceWallV2Policy(Policy):
         ):
             return 0.0
 
+<<<<<<< HEAD
+=======
+        if np.linalg.norm(pos_curr[:2] - pos_puck[:2]) > 0.015 or abs(pos_curr[2] - pos_puck[2]) > 0.05:
+            return 0.
+>>>>>>> 152a686d4 (updated environments to mujoco bindings)
         # While end effector is moving down toward the puck, begin closing the grabber
         else:
             return 0.9

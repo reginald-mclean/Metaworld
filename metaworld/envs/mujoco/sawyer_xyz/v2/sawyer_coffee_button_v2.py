@@ -98,8 +98,6 @@ class SawyerCoffeeButtonEnvV2(SawyerXYZEnv):
         self.obj_init_pos = self._get_state_rand_vec()
         self.model.body_pos[mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, 'coffee_machine')] \
             = self.obj_init_pos
-
-
         pos_mug = self.obj_init_pos + np.array([0.0, -0.22, 0.0])
         self._set_obj_xyz(pos_mug)
 

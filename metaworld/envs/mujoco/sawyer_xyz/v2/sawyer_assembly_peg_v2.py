@@ -36,9 +36,10 @@ class SawyerNutAssemblyEnvV2(SawyerXYZEnv):
         }
 
         self.goal = np.array([0.1, 0.8, 0.1], dtype=np.float32)
-        self.obj_init_pos = self.init_config["obj_init_pos"]
-        self.obj_init_angle = self.init_config["obj_init_angle"]
-        self.hand_init_pos = self.init_config["hand_init_pos"]
+
+        self.obj_init_pos = self.init_config['obj_init_pos']
+        self.obj_init_angle = self.init_config['obj_init_angle']
+        self.hand_init_pos = self.init_config['hand_init_pos']
 
         self._random_reset_space = Box(
             np.hstack((obj_low, goal_low)),

@@ -92,7 +92,7 @@ class SawyerPegUnplugSideEnvV2(SawyerXYZEnv):
 
         pos_box = self._get_state_rand_vec()
         self.model.body_pos[mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, 'box')] = pos_box
-        pos_plug = pos_box + np.array([0.044, 0.0, 0.131])
+        pos_plug = pos_box + np.array([.044, .0, .131])
         self._set_obj_xyz(pos_plug)
         self.obj_init_pos = self._get_site_pos("pegEnd")
 

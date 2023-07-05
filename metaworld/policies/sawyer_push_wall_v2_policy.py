@@ -52,12 +52,19 @@ class SawyerPushWallV2Policy(Policy):
 
     @staticmethod
     def grab_effort(o_d):
+<<<<<<< HEAD
         pos_curr = o_d["hand_pos"]
         pos_obj = o_d["obj_pos"]
         if (
             np.linalg.norm(pos_curr[:2] - pos_obj[:2]) > 0.02
             or abs(pos_curr[2] - pos_obj[2]) > 0.1
         ):
+=======
+        pos_curr = o_d['hand_pos']
+        pos_obj = o_d['obj_pos']
+
+        if np.linalg.norm(pos_curr[:2] - pos_obj[:2]) > 0.02 or abs(pos_curr[2] - pos_obj[2]) > 0.05:
+>>>>>>> 152a686d4 (updated environments to mujoco bindings)
             return 0.0
         # While end effector is moving down toward the obj, begin closing the grabber
         else:
