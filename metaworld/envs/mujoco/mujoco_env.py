@@ -7,12 +7,12 @@ import gym
 import numpy as np
 from gym import error
 from gym.utils import seeding
-
+import mujoco
 try:
-    import mujoco_py
+    import mujoco
 except ImportError as e:
     raise error.DependencyNotInstalled(
-        "{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(
+        "{}. (HINT: you need to install mujoco, and also perform the setup instructions here: https://github.com/deepmind/mujoco/.)".format(
             e
         )
     )
@@ -47,8 +47,7 @@ class MujocoEnv(gym.Env, abc.ABC):
             raise OSError("File %s does not exist" % model_path)
 
         self.frame_skip = frame_skip
-        self.model = mujoco_py.load_model_from_path(model_path)
-        self.sim = mujoco_py.MjSim(self.model)
+        self.model = mujoco.MjModel.from_xml_path(model_path)
         self.data = self.sim.data
         self.viewer = None
         self._viewers = {}
@@ -90,20 +89,20 @@ class MujocoEnv(gym.Env, abc.ABC):
     @_assert_task_is_set
     def reset(self):
         self._did_see_sim_exception = False
-        self.sim.reset()
+        mujoco.mj_resetData(self.model, self.data)
         ob = self.reset_model()
         if self.viewer is not None:
             self.viewer_setup()
         return ob
 
     def set_state(self, qpos, qvel):
-        assert qpos.shape == (self.model.nq,) and qvel.shape == (self.model.nv,)
+        '''assert qpos.shape == (self.model.nq,) and qvel.shape == (self.model.nv,)
         old_state = self.sim.get_state()
         new_state = mujoco_py.MjSimState(
             old_state.time, qpos, qvel, old_state.act, old_state.udd_state
         )
         self.sim.set_state(new_state)
-        self.sim.forward()
+        self.sim.forward()'''
 
     @property
     def dt(self):
