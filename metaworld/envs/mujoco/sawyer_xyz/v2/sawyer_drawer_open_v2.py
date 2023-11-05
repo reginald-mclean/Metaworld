@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.9, 0.0)
@@ -24,8 +24,7 @@ class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "obj_init_angle": np.array(
@@ -61,21 +60,11 @@ class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         (
             reward,
-            gripper_error,
-            gripped,
-            handle_error,
-            caging_reward,
-            opening_reward,
+            handle_error
         ) = self.compute_reward(action, obs)
 
         info = {
             "success": float(handle_error <= 0.03),
-            "near_object": float(gripper_error <= 0.03),
-            "grasp_success": float(gripped > 0),
-            "grasp_reward": caging_reward,
-            "in_place_reward": opening_reward,
-            "obj_to_target": handle_error,
-            "unscaled_reward": reward,
         }
 
         return reward, info
@@ -109,60 +98,75 @@ class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        gripper = obs[:3]
-        handle = obs[4:7]
+        if self.reward_func_version == 'v2':
+            gripper = obs[:3]
+            handle = obs[4:7]
 
-        handle_error = np.linalg.norm(handle - self._target_pos)
+            handle_error = np.linalg.norm(handle - self._target_pos)
 
-        reward_for_opening = reward_utils.tolerance(
-            handle_error, bounds=(0, 0.02), margin=self.maxDist, sigmoid="long_tail"
-        )
+            reward_for_opening = reward_utils.tolerance(
+                handle_error, bounds=(0, 0.02), margin=self.maxDist, sigmoid="long_tail"
+            )
 
-        handle_pos_init = self._target_pos + np.array([0.0, self.maxDist, 0.0])
-        # Emphasize XY error so that gripper is able to drop down and cage
-        # handle without running into it. By doing this, we are assuming
-        # that the reward in the Z direction is small enough that the agent
-        # will be willing to explore raising a finger above the handle, hook it,
-        # and drop back down to re-gain Z reward
-        scale = np.array([3.0, 3.0, 1.0])
-        gripper_error = (handle - gripper) * scale
-        gripper_error_init = (handle_pos_init - self.init_tcp) * scale
+            handle_pos_init = self._target_pos + np.array([0.0, self.maxDist, 0.0])
+            # Emphasize XY error so that gripper is able to drop down and cage
+            # handle without running into it. By doing this, we are assuming
+            # that the reward in the Z direction is small enough that the agent
+            # will be willing to explore raising a finger above the handle, hook it,
+            # and drop back down to re-gain Z reward
+            scale = np.array([3.0, 3.0, 1.0])
+            gripper_error = (handle - gripper) * scale
+            gripper_error_init = (handle_pos_init - self.init_tcp) * scale
 
-        reward_for_caging = reward_utils.tolerance(
-            np.linalg.norm(gripper_error),
-            bounds=(0, 0.01),
-            margin=np.linalg.norm(gripper_error_init),
-            sigmoid="long_tail",
-        )
+            reward_for_caging = reward_utils.tolerance(
+                np.linalg.norm(gripper_error),
+                bounds=(0, 0.01),
+                margin=np.linalg.norm(gripper_error_init),
+                sigmoid="long_tail",
+            )
 
-        reward = reward_for_caging + reward_for_opening
-        reward *= 5.0
+            reward = reward_for_caging + reward_for_opening
+            reward *= 5.0
 
-        return (
-            reward,
-            np.linalg.norm(handle - gripper),
-            obs[3],
-            handle_error,
-            reward_for_caging,
-            reward_for_opening,
-        )
+            return (
+                reward,
+                handle_error,
+            )
+        else:
+            del action
 
+            objPos = obs[4:7]
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+            pullGoal = self._target_pos
+            pullDist = np.abs(objPos[1] - pullGoal[1])
+            reachDist = np.linalg.norm(objPos - fingerCOM)
+            reachRew = -reachDist
 
-class TrainDrawerOpenv2(SawyerDrawerOpenEnvV2):
-    tasks = None
+            self.reachCompleted = reachDist < 0.05
 
-    def __init__(self):
-        SawyerDrawerOpenEnvV2.__init__(self, self.tasks)
+            def pullReward():
+                c1 = 1000
+                c2 = 0.01
+                c3 = 0.001
 
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+                if self.reachCompleted:
+                    pullRew = 1000 * (self.maxDist - pullDist) + c1 * (
+                            np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                    )
+                    pullRew = max(pullRew, 0)
+                    return pullRew
+                else:
+                    return 0
 
+                pullRew = max(pullRew, 0)
 
-class TestDrawerOpenv2(SawyerDrawerOpenEnvV2):
-    tasks = None
+                return pullRew
 
-    def __init__(self):
-        SawyerDrawerOpenEnvV2.__init__(self, self.tasks)
+            pullRew = pullReward()
+            reward = reachRew + pullRew
 
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+            return [reward, pullDist]
+

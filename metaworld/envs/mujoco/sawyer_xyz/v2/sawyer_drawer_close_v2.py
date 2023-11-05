@@ -13,7 +13,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
     _TARGET_RADIUS = 0.04
 
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.9, 0.0)
@@ -26,8 +26,7 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "obj_init_angle": np.array(
@@ -63,21 +62,11 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         (
             reward,
-            tcp_to_obj,
-            _,
             target_to_obj,
-            object_grasped,
-            in_place,
         ) = self.compute_reward(action, obs)
 
         info = {
-            "success": float(target_to_obj <= self.TARGET_RADIUS + 0.015),
-            "near_object": float(tcp_to_obj <= 0.01),
-            "grasp_success": 1.0,
-            "grasp_reward": object_grasped,
-            "in_place_reward": in_place,
-            "obj_to_target": target_to_obj,
-            "unscaled_reward": reward,
+            "success": float(target_to_obj <= (self.TARGET_RADIUS + 0.015)),
         }
 
         return reward, info
@@ -114,61 +103,69 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
 
     def compute_reward(self, action, obs):
         obj = obs[4:7]
+        if self.reward_func_version == 'v2':
+            tcp = self.tcp_center
+            target = self._target_pos.copy()
 
-        tcp = self.tcp_center
-        target = self._target_pos.copy()
+            target_to_obj = obj - target
+            target_to_obj = np.linalg.norm(target_to_obj)
+            target_to_obj_init = self.obj_init_pos - target
+            target_to_obj_init = np.linalg.norm(target_to_obj_init)
 
-        target_to_obj = obj - target
-        target_to_obj = np.linalg.norm(target_to_obj)
-        target_to_obj_init = self.obj_init_pos - target
-        target_to_obj_init = np.linalg.norm(target_to_obj_init)
+            in_place = reward_utils.tolerance(
+                target_to_obj,
+                bounds=(0, self.TARGET_RADIUS),
+                margin=abs(target_to_obj_init - self.TARGET_RADIUS),
+                sigmoid="long_tail",
+            )
 
-        in_place = reward_utils.tolerance(
-            target_to_obj,
-            bounds=(0, self.TARGET_RADIUS),
-            margin=abs(target_to_obj_init - self.TARGET_RADIUS),
-            sigmoid="long_tail",
-        )
+            handle_reach_radius = 0.005
+            tcp_to_obj = np.linalg.norm(obj - tcp)
+            tcp_to_obj_init = np.linalg.norm(self.obj_init_pos - self.init_tcp)
+            reach = reward_utils.tolerance(
+                tcp_to_obj,
+                bounds=(0, handle_reach_radius),
+                margin=abs(tcp_to_obj_init - handle_reach_radius),
+                sigmoid="gaussian",
+            )
+            gripper_closed = min(max(0, action[-1]), 1)
 
-        handle_reach_radius = 0.005
-        tcp_to_obj = np.linalg.norm(obj - tcp)
-        tcp_to_obj_init = np.linalg.norm(self.obj_init_pos - self.init_tcp)
-        reach = reward_utils.tolerance(
-            tcp_to_obj,
-            bounds=(0, handle_reach_radius),
-            margin=abs(tcp_to_obj_init - handle_reach_radius),
-            sigmoid="gaussian",
-        )
-        gripper_closed = min(max(0, action[-1]), 1)
+            reach = reward_utils.hamacher_product(reach, gripper_closed)
+            tcp_opened = 0
+            object_grasped = reach
 
-        reach = reward_utils.hamacher_product(reach, gripper_closed)
-        tcp_opened = 0
-        object_grasped = reach
+            reward = reward_utils.hamacher_product(reach, in_place)
+            if target_to_obj <= self.TARGET_RADIUS + 0.015:
+                reward = 1.0
 
-        reward = reward_utils.hamacher_product(reach, in_place)
-        if target_to_obj <= self.TARGET_RADIUS + 0.015:
-            reward = 1.0
+            reward *= 10
 
-        reward *= 10
+            return (reward, tcp_to_obj, tcp_opened, target_to_obj, object_grasped, in_place)
+        else:
+            objPos = obs[4:7]
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
 
-        return (reward, tcp_to_obj, tcp_opened, target_to_obj, object_grasped, in_place)
+            pullGoal = self._target_pos[1]
 
+            reachDist = np.linalg.norm(objPos - fingerCOM)
 
-class TrainDrawerClosev2(SawyerDrawerCloseEnvV2):
-    tasks = None
+            pullDist = np.abs(objPos[1] - pullGoal)
 
-    def __init__(self):
-        SawyerDrawerCloseEnvV2.__init__(self, self.tasks)
+            c1 = 1000
+            c2 = 0.01
+            c3 = 0.001
 
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+            if reachDist < 0.05:
+                pullRew = 1000 * (self.maxDist - pullDist) + c1 * (
+                        np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                )
+                pullRew = max(pullRew, 0)
+            else:
+                pullRew = 0
 
+            reward = -reachDist + pullRew
 
-class TestDrawerClosev2(SawyerDrawerCloseEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerDrawerCloseEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+            return [reward, pullDist]

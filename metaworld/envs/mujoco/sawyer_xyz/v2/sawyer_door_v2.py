@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerDoorEnvV2(SawyerXYZEnv):
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (0.0, 0.85, 0.15)
@@ -26,8 +26,7 @@ class SawyerDoorEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "obj_init_angle": np.array([0.3]),
@@ -56,21 +55,13 @@ class SawyerDoorEnvV2(SawyerXYZEnv):
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
         (
-            reward,
-            reward_grab,
-            reward_ready,
-            reward_success,
+            reward
         ) = self.compute_reward(action, obs)
 
         success = float(abs(obs[4] - self._target_pos[0]) <= 0.08)
 
         info = {
             "success": success,
-            "near_object": reward_ready,
-            "grasp_success": reward_grab >= 0.5,
-            "grasp_reward": reward_grab,
-            "in_place_reward": reward_success,
-            "obj_to_target": 0,
             "unscaled_reward": reward,
         }
 
@@ -163,45 +154,58 @@ class SawyerDoorEnvV2(SawyerXYZEnv):
         return ready_to_open, opened
 
     def compute_reward(self, actions, obs):
-        theta = self.data.joint("doorjoint").qpos
+        if self.reward_func_version == 'v2':
+            theta = self.data.joint("doorjoint").qpos
 
-        reward_grab = SawyerDoorEnvV2._reward_grab_effort(actions)
-        reward_steps = SawyerDoorEnvV2._reward_pos(obs, theta)
+            reward_grab = SawyerDoorEnvV2._reward_grab_effort(actions)
+            reward_steps = SawyerDoorEnvV2._reward_pos(obs, theta)
 
-        reward = sum(
-            (
-                2.0 * reward_utils.hamacher_product(reward_steps[0], reward_grab),
-                8.0 * reward_steps[1],
+            reward = sum(
+                (
+                    2.0 * reward_utils.hamacher_product(reward_steps[0], reward_grab),
+                    8.0 * reward_steps[1],
+                )
             )
-        )
 
-        # Override reward on success flag
-        reward = reward[0]
-        if abs(obs[4] - self._target_pos[0]) <= 0.08:
-            reward = 10.0
+            # Override reward on success flag
+            reward = reward[0]
+            if abs(obs[4] - self._target_pos[0]) <= 0.08:
+                reward = 10.0
 
-        return (
-            reward,
-            reward_grab,
-            *reward_steps,
-        )
+            return reward
+        else:
+            del actions
+            objPos = obs[4:7]
 
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
 
-class TrainDoorOpenv2(SawyerDoorEnvV2):
-    tasks = None
+            pullGoal = self._target_pos
 
-    def __init__(self):
-        SawyerDoorEnvV2.__init__(self, self.tasks)
+            pullDist = np.linalg.norm(objPos[:-1] - pullGoal[:-1])
+            reachDist = np.linalg.norm(objPos - fingerCOM)
+            reachRew = -reachDist
 
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+            self.reachCompleted = reachDist < 0.05
 
+            def pullReward():
+                c1 = 1000
+                c2 = 0.01
+                c3 = 0.001
 
-class TestDoorOpenv2(SawyerDoorEnvV2):
-    tasks = None
+                if self.reachCompleted:
+                    pullRew = 1000 * (self.maxPullDist - pullDist) + c1 * (
+                            np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                    )
+                    pullRew = max(pullRew, 0)
+                    return pullRew
+                else:
+                    return 0
 
-    def __init__(self):
-        SawyerDoorEnvV2.__init__(self, self.tasks)
+            pullRew = pullReward()
+            reward = reachRew + pullRew
 
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+            return reward
+

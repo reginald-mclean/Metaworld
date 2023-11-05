@@ -113,6 +113,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         action_scale=1.0 / 100,
         action_rot_scale=1.0,
         render_mode=None,
+        reward_func_type='v1'
     ):
         self.action_scale = action_scale
         self.action_rot_scale = action_rot_scale
@@ -173,6 +174,8 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         # very first observation)
 
         self._prev_obs = self._get_curr_obs_combined_no_goal()
+        
+        self.reward_func_type = reward_func_type
 
         EzPickle.__init__(
             self,
@@ -535,8 +538,6 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
             self.data.mocap_pos[mocap_id][:] = self.hand_init_pos
             self.data.mocap_quat[mocap_id][:] = np.array([1, 0, 1, 0])
             self.do_simulation([-1, 1], self.frame_skip)
-        self.init_tcp = self.tcp_center
-
         self.init_tcp = self.tcp_center
 
     def _get_state_rand_vec(self):

@@ -26,7 +26,7 @@ class SawyerReachEnvV2(SawyerXYZEnv):
         - (6/15/20) Separated reach-push-pick-place into 3 separate envs.
     """
 
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, tasks=None, render_mode=None, reward_func_version='v2'):
         goal_low = (-0.1, 0.8, 0.05)
         goal_high = (0.1, 0.9, 0.3)
         hand_low = (-0.5, 0.40, 0.05)
@@ -41,8 +41,7 @@ class SawyerReachEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "obj_init_angle": 0.3,
@@ -68,17 +67,11 @@ class SawyerReachEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        reward, reach_dist, in_place = self.compute_reward(action, obs)
+        reward, reach_dist = self.compute_reward(action, obs)
         success = float(reach_dist <= 0.05)
 
         info = {
-            "success": success,
-            "near_object": reach_dist,
-            "grasp_success": 1.0,
-            "grasp_reward": reach_dist,
-            "in_place_reward": in_place,
-            "obj_to_target": reach_dist,
-            "unscaled_reward": reward,
+            "success": success
         }
 
         return reward, info
@@ -115,44 +108,52 @@ class SawyerReachEnvV2(SawyerXYZEnv):
         self.obj_init_pos = goal_pos[:3]
         self._set_obj_xyz(self.obj_init_pos)
         mujoco.mj_forward(self.model, self.data)
+        self.maxReachDist = np.linalg.norm(
+            self.init_tcp - np.array(self._target_pos)
+        )
         return self._get_obs()
 
     def compute_reward(self, actions, obs):
-        _TARGET_RADIUS = 0.05
-        tcp = self.tcp_center
-        # obj = obs[4:7]
-        # tcp_opened = obs[3]
-        target = self._target_pos
+        if self.reward_func_version == 'v2':
+            _TARGET_RADIUS = 0.05
+            tcp = self.tcp_center
+            # obj = obs[4:7]
+            # tcp_opened = obs[3]
+            target = self._target_pos
 
-        tcp_to_target = np.linalg.norm(tcp - target)
-        # obj_to_target = np.linalg.norm(obj - target)
+            tcp_to_target = np.linalg.norm(tcp - target)
+            # obj_to_target = np.linalg.norm(obj - target)
 
-        in_place_margin = np.linalg.norm(self.hand_init_pos - target)
-        in_place = reward_utils.tolerance(
-            tcp_to_target,
-            bounds=(0, _TARGET_RADIUS),
-            margin=in_place_margin,
-            sigmoid="long_tail",
-        )
+            in_place_margin = np.linalg.norm(self.hand_init_pos - target)
+            in_place = reward_utils.tolerance(
+                tcp_to_target,
+                bounds=(0, _TARGET_RADIUS),
+                margin=in_place_margin,
+                sigmoid="long_tail",
+            )
 
-        return [10 * in_place, tcp_to_target, in_place]
+            return [10 * in_place, tcp_to_target]
+        else:
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+            goal = self._target_pos
 
+            def compute_reward_reach(actions, obs):
+                del actions
+                del obs
 
-class TrainReachv2(SawyerReachEnvV2):
-    tasks = None
+                c1 = 1000
+                c2 = 0.01
+                c3 = 0.001
+                reachDist = np.linalg.norm(fingerCOM - goal)
+                reachRew = c1 * (self.maxReachDist - reachDist) + c1 * (
+                        np.exp(-(reachDist ** 2) / c2) + np.exp(-(reachDist ** 2) / c3)
+                )
+                reachRew = max(reachRew, 0)
+                reward = reachRew
+                return [reward, reachDist]
 
-    def __init__(self):
-        SawyerReachEnvV2.__init__(self, self.tasks)
+            return compute_reward_reach(actions, obs)
 
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
-
-
-class TestReachv2(SawyerReachEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerReachEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)

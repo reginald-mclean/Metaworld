@@ -51,14 +51,10 @@ class SawyerNutAssemblyEnv(SawyerXYZEnv):
     @_assert_task_is_set
     def step(self, action):
         ob = super().step(action)
-        reward, _, reachDist, pickRew, _, placingDist, _, success = self.compute_reward(
+        reward, success = self.compute_reward(
             action, ob
         )
         info = {
-            "reachDist": reachDist,
-            "pickRew": pickRew,
-            "epRew": reward,
-            "goalDist": placingDist,
             "success": float(success),
         }
 
@@ -222,11 +218,5 @@ class SawyerNutAssemblyEnv(SawyerXYZEnv):
         )
         return [
             reward,
-            reachRew,
-            reachDist,
-            pickRew,
-            placeRew,
-            placingDist,
-            placingDistFinal,
             success,
         ]

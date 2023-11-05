@@ -232,7 +232,7 @@ class SawyerReachPushPickPlaceEnv(SawyerXYZEnv):
             else:
                 pushRew = 0
             reward = reachRew + pushRew
-            return [reward, reachRew, reachDist, pushRew, pushDist, None, None, None]
+            return [reward, pushDist]
 
         def compute_reward_pick_place(actions, obs):
             del obs
