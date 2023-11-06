@@ -147,25 +147,18 @@ class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
 
             self.reachCompleted = reachDist < 0.05
 
-            def pullReward():
-                c1 = 1000
-                c2 = 0.01
-                c3 = 0.001
+            c1 = 1000
+            c2 = 0.01
+            c3 = 0.001
 
-                if self.reachCompleted:
-                    pullRew = 1000 * (self.maxDist - pullDist) + c1 * (
-                            np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
-                    )
-                    pullRew = max(pullRew, 0)
-                    return pullRew
-                else:
-                    return 0
-
+            if self.reachCompleted:
+                pullRew = 1000 * (self.maxDist - pullDist) + c1 * (
+                        np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                )
                 pullRew = max(pullRew, 0)
+            else:
+                pullRew = 0
 
-                return pullRew
-
-            pullRew = pullReward()
             reward = reachRew + pullRew
 
             return [reward, pullDist]

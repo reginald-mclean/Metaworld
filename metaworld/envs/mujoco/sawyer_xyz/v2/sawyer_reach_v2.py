@@ -140,20 +140,18 @@ class SawyerReachEnvV2(SawyerXYZEnv):
             fingerCOM = (rightFinger + leftFinger) / 2
             goal = self._target_pos
 
-            def compute_reward_reach(actions, obs):
-                del actions
-                del obs
+            del actions
+            del obs
 
-                c1 = 1000
-                c2 = 0.01
-                c3 = 0.001
-                reachDist = np.linalg.norm(fingerCOM - goal)
-                reachRew = c1 * (self.maxReachDist - reachDist) + c1 * (
-                        np.exp(-(reachDist ** 2) / c2) + np.exp(-(reachDist ** 2) / c3)
-                )
-                reachRew = max(reachRew, 0)
-                reward = reachRew
-                return [reward, reachDist]
+            c1 = 1000
+            c2 = 0.01
+            c3 = 0.001
+            reachDist = np.linalg.norm(fingerCOM - goal)
+            reachRew = c1 * (self.maxReachDist - reachDist) + c1 * (
+                    np.exp(-(reachDist ** 2) / c2) + np.exp(-(reachDist ** 2) / c3)
+            )
+            reachRew = max(reachRew, 0)
+            reward = reachRew
+            return [reward, reachDist]
 
-            return compute_reward_reach(actions, obs)
 
