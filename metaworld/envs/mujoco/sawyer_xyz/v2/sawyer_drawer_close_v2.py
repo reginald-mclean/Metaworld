@@ -140,7 +140,7 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
 
             reward *= 10
 
-            return (reward, tcp_to_obj, tcp_opened, target_to_obj, object_grasped, in_place)
+            return (reward, target_to_obj)
         else:
             objPos = obs[4:7]
             rightFinger, leftFinger = self._get_site_pos(

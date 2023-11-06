@@ -235,7 +235,7 @@ class SawyerPickPlaceEnvV2(SawyerXYZEnv):
                 reward += 1.0 + 5.0 * in_place
             if obj_to_target < _TARGET_RADIUS:
                 reward = 10.0
-            return [reward, tcp_to_obj, tcp_opened, obj_to_target, object_grasped, in_place]
+            return [reward, obj_to_target]
         else:
             objPos = obs[4:7]
 
@@ -355,10 +355,7 @@ class SawyerPickPlaceEnvV2(SawyerXYZEnv):
                 assert (placeRew >= 0) and (pickRew >= 0)
                 reward = reachRew + pickRew + placeRew
 
-                return [
-                    reward,
-                    placingDist
-                ]
+                return reward, placingDist
 
 
             return compute_reward_pick_place(action, obs)

@@ -198,13 +198,7 @@ class SawyerPegInsertionSideEnvV2(SawyerXYZEnv):
 
             return [
                 reward,
-                tcp_to_obj,
-                tcp_opened,
-                obj_to_target,
-                object_grasped,
-                in_place,
-                collision_boxes,
-                ip_orig,
+                obj_to_target
             ]
         else:
             objPos = obs[4:7]
