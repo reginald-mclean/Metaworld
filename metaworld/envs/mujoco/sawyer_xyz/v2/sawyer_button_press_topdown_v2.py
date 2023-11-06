@@ -91,6 +91,12 @@ class SawyerButtonPressTopdownEnvV2(SawyerXYZEnv):
         self._obj_to_target_init = abs(
             self._target_pos[2] - self._get_site_pos("buttonStart")[2]
         )
+
+        self.maxDist = np.abs(
+            self._get_site_pos("buttonStart")[2]
+            - self._target_pos[2]
+        )
+
         return self._get_obs()
 
     def compute_reward(self, action, obs):
