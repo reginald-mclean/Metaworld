@@ -102,8 +102,8 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        obj = obs[4:7]
         if self.reward_func_version == 'v2':
+            obj = obs[4:7]
             tcp = self.tcp_center
             target = self._target_pos.copy()
 

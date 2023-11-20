@@ -10,7 +10,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         hand_low = (-0.5, 0.40, -0.15)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.8, 0.15)
@@ -25,8 +25,7 @@ class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "obj_init_pos": np.array([0, 0.85, 0.15]),
@@ -52,21 +51,11 @@ class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         (
             reward,
-            tcp_to_obj,
-            tcp_open,
-            obj_to_target,
-            near_button,
-            button_pressed,
+            obj_to_target
         ) = self.compute_reward(action, obs)
 
         info = {
-            "success": float(obj_to_target <= 0.02),
-            "near_object": float(tcp_to_obj <= 0.05),
-            "grasp_success": float(tcp_open > 0),
-            "grasp_reward": near_button,
-            "in_place_reward": button_pressed,
-            "obj_to_target": obj_to_target,
-            "unscaled_reward": reward,
+            "success": float(obj_to_target <= 0.02)
         }
 
         return reward, info
@@ -102,65 +91,86 @@ class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
         self.obj_init_pos = self.data.body("lock_link").xpos
         self._target_pos = self.obj_init_pos + np.array([0.1, -0.04, 0.0])
 
+        self.maxPullDist = np.linalg.norm(self._target_pos - self.obj_init_pos)
+
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        del action
-        gripper = obs[:3]
-        lock = obs[4:7]
+        if self.reward_func_version == 'v2':
+            del action
+            gripper = obs[:3]
+            lock = obs[4:7]
 
-        # Add offset to track gripper's shoulder, rather than fingers
-        offset = np.array([0.0, 0.055, 0.07])
+            # Add offset to track gripper's shoulder, rather than fingers
+            offset = np.array([0.0, 0.055, 0.07])
 
-        scale = np.array([0.25, 1.0, 0.5])
-        shoulder_to_lock = (gripper + offset - lock) * scale
-        shoulder_to_lock_init = (self.init_tcp + offset - self.obj_init_pos) * scale
+            scale = np.array([0.25, 1.0, 0.5])
+            shoulder_to_lock = (gripper + offset - lock) * scale
+            shoulder_to_lock_init = (self.init_tcp + offset - self.obj_init_pos) * scale
 
-        # This `ready_to_push` reward should be a *hint* for the agent, not an
-        # end in itself. Make sure to devalue it compared to the value of
-        # actually unlocking the lock
-        ready_to_push = reward_utils.tolerance(
-            np.linalg.norm(shoulder_to_lock),
-            bounds=(0, 0.02),
-            margin=np.linalg.norm(shoulder_to_lock_init),
-            sigmoid="long_tail",
-        )
+            # This `ready_to_push` reward should be a *hint* for the agent, not an
+            # end in itself. Make sure to devalue it compared to the value of
+            # actually unlocking the lock
+            ready_to_push = reward_utils.tolerance(
+                np.linalg.norm(shoulder_to_lock),
+                bounds=(0, 0.02),
+                margin=np.linalg.norm(shoulder_to_lock_init),
+                sigmoid="long_tail",
+            )
 
-        obj_to_target = abs(self._target_pos[0] - lock[0])
-        pushed = reward_utils.tolerance(
-            obj_to_target,
-            bounds=(0, 0.005),
-            margin=self._lock_length,
-            sigmoid="long_tail",
-        )
+            obj_to_target = abs(self._target_pos[0] - lock[0])
+            pushed = reward_utils.tolerance(
+                obj_to_target,
+                bounds=(0, 0.005),
+                margin=self._lock_length,
+                sigmoid="long_tail",
+            )
 
-        reward = 2 * ready_to_push + 8 * pushed
+            reward = 2 * ready_to_push + 8 * pushed
 
-        return (
-            reward,
-            np.linalg.norm(shoulder_to_lock),
-            obs[3],
-            obj_to_target,
-            ready_to_push,
-            pushed,
-        )
+            return (
+                reward,
+                obj_to_target
+            )
+        else:
+            del action
+
+            objPos = obs[4:7]
+
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+
+            pullGoal = self._target_pos
+
+            pullDist = np.linalg.norm(objPos - pullGoal)
+            reachDist = np.linalg.norm(objPos - fingerCOM)
+            reachRew = -reachDist
+
+            self.reachCompleted = reachDist < 0.05
+
+            def pullReward():
+                c1 = 1000
+                c2 = 0.01
+                c3 = 0.001
+
+                if self.reachCompleted:
+                    pullRew = 1000 * (self.maxPullDist - pullDist) + c1 * (
+                            np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                    )
+                    pullRew = max(pullRew, 0)
+                    return pullRew
+                else:
+                    return 0
+
+            pullRew = pullReward()
+            reward = reachRew + pullRew
+
+            return [reward, pullDist]
 
 
-class TrainDoorUnlockv2(SawyerDoorUnlockEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerDoorUnlockEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 
 
 
-class TestDoorUnlockv2(SawyerDoorUnlockEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerDoorUnlockEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 

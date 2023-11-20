@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerButtonPressWallEnvV2(SawyerXYZEnv):
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.05, 0.85, 0.1149)
@@ -24,8 +24,7 @@ class SawyerButtonPressWallEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "obj_init_pos": np.array([0.0, 0.9, 0.115], dtype=np.float32),
@@ -53,21 +52,11 @@ class SawyerButtonPressWallEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         (
             reward,
-            tcp_to_obj,
-            tcp_open,
-            obj_to_target,
-            near_button,
-            button_pressed,
+            obj_to_target
         ) = self.compute_reward(action, obs)
 
         info = {
             "success": float(obj_to_target <= 0.03),
-            "near_object": float(tcp_to_obj <= 0.05),
-            "grasp_success": float(tcp_open > 0),
-            "grasp_reward": near_button,
-            "in_place_reward": button_pressed,
-            "obj_to_target": obj_to_target,
-            "unscaled_reward": reward,
         }
 
         return reward, info
@@ -111,56 +100,70 @@ class SawyerButtonPressWallEnvV2(SawyerXYZEnv):
             self._target_pos[1] - self._get_site_pos("buttonStart")[1]
         )
 
+        self.maxDist = np.abs(
+            self._get_site_pos("buttonStart")[1]
+            - self._target_pos[1]
+        )
+
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        del action
-        obj = obs[4:7]
-        tcp = self.tcp_center
+        if self.reward_func_version == 'v2':
+            del action
+            obj = obs[4:7]
+            tcp = self.tcp_center
 
-        tcp_to_obj = np.linalg.norm(obj - tcp)
-        tcp_to_obj_init = np.linalg.norm(obj - self.init_tcp)
-        obj_to_target = abs(self._target_pos[1] - obj[1])
+            tcp_to_obj = np.linalg.norm(obj - tcp)
+            tcp_to_obj_init = np.linalg.norm(obj - self.init_tcp)
+            obj_to_target = abs(self._target_pos[1] - obj[1])
 
-        near_button = reward_utils.tolerance(
-            tcp_to_obj,
-            bounds=(0, 0.01),
-            margin=tcp_to_obj_init,
-            sigmoid="long_tail",
-        )
-        button_pressed = reward_utils.tolerance(
-            obj_to_target,
-            bounds=(0, 0.005),
-            margin=self._obj_to_target_init,
-            sigmoid="long_tail",
-        )
+            near_button = reward_utils.tolerance(
+                tcp_to_obj,
+                bounds=(0, 0.01),
+                margin=tcp_to_obj_init,
+                sigmoid="long_tail",
+            )
+            button_pressed = reward_utils.tolerance(
+                obj_to_target,
+                bounds=(0, 0.005),
+                margin=self._obj_to_target_init,
+                sigmoid="long_tail",
+            )
 
-        reward = 0.0
-        if tcp_to_obj > 0.07:
-            tcp_status = (1 - obs[3]) / 2.0
-            reward = 2 * reward_utils.hamacher_product(tcp_status, near_button)
+            reward = 0.0
+            if tcp_to_obj > 0.07:
+                tcp_status = (1 - obs[3]) / 2.0
+                reward = 2 * reward_utils.hamacher_product(tcp_status, near_button)
+            else:
+                reward = 2
+                reward += 2 * (1 + obs[3])
+                reward += 4 * button_pressed**2
+            return (reward, obj_to_target)
         else:
-            reward = 2
-            reward += 2 * (1 + obs[3])
-            reward += 4 * button_pressed**2
-        return (reward, tcp_to_obj, obs[3], obj_to_target, near_button, button_pressed)
+            del action
+            objPos = obs[4:7]
+            leftFinger = self._get_site_pos("leftEndEffector")
+            fingerCOM = leftFinger
+            pressGoal = self._target_pos[1]
+            pressDist = np.abs(objPos[1] - pressGoal)
+            reachDist = np.linalg.norm(objPos - fingerCOM)
+
+            c1 = 1000
+            c2 = 0.01
+            c3 = 0.001
+            if reachDist < 0.05:
+                pressRew = 1000 * (self.maxDist - pressDist) + c1 * (
+                        np.exp(-(pressDist ** 2) / c2) + np.exp(-(pressDist ** 2) / c3)
+                )
+            else:
+                pressRew = 0
+            pressRew = max(pressRew, 0)
+            reward = -reachDist + pressRew
+
+            return [reward, pressDist]
 
 
-class TrainButtonPressWallv2(SawyerButtonPressWallEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerButtonPressWallEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
 
 
-class TestButtonPressWallv2(SawyerButtonPressWallEnvV2):
-    tasks = None
 
-    def __init__(self):
-        SawyerButtonPressWallEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 

@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerFaucetOpenEnvV2(SawyerXYZEnv):
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         hand_low = (-0.5, 0.40, -0.15)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.05, 0.8, 0.0)
@@ -26,8 +26,7 @@ class SawyerFaucetOpenEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "obj_init_pos": np.array([0, 0.8, 0.0]),
@@ -53,21 +52,11 @@ class SawyerFaucetOpenEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         (
             reward,
-            tcp_to_obj,
-            _,
-            target_to_obj,
-            object_grasped,
-            in_place,
+            target_to_obj
         ) = self.compute_reward(action, obs)
 
         info = {
-            "success": float(target_to_obj <= 0.07),
-            "near_object": float(tcp_to_obj <= 0.01),
-            "grasp_success": 1.0,
-            "grasp_reward": object_grasped,
-            "in_place_reward": in_place,
-            "obj_to_target": target_to_obj,
-            "unscaled_reward": reward,
+            "success": float(target_to_obj <= 0.07)
         }
 
         return reward, info
@@ -99,6 +88,9 @@ class SawyerFaucetOpenEnvV2(SawyerXYZEnv):
             [+self._handle_length, 0.0, 0.125]
         )
         mujoco.mj_forward(self.model, self.data)
+
+        self.maxPullDist = np.linalg.norm(self._target_pos - self.obj_init_pos)
+
         return self._get_obs()
 
     def _reset_hand(self):
@@ -106,60 +98,83 @@ class SawyerFaucetOpenEnvV2(SawyerXYZEnv):
         self.reachCompleted = False
 
     def compute_reward(self, action, obs):
-        del action
-        obj = obs[4:7] + np.array([-0.04, 0.0, 0.03])
-        tcp = self.tcp_center
-        target = self._target_pos.copy()
+        if self.reward_func_version == 'v2':
+            del action
+            obj = obs[4:7] + np.array([-0.04, 0.0, 0.03])
+            tcp = self.tcp_center
+            target = self._target_pos.copy()
 
-        target_to_obj = obj - target
-        target_to_obj = np.linalg.norm(target_to_obj)
-        target_to_obj_init = self.obj_init_pos - target
-        target_to_obj_init = np.linalg.norm(target_to_obj_init)
+            target_to_obj = obj - target
+            target_to_obj = np.linalg.norm(target_to_obj)
+            target_to_obj_init = self.obj_init_pos - target
+            target_to_obj_init = np.linalg.norm(target_to_obj_init)
 
-        in_place = reward_utils.tolerance(
-            target_to_obj,
-            bounds=(0, self._target_radius),
-            margin=abs(target_to_obj_init - self._target_radius),
-            sigmoid="long_tail",
-        )
+            in_place = reward_utils.tolerance(
+                target_to_obj,
+                bounds=(0, self._target_radius),
+                margin=abs(target_to_obj_init - self._target_radius),
+                sigmoid="long_tail",
+            )
 
-        faucet_reach_radius = 0.01
-        tcp_to_obj = np.linalg.norm(obj - tcp)
-        tcp_to_obj_init = np.linalg.norm(self.obj_init_pos - self.init_tcp)
-        reach = reward_utils.tolerance(
-            tcp_to_obj,
-            bounds=(0, faucet_reach_radius),
-            margin=abs(tcp_to_obj_init - faucet_reach_radius),
-            sigmoid="gaussian",
-        )
+            faucet_reach_radius = 0.01
+            tcp_to_obj = np.linalg.norm(obj - tcp)
+            tcp_to_obj_init = np.linalg.norm(self.obj_init_pos - self.init_tcp)
+            reach = reward_utils.tolerance(
+                tcp_to_obj,
+                bounds=(0, faucet_reach_radius),
+                margin=abs(tcp_to_obj_init - faucet_reach_radius),
+                sigmoid="gaussian",
+            )
 
-        tcp_opened = 0
-        object_grasped = reach
+            tcp_opened = 0
+            object_grasped = reach
 
-        reward = 2 * reach + 3 * in_place
+            reward = 2 * reach + 3 * in_place
 
-        reward *= 2
+            reward *= 2
 
-        reward = 10 if target_to_obj <= self._target_radius else reward
+            reward = 10 if target_to_obj <= self._target_radius else reward
 
-        return (reward, tcp_to_obj, tcp_opened, target_to_obj, object_grasped, in_place)
+            return (reward, target_to_obj)
+        else:
+            del action
+
+            objPos = obs[4:7]
+
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+
+            pullGoal = self._target_pos
+
+            pullDist = np.linalg.norm(objPos - pullGoal)
+            reachDist = np.linalg.norm(objPos - fingerCOM)
+            reachRew = -reachDist
+
+            self.reachCompleted = reachDist < 0.05
+
+            def pullReward():
+                c1 = 1000
+                c2 = 0.01
+                c3 = 0.001
+
+                if self.reachCompleted:
+                    pullRew = 1000 * (self.maxPullDist - pullDist) + c1 * (
+                            np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                    )
+                    pullRew = max(pullRew, 0)
+                    return pullRew
+                else:
+                    return 0
+
+            pullRew = pullReward()
+            reward = reachRew + pullRew
+
+            return [reward, pullDist]
 
 
-class TrainFaucetOpenv2(SawyerFaucetOpenEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerFaucetOpenEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 
 
 
-class TestFaucetOpenv2(SawyerFaucetOpenEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerFaucetOpenEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 

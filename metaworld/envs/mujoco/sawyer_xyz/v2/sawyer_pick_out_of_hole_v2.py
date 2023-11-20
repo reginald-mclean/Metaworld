@@ -12,7 +12,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
     _TARGET_RADIUS = 0.02
 
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         hand_low = (-0.5, 0.40, -0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (0, 0.75, 0.02)
@@ -27,8 +27,7 @@ class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "obj_init_pos": np.array([0, 0.6, 0.0]),
@@ -54,25 +53,13 @@ class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         (
             reward,
-            tcp_to_obj,
-            grasp_success,
-            obj_to_target,
-            grasp_reward,
-            in_place_reward,
+            obj_to_target
         ) = self.compute_reward(action, obs)
 
         success = float(obj_to_target <= 0.07)
-        near_object = float(tcp_to_obj <= 0.03)
-        grasp_success = float(grasp_success)
 
         info = {
-            "success": success,
-            "near_object": near_object,
-            "grasp_success": grasp_success,
-            "grasp_reward": grasp_reward,
-            "in_place_reward": in_place_reward,
-            "obj_to_target": obj_to_target,
-            "unscaled_reward": reward,
+            "success": success
         }
 
         return reward, info
@@ -105,85 +92,148 @@ class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
         self._set_obj_xyz(self.obj_init_pos)
         self._target_pos = pos_goal
 
+        self.liftThresh = 0.11
+        self.objHeight = self.data.geom("objGeom").xpos[2]
+        self.heightTarget = self.objHeight + self.liftThresh
+        self.maxPlacingDist = (
+                np.linalg.norm(
+                    np.array(
+                        [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
+                    )
+                    - np.array(self._target_pos)
+                )
+                + self.heightTarget
+        )
+
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        obj = obs[4:7]
-        gripper = self.tcp_center
+        if self.reward_func_version == 'v2':
+            obj = obs[4:7]
+            gripper = self.tcp_center
 
-        obj_to_target = np.linalg.norm(obj - self._target_pos)
-        tcp_to_obj = np.linalg.norm(obj - gripper)
-        in_place_margin = np.linalg.norm(self.obj_init_pos - self._target_pos)
+            obj_to_target = np.linalg.norm(obj - self._target_pos)
+            tcp_to_obj = np.linalg.norm(obj - gripper)
+            in_place_margin = np.linalg.norm(self.obj_init_pos - self._target_pos)
 
-        threshold = 0.03
-        # floor is a 3D funnel centered on the initial object pos
-        radius = np.linalg.norm(gripper[:2] - self.obj_init_pos[:2])
-        if radius <= threshold:
-            floor = 0.0
-        else:
-            floor = 0.015 * np.log(radius - threshold) + 0.15
-        # prevent the hand from running into cliff edge by staying above floor
-        above_floor = (
-            1.0
-            if gripper[2] >= floor
-            else reward_utils.tolerance(
-                max(floor - gripper[2], 0.0),
-                bounds=(0.0, 0.01),
-                margin=0.02,
-                sigmoid="long_tail",
+            threshold = 0.03
+            # floor is a 3D funnel centered on the initial object pos
+            radius = np.linalg.norm(gripper[:2] - self.obj_init_pos[:2])
+            if radius <= threshold:
+                floor = 0.0
+            else:
+                floor = 0.015 * np.log(radius - threshold) + 0.15
+            # prevent the hand from running into cliff edge by staying above floor
+            above_floor = (
+                1.0
+                if gripper[2] >= floor
+                else reward_utils.tolerance(
+                    max(floor - gripper[2], 0.0),
+                    bounds=(0.0, 0.01),
+                    margin=0.02,
+                    sigmoid="long_tail",
+                )
             )
-        )
-        object_grasped = self._gripper_caging_reward(
-            action,
-            obj,
-            object_reach_radius=0.01,
-            obj_radius=0.015,
-            pad_success_thresh=0.02,
-            xz_thresh=0.03,
-            desired_gripper_effort=0.1,
-            high_density=True,
-        )
-        in_place = reward_utils.tolerance(
-            obj_to_target, bounds=(0, 0.02), margin=in_place_margin, sigmoid="long_tail"
-        )
-        reward = reward_utils.hamacher_product(object_grasped, in_place)
+            object_grasped = self._gripper_caging_reward(
+                action,
+                obj,
+                object_reach_radius=0.01,
+                obj_radius=0.015,
+                pad_success_thresh=0.02,
+                xz_thresh=0.03,
+                desired_gripper_effort=0.1,
+                high_density=True,
+            )
+            in_place = reward_utils.tolerance(
+                obj_to_target, bounds=(0, 0.02), margin=in_place_margin, sigmoid="long_tail"
+            )
+            reward = reward_utils.hamacher_product(object_grasped, in_place)
 
-        near_object = tcp_to_obj < 0.04
-        pinched_without_obj = obs[3] < 0.33
-        lifted = obj[2] - 0.02 > self.obj_init_pos[2]
-        # Increase reward when properly grabbed obj
-        grasp_success = near_object and lifted and not pinched_without_obj
-        if grasp_success:
-            reward += 1.0 + 5.0 * reward_utils.hamacher_product(in_place, above_floor)
-        # Maximize reward on success
-        if obj_to_target < self.TARGET_RADIUS:
-            reward = 10.0
+            near_object = tcp_to_obj < 0.04
+            pinched_without_obj = obs[3] < 0.33
+            lifted = obj[2] - 0.02 > self.obj_init_pos[2]
+            # Increase reward when properly grabbed obj
+            grasp_success = near_object and lifted and not pinched_without_obj
+            if grasp_success:
+                reward += 1.0 + 5.0 * reward_utils.hamacher_product(in_place, above_floor)
+            # Maximize reward on success
+            if obj_to_target < self.TARGET_RADIUS:
+                reward = 10.0
 
-        return (
-            reward,
-            tcp_to_obj,
-            grasp_success,
-            obj_to_target,
-            object_grasped,
-            in_place,
-        )
+            return (
+                reward,
+                obj_to_target
+            )
+        else:
+            objPos = obs[4:7]
 
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
 
-class TrainPickOutOfHolev2(SawyerPickOutOfHoleEnvV2):
-    tasks = None
+            heightTarget = self.heightTarget
+            goal = self._target_pos
 
-    def __init__(self):
-        SawyerPickOutOfHoleEnvV2.__init__(self, self.tasks)
+            reachDist = np.linalg.norm(objPos - fingerCOM)
+            placingDist = np.linalg.norm(objPos - goal)
 
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+            def reachReward():
+                reachRew = -reachDist
+                reachDistxy = np.linalg.norm(objPos[:-1] - fingerCOM[:-1])
+                zRew = np.linalg.norm(fingerCOM[-1] - self.init_tcp[-1])
+                if reachDistxy < 0.05:
+                    reachRew = -reachDist
+                else:
+                    reachRew = -reachDistxy - 2 * zRew
+                # incentive to close fingers when reachDist is small
+                if reachDist < 0.05:
+                    reachRew = -reachDist + max(action[-1], 0) / 50
 
+                return reachRew, reachDist
 
-class TestPickOutOfHolev2(SawyerPickOutOfHoleEnvV2):
-    tasks = None
+            def pickCompletionCriteria():
+                tolerance = 0.01
+                return objPos[2] >= (heightTarget - tolerance)
 
-    def __init__(self):
-        SawyerPickOutOfHoleEnvV2.__init__(self, self.tasks)
+            self.pickCompleted = pickCompletionCriteria()
 
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+            def objDropped():
+                return (
+                        (objPos[2] < (self.objHeight + 0.005))
+                        and (placingDist > 0.02)
+                        and (reachDist > 0.02)
+                )
+                # Object on the ground, far away from the goal, and from the gripper
+                # Can tweak the margin limits
+
+            def orig_pickReward():
+                hScale = 100
+                if self.pickCompleted and not (objDropped()):
+                    return hScale * (heightTarget - self.objHeight + 0.02)
+                elif (reachDist < 0.1) and (objPos[2] > (self.objHeight + 0.005)):
+                    return hScale * (min(heightTarget, objPos[2]) - self.objHeight + 0.02)
+                else:
+                    return 0
+
+            def placeReward():
+                c1 = 1000
+                c2 = 0.01
+                c3 = 0.001
+                cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
+                if cond:
+                    placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
+                            np.exp(-(placingDist ** 2) / c2) + np.exp(-(placingDist ** 2) / c3)
+                    )
+                    placeRew = max(placeRew, 0)
+                    return [placeRew, placingDist]
+                else:
+                    return [0, placingDist]
+
+            reachRew, reachDist = reachReward()
+            pickRew = orig_pickReward()
+            placeRew, placingDist = placeReward()
+            assert (placeRew >= 0) and (pickRew >= 0)
+            reward = reachRew + pickRew + placeRew
+
+            return [reward, placingDist]

@@ -12,7 +12,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerCoffeePushEnvV2(SawyerXYZEnv):
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.55, -0.001)
@@ -27,8 +27,7 @@ class SawyerCoffeePushEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
         self.init_config = {
             "obj_init_angle": 0.3,
             "obj_init_pos": np.array([0.0, 0.6, 0.0]),
@@ -53,24 +52,12 @@ class SawyerCoffeePushEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         (
             reward,
-            tcp_to_obj,
-            tcp_open,
-            obj_to_target,
-            grasp_reward,
-            in_place,
+            obj_to_target
         ) = self.compute_reward(action, obs)
         success = float(obj_to_target <= 0.07)
-        near_object = float(tcp_to_obj <= 0.03)
-        grasp_success = float(self.touching_object and (tcp_open > 0))
 
         info = {
-            "success": success,
-            "near_object": near_object,
-            "grasp_success": grasp_success,
-            "grasp_reward": grasp_reward,
-            "in_place_reward": in_place,
-            "obj_to_target": obj_to_target,
-            "unscaled_reward": reward,
+            "success": success
         }
 
         return reward, info
@@ -110,70 +97,89 @@ class SawyerCoffeePushEnvV2(SawyerXYZEnv):
         ] = pos_machine
 
         self._target_pos = pos_mug_goal
+
+        self.maxPushDist = np.linalg.norm(
+            self.obj_init_pos[:2] - np.array(self._target_pos)[:2]
+        )
+
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        obj = obs[4:7]
-        target = self._target_pos.copy()
+        if self.reward_func_version == 'v2':
+            obj = obs[4:7]
+            target = self._target_pos.copy()
 
-        # Emphasize X and Y errors
-        scale = np.array([2.0, 2.0, 1.0])
-        target_to_obj = (obj - target) * scale
-        target_to_obj = np.linalg.norm(target_to_obj)
-        target_to_obj_init = (self.obj_init_pos - target) * scale
-        target_to_obj_init = np.linalg.norm(target_to_obj_init)
+            # Emphasize X and Y errors
+            scale = np.array([2.0, 2.0, 1.0])
+            target_to_obj = (obj - target) * scale
+            target_to_obj = np.linalg.norm(target_to_obj)
+            target_to_obj_init = (self.obj_init_pos - target) * scale
+            target_to_obj_init = np.linalg.norm(target_to_obj_init)
 
-        in_place = reward_utils.tolerance(
-            target_to_obj,
-            bounds=(0, 0.05),
-            margin=target_to_obj_init,
-            sigmoid="long_tail",
-        )
-        tcp_opened = obs[3]
-        tcp_to_obj = np.linalg.norm(obj - self.tcp_center)
+            in_place = reward_utils.tolerance(
+                target_to_obj,
+                bounds=(0, 0.05),
+                margin=target_to_obj_init,
+                sigmoid="long_tail",
+            )
+            tcp_opened = obs[3]
+            tcp_to_obj = np.linalg.norm(obj - self.tcp_center)
 
-        object_grasped = self._gripper_caging_reward(
-            action,
-            obj,
-            object_reach_radius=0.04,
-            obj_radius=0.02,
-            pad_success_thresh=0.05,
-            xz_thresh=0.05,
-            desired_gripper_effort=0.7,
-            medium_density=True,
-        )
+            object_grasped = self._gripper_caging_reward(
+                action,
+                obj,
+                object_reach_radius=0.04,
+                obj_radius=0.02,
+                pad_success_thresh=0.05,
+                xz_thresh=0.05,
+                desired_gripper_effort=0.7,
+                medium_density=True,
+            )
 
-        reward = reward_utils.hamacher_product(object_grasped, in_place)
+            reward = reward_utils.hamacher_product(object_grasped, in_place)
 
-        if tcp_to_obj < 0.04 and tcp_opened > 0:
-            reward += 1.0 + 5.0 * in_place
-        if target_to_obj < 0.05:
-            reward = 10.0
-        return (
-            reward,
-            tcp_to_obj,
-            tcp_opened,
-            np.linalg.norm(obj - target),  # recompute to avoid `scale` above
-            object_grasped,
-            in_place,
-        )
+            if tcp_to_obj < 0.04 and tcp_opened > 0:
+                reward += 1.0 + 5.0 * in_place
+            if target_to_obj < 0.05:
+                reward = 10.0
+            return (
+                reward,
+                np.linalg.norm(obj - target),  # recompute to avoid `scale` above
+            )
+        else:
+            del action
+
+            objPos = obs[4:7]
+
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+
+            goal = self._target_pos
+
+            c1 = 1000
+            c2 = 0.01
+            c3 = 0.001
+            assert np.all(goal == self._get_site_pos("coffee_goal"))
+            reachDist = np.linalg.norm(fingerCOM - objPos)
+            pushDist = np.linalg.norm(objPos[:2] - goal[:2])
+            reachRew = -reachDist
+
+            if reachDist < 0.05:
+                pushRew = 1000 * (self.maxPushDist - pushDist) + c1 * (
+                        np.exp(-(pushDist ** 2) / c2) + np.exp(-(pushDist ** 2) / c3)
+                )
+                pushRew = max(pushRew, 0)
+            else:
+                pushRew = 0
+
+            reward = reachRew + pushRew
+
+            return [reward, pushDist]
 
 
-class TrainCoffeePushv2(SawyerCoffeePushEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerCoffeePushEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 
 
 
-class TestCoffeePushv2(SawyerCoffeePushEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerCoffeePushEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 

@@ -27,7 +27,7 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
 
     LEVER_RADIUS = 0.2
 
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         hand_low = (-0.5, 0.40, -0.15)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.7, 0.0)
@@ -40,8 +40,7 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "obj_init_pos": np.array([0, 0.7, 0.0]),
@@ -69,20 +68,11 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         (
             reward,
-            shoulder_to_lever,
-            ready_to_lift,
-            lever_error,
-            lever_engagement,
+            lever_error
         ) = self.compute_reward(action, obs)
 
         info = {
-            "success": float(lever_error <= np.pi / 24),
-            "near_object": float(shoulder_to_lever < 0.03),
-            "grasp_success": float(ready_to_lift > 0.9),
-            "grasp_reward": ready_to_lift,
-            "in_place_reward": lever_engagement,
-            "obj_to_target": shoulder_to_lever,
-            "unscaled_reward": reward,
+            "success": float(lever_error <= np.pi / 24)
         }
 
         return reward, info
@@ -110,87 +100,110 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
             [0.12, 0.0, 0.25 + self.LEVER_RADIUS]
         )
         mujoco.mj_forward(self.model, self.data)
+
+        self.maxPullDist = np.linalg.norm(self._target_pos - self.obj_init_pos)
+
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        gripper = obs[:3]
-        lever = obs[4:7]
+        if self.reward_func_version == 'v2':
+            gripper = obs[:3]
+            lever = obs[4:7]
 
-        # De-emphasize y error so that we get Sawyer's shoulder underneath the
-        # lever prior to bumping on against
-        scale = np.array([4.0, 1.0, 4.0])
-        # Offset so that we get the Sawyer's shoulder underneath the lever,
-        # rather than its fingers
-        offset = np.array([0.0, 0.055, 0.07])
+            # De-emphasize y error so that we get Sawyer's shoulder underneath the
+            # lever prior to bumping on against
+            scale = np.array([4.0, 1.0, 4.0])
+            # Offset so that we get the Sawyer's shoulder underneath the lever,
+            # rather than its fingers
+            offset = np.array([0.0, 0.055, 0.07])
 
-        shoulder_to_lever = (gripper + offset - lever) * scale
-        shoulder_to_lever_init = (self.init_tcp + offset - self._lever_pos_init) * scale
+            shoulder_to_lever = (gripper + offset - lever) * scale
+            shoulder_to_lever_init = (self.init_tcp + offset - self._lever_pos_init) * scale
 
-        # This `ready_to_lift` reward should be a *hint* for the agent, not an
-        # end in itself. Make sure to devalue it compared to the value of
-        # actually lifting the lever
-        ready_to_lift = reward_utils.tolerance(
-            np.linalg.norm(shoulder_to_lever),
-            bounds=(0, 0.02),
-            margin=np.linalg.norm(shoulder_to_lever_init),
-            sigmoid="long_tail",
-        )
+            # This `ready_to_lift` reward should be a *hint* for the agent, not an
+            # end in itself. Make sure to devalue it compared to the value of
+            # actually lifting the lever
+            ready_to_lift = reward_utils.tolerance(
+                np.linalg.norm(shoulder_to_lever),
+                bounds=(0, 0.02),
+                margin=np.linalg.norm(shoulder_to_lever_init),
+                sigmoid="long_tail",
+            )
 
-        # The skill of the agent should be measured by its ability to get the
-        # lever to point straight upward. This means we'll be measuring the
-        # current angle of the lever's joint, and comparing with 90deg.
-        lever_angle = -self.data.joint("LeverAxis").qpos
-        lever_angle_desired = np.pi / 2.0
+            # The skill of the agent should be measured by its ability to get the
+            # lever to point straight upward. This means we'll be measuring the
+            # current angle of the lever's joint, and comparing with 90deg.
+            lever_angle = -self.data.joint("LeverAxis").qpos
+            lever_angle_desired = np.pi / 2.0
 
-        lever_error = abs(lever_angle - lever_angle_desired)
+            lever_error = abs(lever_angle - lever_angle_desired)
 
-        # We'll set the margin to 15deg from horizontal. Angles below that will
-        # receive some reward to incentivize exploration, but we don't want to
-        # reward accidents too much. Past 15deg is probably intentional movement
-        lever_engagement = reward_utils.tolerance(
-            lever_error,
-            bounds=(0, np.pi / 48.0),
-            margin=(np.pi / 2.0) - (np.pi / 12.0),
-            sigmoid="long_tail",
-        )
+            # We'll set the margin to 15deg from horizontal. Angles below that will
+            # receive some reward to incentivize exploration, but we don't want to
+            # reward accidents too much. Past 15deg is probably intentional movement
+            lever_engagement = reward_utils.tolerance(
+                lever_error,
+                bounds=(0, np.pi / 48.0),
+                margin=(np.pi / 2.0) - (np.pi / 12.0),
+                sigmoid="long_tail",
+            )
 
-        target = self._target_pos
-        obj_to_target = np.linalg.norm(lever - target)
-        in_place_margin = np.linalg.norm(self._lever_pos_init - target)
+            target = self._target_pos
+            obj_to_target = np.linalg.norm(lever - target)
+            in_place_margin = np.linalg.norm(self._lever_pos_init - target)
 
-        in_place = reward_utils.tolerance(
-            obj_to_target,
-            bounds=(0, 0.04),
-            margin=in_place_margin,
-            sigmoid="long_tail",
-        )
+            in_place = reward_utils.tolerance(
+                obj_to_target,
+                bounds=(0, 0.04),
+                margin=in_place_margin,
+                sigmoid="long_tail",
+            )
 
-        # reward = 2.0 * ready_to_lift + 8.0 * lever_engagement
-        reward = 10.0 * reward_utils.hamacher_product(ready_to_lift, in_place)
-        return (
-            reward,
-            np.linalg.norm(shoulder_to_lever),
-            ready_to_lift,
-            lever_error,
-            lever_engagement,
-        )
+            # reward = 2.0 * ready_to_lift + 8.0 * lever_engagement
+            reward = 10.0 * reward_utils.hamacher_product(ready_to_lift, in_place)
+            return (
+                reward,
+                lever_error
+            )
+        else:
+            del action
+
+            objPos = obs[4:7]
+
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+
+            pullGoal = self._target_pos
+
+            pullDist = np.linalg.norm(objPos - pullGoal)
+            reachDist = np.linalg.norm(objPos - fingerCOM)
+            reachRew = -reachDist
+
+            self.reachCompleted = reachDist < 0.05
+
+            def pullReward():
+                c1 = 1000
+                c2 = 0.01
+                c3 = 0.001
+
+                if self.reachCompleted:
+                    pullRew = 1000 * (self.maxPullDist - pullDist) + c1 * (
+                            np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                    )
+                    pullRew = max(pullRew, 0)
+                    return pullRew
+                else:
+                    return 0
+
+            pullRew = pullReward()
+            reward = reachRew + pullRew
+
+            return [reward, pullDist]
 
 
-class TrainLeverPullv2(SawyerLeverPullEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerLeverPullEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 
 
 
-class TestLeverPullv2(SawyerLeverPullEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerLeverPullEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 

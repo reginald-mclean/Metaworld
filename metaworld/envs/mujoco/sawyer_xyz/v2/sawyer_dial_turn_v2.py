@@ -13,7 +13,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 class SawyerDialTurnEnvV2(SawyerXYZEnv):
     TARGET_RADIUS = 0.07
 
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.7, 0.0)
@@ -28,8 +28,7 @@ class SawyerDialTurnEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "obj_init_pos": np.array([0, 0.7, 0.0]),
@@ -53,21 +52,11 @@ class SawyerDialTurnEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         (
             reward,
-            tcp_to_obj,
-            _,
-            target_to_obj,
-            object_grasped,
-            in_place,
+            target_to_obj
         ) = self.compute_reward(action, obs)
 
         info = {
-            "success": float(target_to_obj <= self.TARGET_RADIUS),
-            "near_object": float(tcp_to_obj <= 0.01),
-            "grasp_success": 1.0,
-            "grasp_reward": object_grasped,
-            "in_place_reward": in_place,
-            "obj_to_target": target_to_obj,
-            "unscaled_reward": reward,
+            "success": float(target_to_obj <= self.TARGET_RADIUS)
         }
 
         return reward, info
@@ -77,7 +66,7 @@ class SawyerDialTurnEnvV2(SawyerXYZEnv):
         dial_angle_rad = self.data.joint("knob_Joint_1").qpos
 
         offset = np.array(
-            [np.sin(dial_angle_rad), -np.cos(dial_angle_rad), 0], dtype=object
+            [np.sin(dial_angle_rad)[0], -np.cos(dial_angle_rad)[0], 0],
         )
         dial_radius = 0.05
 
@@ -103,67 +92,89 @@ class SawyerDialTurnEnvV2(SawyerXYZEnv):
         ] = self.obj_init_pos
         self.dial_push_position = self._get_pos_objects() + np.array([0.05, 0.02, 0.09])
         mujoco.mj_forward(self.model, self.data)
+
+        self.maxPullDist = np.abs(self._target_pos[1] - self.obj_init_pos[1])
+
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        obj = self._get_pos_objects()
-        dial_push_position = self._get_pos_objects() + np.array([0.05, 0.02, 0.09])
-        tcp = self.tcp_center
-        target = self._target_pos.copy()
+        if self.reward_func_version == 'v2':
+            obj = self._get_pos_objects()
+            dial_push_position = self._get_pos_objects() + np.array([0.05, 0.02, 0.09])
+            tcp = self.tcp_center
+            target = self._target_pos.copy()
 
-        target_to_obj = obj - target
-        target_to_obj = np.linalg.norm(target_to_obj)
-        target_to_obj_init = self.dial_push_position - target
-        target_to_obj_init = np.linalg.norm(target_to_obj_init)
+            target_to_obj = obj - target
+            target_to_obj = np.linalg.norm(target_to_obj)
+            target_to_obj_init = self.dial_push_position - target
+            target_to_obj_init = np.linalg.norm(target_to_obj_init)
 
-        in_place = reward_utils.tolerance(
-            target_to_obj,
-            bounds=(0, self.TARGET_RADIUS),
-            margin=abs(target_to_obj_init - self.TARGET_RADIUS),
-            sigmoid="long_tail",
-        )
+            in_place = reward_utils.tolerance(
+                target_to_obj,
+                bounds=(0, self.TARGET_RADIUS),
+                margin=abs(target_to_obj_init - self.TARGET_RADIUS),
+                sigmoid="long_tail",
+            )
 
-        dial_reach_radius = 0.005
-        tcp_to_obj = np.linalg.norm(dial_push_position - tcp)
-        tcp_to_obj_init = np.linalg.norm(self.dial_push_position - self.init_tcp)
-        reach = reward_utils.tolerance(
-            tcp_to_obj,
-            bounds=(0, dial_reach_radius),
-            margin=abs(tcp_to_obj_init - dial_reach_radius),
-            sigmoid="gaussian",
-        )
-        gripper_closed = min(max(0, action[-1]), 1)
+            dial_reach_radius = 0.005
+            tcp_to_obj = np.linalg.norm(dial_push_position - tcp)
+            tcp_to_obj_init = np.linalg.norm(self.dial_push_position - self.init_tcp)
+            reach = reward_utils.tolerance(
+                tcp_to_obj,
+                bounds=(0, dial_reach_radius),
+                margin=abs(tcp_to_obj_init - dial_reach_radius),
+                sigmoid="gaussian",
+            )
+            gripper_closed = min(max(0, action[-1]), 1)
 
-        reach = reward_utils.hamacher_product(reach, gripper_closed)
-        tcp_opened = 0
-        object_grasped = reach
+            reach = reward_utils.hamacher_product(reach, gripper_closed)
+            tcp_opened = 0
+            object_grasped = reach
 
-        reward = 10 * reward_utils.hamacher_product(reach, in_place)
-        return (
-            reward[0],
-            tcp_to_obj,
-            tcp_opened,
-            target_to_obj,
-            object_grasped,
-            in_place,
-        )
+            reward = 10 * reward_utils.hamacher_product(reach, in_place)
+            return (
+                reward,
+                target_to_obj
+            )
+        else:
+            del action
+
+            objPos = obs[4:7]
+
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+
+            pullGoal = self._target_pos
+
+            pullDist = np.abs(objPos[1] - pullGoal[1])
+            reachDist = np.linalg.norm(objPos - fingerCOM)
+            reachRew = -reachDist
+
+            self.reachCompleted = reachDist < 0.05
+
+            def pullReward():
+                c1 = 1000
+                c2 = 0.001
+                c3 = 0.0001
+
+                if self.reachCompleted:
+                    pullRew = 1000 * (self.maxPullDist - pullDist) + c1 * (
+                            np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                    )
+                    pullRew = max(pullRew, 0)
+                    return pullRew
+                else:
+                    return 0
+
+            pullRew = pullReward()
+            reward = reachRew + pullRew
+
+            return [reward, pullDist]
 
 
-class TrainDialTurnv2(SawyerDialTurnEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerDialTurnEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 
 
 
-class TestDialTurnv2(SawyerDialTurnEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerDialTurnEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 

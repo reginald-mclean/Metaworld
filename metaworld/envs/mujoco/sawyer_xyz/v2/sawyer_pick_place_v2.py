@@ -290,6 +290,12 @@ class SawyerPickPlaceEnvV2(SawyerXYZEnv):
             c1 = 1000
             c2 = 0.01
             c3 = 0.001
+            objDropped = (
+                    (objPos[2] < (self.objHeight + 0.005))
+                    and (placingDist > 0.02)
+                    and (reachDist > 0.02)
+            )
+
             cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped)
             if cond:
                 placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (

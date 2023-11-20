@@ -11,7 +11,6 @@ from gymnasium.utils.ezpickle import EzPickle
 from metaworld.envs import reward_utils
 from metaworld.envs.mujoco.mujoco_env import _assert_task_is_set
 
-
 class SawyerMocapBase(mjenv_gym):
     """Provides some commonly-shared functions for Sawyer Mujoco envs that use mocap for XYZ control."""
 

@@ -16,15 +16,16 @@ class SawyerButtonPressTopdownEnvV2(SawyerXYZEnv):
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.8, 0.115)
         obj_high = (0.1, 0.9, 0.115)
+
         self.reward_func_version = reward_func_version
+
         super().__init__(
             self.model_name,
             hand_low=hand_low,
             hand_high=hand_high,
             render_mode=render_mode,
         )
-        if tasks is not None:
-            self.tasks = tasks
+
         self.init_config = {
             "obj_init_pos": np.array([0, 0.8, 0.115], dtype=np.float32),
             "hand_init_pos": np.array([0, 0.4, 0.2], dtype=np.float32),

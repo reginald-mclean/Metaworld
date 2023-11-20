@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerStickPushEnvV2(SawyerXYZEnv):
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.08, 0.58, 0.000)
@@ -26,8 +26,7 @@ class SawyerStickPushEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "stick_init_pos": np.array([-0.1, 0.6, 0.02]),
@@ -145,6 +144,22 @@ class SawyerStickPushEnvV2(SawyerXYZEnv):
         self._set_obj_xyz(self.obj_init_qpos)
         self.obj_init_pos = self.get_body_com("object").copy()
 
+
+        self.liftThresh = 0.04
+        self.stickHeight = self.get_body_com("stick").copy()[2]
+        self.heightTarget = self.stickHeight + self.liftThresh
+
+        self.maxPlaceDist = (
+                np.linalg.norm(
+                    np.array(
+                        [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
+                    )
+                    - np.array(self.stick_init_pos)
+                )
+                + self.heightTarget
+        )
+        self.maxPushDist = np.linalg.norm(self.obj_init_pos[:2] - self._target_pos[:2])
+
         return self._get_obs()
 
     def _gripper_caging_reward(
@@ -243,83 +258,147 @@ class SawyerStickPushEnvV2(SawyerXYZEnv):
         return caging_and_gripping
 
     def compute_reward(self, action, obs):
-        _TARGET_RADIUS = 0.12
-        tcp = self.tcp_center
-        stick = obs[4:7] + np.array([0.015, 0.0, 0.0])
-        container = obs[11:14]
-        tcp_opened = obs[3]
-        target = self._target_pos
+        if self.reward_func_version == 'v2':
+            _TARGET_RADIUS = 0.12
+            tcp = self.tcp_center
+            stick = obs[4:7] + np.array([0.015, 0.0, 0.0])
+            container = obs[11:14]
+            tcp_opened = obs[3]
+            target = self._target_pos
 
-        tcp_to_stick = np.linalg.norm(stick - tcp)
-        stick_to_target = np.linalg.norm(stick - target)
-        stick_in_place_margin = (
-            np.linalg.norm(self.stick_init_pos - target)
-        ) - _TARGET_RADIUS
-        stick_in_place = reward_utils.tolerance(
-            stick_to_target,
-            bounds=(0, _TARGET_RADIUS),
-            margin=stick_in_place_margin,
-            sigmoid="long_tail",
-        )
+            tcp_to_stick = np.linalg.norm(stick - tcp)
+            stick_to_target = np.linalg.norm(stick - target)
+            stick_in_place_margin = (
+                np.linalg.norm(self.stick_init_pos - target)
+            ) - _TARGET_RADIUS
+            stick_in_place = reward_utils.tolerance(
+                stick_to_target,
+                bounds=(0, _TARGET_RADIUS),
+                margin=stick_in_place_margin,
+                sigmoid="long_tail",
+            )
 
-        container_to_target = np.linalg.norm(container - target)
-        container_in_place_margin = (
-            np.linalg.norm(self.obj_init_pos - target) - _TARGET_RADIUS
-        )
-        container_in_place = reward_utils.tolerance(
-            container_to_target,
-            bounds=(0, _TARGET_RADIUS),
-            margin=container_in_place_margin,
-            sigmoid="long_tail",
-        )
+            container_to_target = np.linalg.norm(container - target)
+            container_in_place_margin = (
+                np.linalg.norm(self.obj_init_pos - target) - _TARGET_RADIUS
+            )
+            container_in_place = reward_utils.tolerance(
+                container_to_target,
+                bounds=(0, _TARGET_RADIUS),
+                margin=container_in_place_margin,
+                sigmoid="long_tail",
+            )
 
-        object_grasped = self._gripper_caging_reward(
-            action=action,
-            obj_pos=stick,
-            obj_radius=0.04,
-            pad_success_thresh=0.05,
-            object_reach_radius=0.01,
-            xz_thresh=0.01,
-            high_density=True,
-        )
+            object_grasped = self._gripper_caging_reward(
+                action=action,
+                obj_pos=stick,
+                obj_radius=0.04,
+                pad_success_thresh=0.05,
+                object_reach_radius=0.01,
+                xz_thresh=0.01,
+                high_density=True,
+            )
 
-        reward = object_grasped
+            reward = object_grasped
 
-        if (
-            tcp_to_stick < 0.02
-            and (tcp_opened > 0)
-            and (stick[2] - 0.01 > self.stick_init_pos[2])
-        ):
-            object_grasped = 1
-            reward = 2.0 + 5.0 * stick_in_place + 3.0 * container_in_place
+            if (
+                tcp_to_stick < 0.02
+                and (tcp_opened > 0)
+                and (stick[2] - 0.01 > self.stick_init_pos[2])
+            ):
+                object_grasped = 1
+                reward = 2.0 + 5.0 * stick_in_place + 3.0 * container_in_place
 
-            if container_to_target <= _TARGET_RADIUS:
-                reward = 10.0
-        return [
-            reward,
-            tcp_to_stick,
-            tcp_opened,
-            container_to_target,
-            object_grasped,
-            stick_in_place,
-        ]
+                if container_to_target <= _TARGET_RADIUS:
+                    reward = 10.0
+            return [
+                reward,
+                tcp_to_stick,
+                tcp_opened,
+                container_to_target,
+                object_grasped,
+                stick_in_place,
+            ]
+        else:
+            stickPos = obs[4:7]
+            objPos = obs[6:9]
+
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+
+            heightTarget = self.heightTarget
+            pushGoal = self._target_pos
+
+            pushDist = np.linalg.norm(objPos[:2] - pushGoal[:2])
+            placeDist = np.linalg.norm(objPos - stickPos)
+            reachDist = np.linalg.norm(stickPos - fingerCOM)
+
+            def reachReward():
+                reachRew = -reachDist
+                # incentive to close fingers when reachDist is small
+                if reachDist < 0.05:
+                    reachRew = -reachDist + max(action[-1], 0) / 50
+
+                return reachRew, reachDist
+
+            def pickCompletionCriteria():
+                tolerance = 0.01
+                return stickPos[2] >= (heightTarget - tolerance)
+
+            self.pickCompleted = pickCompletionCriteria()
+
+            def objDropped():
+                return (
+                        (stickPos[2] < (self.stickHeight + 0.005))
+                        and (pushDist > 0.02)
+                        and (reachDist > 0.02)
+                )
+                # Object on the ground, far away from the goal, and from the gripper
+                # Can tweak the margin limits
+
+            def orig_pickReward():
+                hScale = 100
+                if self.pickCompleted and not (objDropped()):
+                    return hScale * heightTarget
+                elif (reachDist < 0.1) and (stickPos[2] > (self.stickHeight + 0.005)):
+                    return hScale * min(heightTarget, stickPos[2])
+                else:
+                    return 0
+
+            def pushReward():
+                c1 = 1000
+                c2 = 0.01
+                c3 = 0.001
+                cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
+                if cond:
+                    pushRew = 1000 * (self.maxPlaceDist - placeDist) + c1 * (
+                            np.exp(-(placeDist ** 2) / c2) + np.exp(-(placeDist ** 2) / c3)
+                    )
+                    if placeDist < 0.05:
+                        c4 = 2000
+                        c5 = 0.001
+                        c6 = 0.0001
+                        pushRew += 1000 * (self.maxPushDist - pushDist) + c4 * (
+                                np.exp(-(pushDist ** 2) / c5) + np.exp(-(pushDist ** 2) / c6)
+                        )
+                    pushRew = max(pushRew, 0)
+
+                    return [pushRew, pushDist]
+                else:
+                    return [0, pushDist]
+
+            reachRew, reachDist = reachReward()
+            pickRew = orig_pickReward()
+            pushRew, pushDist = pushReward()
+            assert (pushRew >= 0) and (pickRew >= 0)
+            reward = reachRew + pickRew + pushRew
+
+            return [reward, reachRew, reachDist, pickRew, pushRew, pushDist]
 
 
-class TrainStickPushv2(SawyerStickPushEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerStickPushEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 
 
 
-class TestStickPushv2(SawyerStickPushEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerStickPushEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 

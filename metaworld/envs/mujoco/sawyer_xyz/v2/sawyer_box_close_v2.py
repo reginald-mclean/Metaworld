@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerBoxCloseEnvV2(SawyerXYZEnv):
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.05, 0.5, 0.02)
@@ -25,8 +25,10 @@ class SawyerBoxCloseEnvV2(SawyerXYZEnv):
             hand_high=hand_high,
             render_mode=render_mode,
         )
-        if tasks is not None:
-            self.tasks = tasks
+
+        self.liftThresh = 0.12
+
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "obj_init_angle": 0.3,
@@ -56,20 +58,11 @@ class SawyerBoxCloseEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         (
             reward,
-            reward_grab,
-            reward_ready,
-            reward_success,
             success,
         ) = self.compute_reward(action, obs)
 
         info = {
             "success": float(success),
-            "near_object": reward_ready,
-            "grasp_success": reward_grab >= 0.5,
-            "grasp_reward": reward_grab,
-            "in_place_reward": reward_success,
-            "obj_to_target": 0,
-            "unscaled_reward": reward,
         }
 
         return reward, info
@@ -107,6 +100,20 @@ class SawyerBoxCloseEnvV2(SawyerXYZEnv):
             mujoco.mj_step(self.model, self.data)
 
         self._set_obj_xyz(self.obj_init_pos)
+
+        self.objHeight = self.data.geom("BoxHandleGeom").xpos[2]
+        self.heightTarget = self.objHeight + self.liftThresh
+
+        self.maxPlacingDist = (
+                np.linalg.norm(
+                    np.array(
+                        [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
+                    )
+                    - np.array(self._target_pos)
+                )
+                + self.heightTarget
+        )
+        self.pickCompleted = False
 
         return self._get_obs()
 
@@ -169,50 +176,115 @@ class SawyerBoxCloseEnvV2(SawyerXYZEnv):
 
         return ready_to_lift, lifted
 
-    def compute_reward(self, actions, obs):
-        reward_grab = SawyerBoxCloseEnvV2._reward_grab_effort(actions)
-        reward_quat = SawyerBoxCloseEnvV2._reward_quat(obs)
-        reward_steps = SawyerBoxCloseEnvV2._reward_pos(obs, self._target_pos)
+    def compute_reward(self, action, obs):
+        target_thresh =  0.08
+        if self.reward_func_version == 'v2':
+            reward_grab = SawyerBoxCloseEnvV2._reward_grab_effort(action)
+            reward_quat = SawyerBoxCloseEnvV2._reward_quat(obs)
+            reward_steps = SawyerBoxCloseEnvV2._reward_pos(obs, self._target_pos)
 
-        reward = sum(
-            (
-                2.0 * reward_utils.hamacher_product(reward_grab, reward_steps[0]),
-                8.0 * reward_steps[1],
+            reward = sum(
+                (
+                    2.0 * reward_utils.hamacher_product(reward_grab, reward_steps[0]),
+                    8.0 * reward_steps[1],
+                )
             )
-        )
 
-        # Override reward on success
-        success = np.linalg.norm(obs[4:7] - self._target_pos) < 0.08
-        if success:
-            reward = 10.0
+            # Override reward on success
+            success = np.linalg.norm(obs[4:7] - self._target_pos) < target_thresh
+            if success:
+                reward = 10.0
 
-        # STRONG emphasis on proper lid orientation to prevent reward hacking
-        # (otherwise agent learns to kick-flip the lid onto the box)
-        reward *= reward_quat
+            # STRONG emphasis on proper lid orientation to prevent reward hacking
+            # (otherwise agent learns to kick-flip the lid onto the box)
+            reward *= reward_quat
 
-        return (
-            reward,
-            reward_grab,
-            *reward_steps,
-            success,
-        )
+            return (
+                reward,
+                success,
+            )
+        else:
+            objPos = obs[4:7]
+
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+
+            heightTarget = self.heightTarget
+            placeGoal = self._target_pos
+
+            placingDist = np.linalg.norm(objPos - placeGoal)
+            reachDist = np.linalg.norm(objPos - fingerCOM)
+
+            def reachReward():
+                reachRew = -reachDist
+                reachDistxy = np.linalg.norm(objPos[:-1] - fingerCOM[:-1])
+                zRew = np.linalg.norm(fingerCOM[-1] - self.init_tcp[-1])
+
+                if reachDistxy < 0.05:
+                    reachRew = -reachDist
+                else:
+                    reachRew = -reachDistxy - 2 * zRew
+
+                # incentive to close fingers when reachDist is small
+                if reachDist < 0.05:
+                    reachRew = -reachDist + max(action[-1], 0) / 50
+
+                return reachRew, reachDist
+
+            def pickCompletionCriteria():
+                tolerance = 0.01
+                if objPos[2] >= (heightTarget - tolerance):
+                    return True
+                else:
+                    return False
+
+            if pickCompletionCriteria():
+                self.pickCompleted = True
+
+            def objDropped():
+                return (
+                        (objPos[2] < (self.objHeight + 0.005))
+                        and (placingDist > 0.02)
+                        and (reachDist > 0.02)
+                )
+                # Object on the ground, far away from the goal, and from the gripper
+                # Can tweak the margin limits
+
+            def orig_pickReward():
+                hScale = 100
+                if self.pickCompleted and not (objDropped()):
+                    return hScale * heightTarget
+                elif (reachDist < 0.1) and (objPos[2] > (self.objHeight + 0.005)):
+                    return hScale * min(heightTarget, objPos[2])
+                else:
+                    return 0
+
+            def placeReward():
+                c1 = 1000
+                c2 = 0.01
+                c3 = 0.001
+                cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
+                if cond:
+                    placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
+                            np.exp(-(placingDist ** 2) / c2) + np.exp(-(placingDist ** 2) / c3)
+                    )
+                    placeRew = max(placeRew, 0)
+                    return [placeRew, placingDist]
+                else:
+                    return [0, placingDist]
+
+            reachRew, reachDist = reachReward()
+            pickRew = orig_pickReward()
+            placeRew, placingDist = placeReward()
+            assert (placeRew >= 0) and (pickRew >= 0)
+            reward = reachRew + pickRew + placeRew
+
+            return [reward, placingDist < target_thresh]
 
 
-class TrainBoxClosev2(SawyerBoxCloseEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerBoxCloseEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 
 
 
-class TestBoxClosev2(SawyerBoxCloseEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerBoxCloseEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 

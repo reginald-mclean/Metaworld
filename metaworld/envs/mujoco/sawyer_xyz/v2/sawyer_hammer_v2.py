@@ -13,7 +13,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 class SawyerHammerEnvV2(SawyerXYZEnv):
     HAMMER_HANDLE_LENGTH = 0.14
 
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.4, 0.0)
@@ -28,8 +28,7 @@ class SawyerHammerEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "hammer_init_pos": np.array([0, 0.5, 0.0]),
@@ -52,20 +51,11 @@ class SawyerHammerEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         (
             reward,
-            reward_grab,
-            reward_ready,
-            reward_success,
             success,
         ) = self.compute_reward(action, obs)
 
         info = {
-            "success": float(success),
-            "near_object": reward_ready,
-            "grasp_success": reward_grab >= 0.5,
-            "grasp_reward": reward_grab,
-            "in_place_reward": reward_success,
-            "obj_to_target": 0,
-            "unscaled_reward": reward,
+            "success": float(success)
         }
 
         return reward, info
@@ -106,6 +96,27 @@ class SawyerHammerEnvV2(SawyerXYZEnv):
         self.obj_init_pos = self.hammer_init_pos.copy()
         self._set_hammer_xyz(self.hammer_init_pos)
 
+        self.liftThresh = 0.09
+        self.hammerHeight = self.get_body_com("hammer").copy()[2]
+        self.heightTarget = self.hammerHeight + self.liftThresh
+
+        self.maxHammerDist = (
+                np.linalg.norm(
+                    np.array(
+                        [
+                            self.hammer_init_pos[0],
+                            self.hammer_init_pos[1],
+                            self.heightTarget,
+                        ]
+                    )
+                    - np.array(self.obj_init_pos)
+                )
+                + self.heightTarget
+                + np.abs(self.obj_init_pos[1] - self._target_pos[1])
+        )
+
+        self.pickCompleted = False
+
         return self._get_obs()
 
     @staticmethod
@@ -133,63 +144,124 @@ class SawyerHammerEnvV2(SawyerXYZEnv):
         return in_place
 
     def compute_reward(self, actions, obs):
-        hand = obs[:3]
-        hammer = obs[4:7]
-        hammer_head = hammer + np.array([0.16, 0.06, 0.0])
-        # `self._gripper_caging_reward` assumes that the target object can be
-        # approximated as a sphere. This is not true for the hammer handle, so
-        # to avoid re-writing the `self._gripper_caging_reward` we pass in a
-        # modified hammer position.
-        # This modified position's X value will perfect match the hand's X value
-        # as long as it's within a certain threshold
-        hammer_threshed = hammer.copy()
-        threshold = SawyerHammerEnvV2.HAMMER_HANDLE_LENGTH / 2.0
-        if abs(hammer[0] - hand[0]) < threshold:
-            hammer_threshed[0] = hand[0]
+        if self.reward_func_version == 'v2':
+            hand = obs[:3]
+            hammer = obs[4:7]
+            hammer_head = hammer + np.array([0.16, 0.06, 0.0])
+            # `self._gripper_caging_reward` assumes that the target object can be
+            # approximated as a sphere. This is not true for the hammer handle, so
+            # to avoid re-writing the `self._gripper_caging_reward` we pass in a
+            # modified hammer position.
+            # This modified position's X value will perfect match the hand's X value
+            # as long as it's within a certain threshold
+            hammer_threshed = hammer.copy()
+            threshold = SawyerHammerEnvV2.HAMMER_HANDLE_LENGTH / 2.0
+            if abs(hammer[0] - hand[0]) < threshold:
+                hammer_threshed[0] = hand[0]
 
-        reward_quat = SawyerHammerEnvV2._reward_quat(obs)
-        reward_grab = self._gripper_caging_reward(
-            actions,
-            hammer_threshed,
-            object_reach_radius=0.01,
-            obj_radius=0.015,
-            pad_success_thresh=0.02,
-            xz_thresh=0.01,
-            high_density=True,
-        )
-        reward_in_place = SawyerHammerEnvV2._reward_pos(hammer_head, self._target_pos)
+            reward_quat = SawyerHammerEnvV2._reward_quat(obs)
+            reward_grab = self._gripper_caging_reward(
+                actions,
+                hammer_threshed,
+                object_reach_radius=0.01,
+                obj_radius=0.015,
+                pad_success_thresh=0.02,
+                xz_thresh=0.01,
+                high_density=True,
+            )
+            reward_in_place = SawyerHammerEnvV2._reward_pos(hammer_head, self._target_pos)
 
-        reward = (2.0 * reward_grab + 6.0 * reward_in_place) * reward_quat
-        # Override reward on success. We check that reward is above a threshold
-        # because this env's success metric could be hacked easily
-        success = self.data.joint("NailSlideJoint").qpos > 0.09
-        if success and reward > 5.0:
-            reward = 10.0
+            reward = (2.0 * reward_grab + 6.0 * reward_in_place) * reward_quat
+            # Override reward on success. We check that reward is above a threshold
+            # because this env's success metric could be hacked easily
+            success = self.data.joint("NailSlideJoint").qpos > 0.09
+            if success and reward > 5.0:
+                reward = 10.0
 
-        return (
-            reward,
-            reward_grab,
-            reward_quat,
-            reward_in_place,
-            success,
-        )
+            return (
+                reward,
+                success
+            )
+        else:
+            hammerPos = obs[4:7]
+            hammerHeadPos = self.data.geom("HammerHead").xpos.copy()
+            objPos = self.data.site('nailHead').xpos
+
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+
+            heightTarget = self.heightTarget
+
+            hammerDist = np.linalg.norm(objPos - hammerHeadPos)
+            screwDist = np.abs(objPos[1] - self._target_pos[1])
+            reachDist = np.linalg.norm(hammerPos - fingerCOM)
+
+            def reachReward():
+                reachRew = -reachDist
+                # incentive to close fingers when reachDist is small
+                if reachDist < 0.05:
+                    reachRew = -reachDist + max(actions[-1], 0) / 50
+                return reachRew, reachDist
+
+            def pickCompletionCriteria():
+                tolerance = 0.01
+                if hammerPos[2] >= (heightTarget - tolerance):
+                    return True
+                else:
+                    return False
+
+            if pickCompletionCriteria():
+                self.pickCompleted = True
+
+            def objDropped():
+                return (
+                        (hammerPos[2] < (self.hammerHeight + 0.005))
+                        and (hammerDist > 0.02)
+                        and (reachDist > 0.02)
+                )
+                # Object on the ground, far away from the goal, and from the gripper
+                # Can tweak the margin limits
+
+            def orig_pickReward():
+                hScale = 100
+
+                if self.pickCompleted and not (objDropped()):
+                    return hScale * heightTarget
+                elif (reachDist < 0.1) and (hammerPos[2] > (self.hammerHeight + 0.005)):
+                    return hScale * min(heightTarget, hammerPos[2])
+                else:
+                    return 0
+
+            def hammerReward():
+                c1 = 1000
+                c2 = 0.01
+                c3 = 0.001
+
+                cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
+                if cond:
+                    hammerRew = 1000 * (
+                            self.maxHammerDist - hammerDist - screwDist
+                    ) + c1 * (
+                                        np.exp(-((hammerDist + screwDist) ** 2) / c2)
+                                        + np.exp(-((hammerDist + screwDist) ** 2) / c3)
+                                )
+                    hammerRew = max(hammerRew, 0)
+                    return [hammerRew, hammerDist, screwDist]
+                else:
+                    return [0, hammerDist, screwDist]
+
+            reachRew, reachDist = reachReward()
+            pickRew = orig_pickReward()
+            hammerRew, hammerDist, screwDist = hammerReward()
+            assert (hammerRew >= 0) and (pickRew >= 0)
+            reward = reachRew + pickRew + hammerRew
+            success = self.data.joint("NailSlideJoint").qpos > 0.09
+            return [reward, success]
 
 
-class TrainHammerv2(SawyerHammerEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerHammerEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 
 
 
-class TestHammerv2(SawyerHammerEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerHammerEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 

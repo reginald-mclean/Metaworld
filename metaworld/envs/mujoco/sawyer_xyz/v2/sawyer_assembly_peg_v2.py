@@ -216,11 +216,11 @@ class SawyerNutAssemblyEnvV2(SawyerXYZEnv):
             reachDist = np.linalg.norm(graspPos - fingerCOM)
 
             placingDist = np.linalg.norm(objPos[:2] - placingGoal[:2])
-            placingDistFinal = np.abs(objPos[-1] - self.objHeight)
+            placingDistFinal = np.abs(objPos[-1] - self.obj_height)
 
             reachRew = -reachDist
             reachDistxy = np.linalg.norm(graspPos[:-1] - fingerCOM[:-1])
-            zRew = np.linalg.norm(fingerCOM[-1] - self.init_fingerCOM[-1])
+            zRew = np.linalg.norm(fingerCOM[-1] - self.init_tcp[-1])
             if reachDistxy < 0.04:
                 reachRew = -reachDist
             else:
@@ -237,7 +237,7 @@ class SawyerNutAssemblyEnvV2(SawyerXYZEnv):
                 self.pickCompleted = False
 
             objDropped = (
-                    (objPos[2] < (self.objHeight + 0.005))
+                    (objPos[2] < (self.obj_height + 0.005))
                     and (placingDist > 0.02)
                     and (reachDist > 0.02)
             )
@@ -250,7 +250,7 @@ class SawyerNutAssemblyEnvV2(SawyerXYZEnv):
             hScale = 100
             if self.placeCompleted or (self.pickCompleted and not objDropped):
                 pickRew = hScale * heightTarget
-            elif (reachDist < 0.04) and (objPos[2] > (self.objHeight + 0.005)):
+            elif (reachDist < 0.04) and (objPos[2] > (self.obj_height + 0.005)):
                 pickRew = hScale * min(heightTarget, objPos[2])
             else:
                 pickRew = 0

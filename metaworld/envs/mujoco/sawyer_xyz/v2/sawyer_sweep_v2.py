@@ -12,7 +12,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 class SawyerSweepEnvV2(SawyerXYZEnv):
     OBJ_RADIUS = 0.02
 
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         init_puck_z = 0.1
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1.0, 0.5)
@@ -28,8 +28,7 @@ class SawyerSweepEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "obj_init_pos": np.array([0.0, 0.6, 0.02]),
@@ -57,23 +56,11 @@ class SawyerSweepEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         (
             reward,
-            tcp_to_obj,
-            tcp_opened,
-            target_to_obj,
-            object_grasped,
-            in_place,
+            target_to_obj
         ) = self.compute_reward(action, obs)
 
-        grasp_success = float(self.touching_main_object and (tcp_opened > 0))
-
         info = {
-            "success": float(target_to_obj <= 0.05),
-            "near_object": float(tcp_to_obj <= 0.03),
-            "grasp_reward": object_grasped,
-            "grasp_success": grasp_success,
-            "in_place_reward": in_place,
-            "obj_to_target": target_to_obj,
-            "unscaled_reward": reward,
+            "success": float(target_to_obj <= 0.05)
         }
         return reward, info
 
@@ -97,7 +84,26 @@ class SawyerSweepEnvV2(SawyerXYZEnv):
         self.maxPushDist = np.linalg.norm(
             self.get_body_com("obj")[:-1] - self._target_pos[:-1]
         )
-        self.target_reward = 1000 * self.maxPushDist + 1000 * 2
+
+        self.liftThresh = 0.04
+        self.objHeight = self.data.geom("objGeom").xpos[2]
+        self.heightTarget = self.objHeight + self.liftThresh
+
+        self.maxReachDist = np.linalg.norm(
+            self.init_tcp - np.array(self._target_pos)
+        )
+        self.maxPushDist = np.linalg.norm(
+            self.obj_init_pos[:2] - np.array(self._target_pos)[:2]
+        )
+        self.maxPlacingDist = (
+                np.linalg.norm(
+                    np.array(
+                        [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
+                    )
+                    - np.array(self._target_pos)
+                )
+                + self.heightTarget
+        )
 
         return self._get_obs()
 
@@ -188,50 +194,77 @@ class SawyerSweepEnvV2(SawyerXYZEnv):
         return caging_and_gripping
 
     def compute_reward(self, action, obs):
-        _TARGET_RADIUS = 0.05
-        tcp = self.tcp_center
-        obj = obs[4:7]
-        tcp_opened = obs[3]
-        target = self._target_pos
+        if self.reward_func_version == 'v2':
+            _TARGET_RADIUS = 0.05
+            tcp = self.tcp_center
+            obj = obs[4:7]
+            tcp_opened = obs[3]
+            target = self._target_pos
 
-        obj_to_target = np.linalg.norm(obj - target)
-        tcp_to_obj = np.linalg.norm(obj - tcp)
-        in_place_margin = np.linalg.norm(self.obj_init_pos - target)
+            obj_to_target = np.linalg.norm(obj - target)
+            tcp_to_obj = np.linalg.norm(obj - tcp)
+            in_place_margin = np.linalg.norm(self.obj_init_pos - target)
 
-        in_place = reward_utils.tolerance(
-            obj_to_target,
-            bounds=(0, _TARGET_RADIUS),
-            margin=in_place_margin,
-            sigmoid="long_tail",
-        )
+            in_place = reward_utils.tolerance(
+                obj_to_target,
+                bounds=(0, _TARGET_RADIUS),
+                margin=in_place_margin,
+                sigmoid="long_tail",
+            )
 
-        object_grasped = self._gripper_caging_reward(action, obj, self.OBJ_RADIUS)
-        in_place_and_object_grasped = reward_utils.hamacher_product(
-            object_grasped, in_place
-        )
+            object_grasped = self._gripper_caging_reward(action, obj, self.OBJ_RADIUS)
+            in_place_and_object_grasped = reward_utils.hamacher_product(
+                object_grasped, in_place
+            )
 
-        reward = (2 * object_grasped) + (6 * in_place_and_object_grasped)
+            reward = (2 * object_grasped) + (6 * in_place_and_object_grasped)
 
-        if obj_to_target < _TARGET_RADIUS:
-            reward = 10.0
-        return [reward, tcp_to_obj, tcp_opened, obj_to_target, object_grasped, in_place]
+            if obj_to_target < _TARGET_RADIUS:
+                reward = 10.0
+            return [reward, obj_to_target]
+        else:
+            del action
+
+            objPos = obs[4:7]
+
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+
+            pushGoal = self._target_pos
+
+            reachDist = np.linalg.norm(objPos - fingerCOM)
+            pushDistxy = np.linalg.norm(objPos[:-1] - pushGoal[:-1])
+            reachRew = -reachDist
+
+            self.reachCompleted = reachDist < 0.05
+
+            if objPos[-1] < self.obj_init_pos[-1] - 0.05:
+                reachRew = 0
+                pushDistxy = 0
+                reachDist = 0
+
+            def pushReward():
+                c1 = 1000
+                c2 = 0.01
+                c3 = 0.001
+                if self.reachCompleted:
+                    pushRew = 1000 * (self.maxPushDist - pushDistxy) + c1 * (
+                            np.exp(-(pushDistxy ** 2) / c2) + np.exp(-(pushDistxy ** 2) / c3)
+                    )
+                    pushRew = max(pushRew, 0)
+                    return pushRew
+                else:
+                    return 0
+
+            pushRew = pushReward()
+            reward = reachRew + pushRew
+
+            return [reward, pushDistxy]
 
 
-class TrainSweepv2(SawyerSweepEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerSweepEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 
 
 
-class TestSweepv2(SawyerSweepEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerSweepEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 

@@ -175,7 +175,7 @@ class SawyerDoorEnvV2(SawyerXYZEnv):
             return reward
         else:
             del actions
-            objPos = obs[3:6]
+            objPos = obs[4:7]
 
             rightFinger, leftFinger = self._get_site_pos(
                 "rightEndEffector"

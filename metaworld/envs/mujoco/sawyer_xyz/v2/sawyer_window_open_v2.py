@@ -140,7 +140,7 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
         else:
             del actions
 
-            objPos = obs[3:6]
+            objPos = obs[4:7]
 
             rightFinger, leftFinger = self._get_site_pos(
                 "rightEndEffector"

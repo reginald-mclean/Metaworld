@@ -15,7 +15,7 @@ class SawyerSoccerEnvV2(SawyerXYZEnv):
     OBJ_RADIUS = 0.013
     TARGET_RADIUS = 0.07
 
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, reward_func_version='v2'):
         goal_low = (-0.1, 0.8, 0.0)
         goal_high = (0.1, 0.9, 0.0)
         hand_low = (-0.5, 0.40, 0.05)
@@ -30,8 +30,7 @@ class SawyerSoccerEnvV2(SawyerXYZEnv):
             render_mode=render_mode,
         )
 
-        if tasks is not None:
-            self.tasks = tasks
+        self.reward_func_version = reward_func_version
 
         self.init_config = {
             "obj_init_pos": np.array([0, 0.6, 0.03]),
@@ -55,31 +54,13 @@ class SawyerSoccerEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        obj = obs[4:7]
         (
             reward,
-            tcp_to_obj,
-            tcp_opened,
             target_to_obj,
-            object_grasped,
-            in_place,
         ) = self.compute_reward(action, obs)
-
         success = float(target_to_obj <= 0.07)
-        near_object = float(tcp_to_obj <= 0.03)
-        grasp_success = float(
-            self.touching_object
-            and (tcp_opened > 0)
-            and (obj[2] - 0.02 > self.obj_init_pos[2])
-        )
         info = {
-            "success": success,
-            "near_object": near_object,
-            "grasp_success": grasp_success,
-            "grasp_reward": object_grasped,
-            "in_place_reward": in_place,
-            "obj_to_target": target_to_obj,
-            "unscaled_reward": reward,
+            "success": success
         }
 
         return reward, info
@@ -199,57 +180,74 @@ class SawyerSoccerEnvV2(SawyerXYZEnv):
         return caging_and_gripping
 
     def compute_reward(self, action, obs):
-        obj = obs[4:7]
-        tcp_opened = obs[3]
-        x_scaling = np.array([3.0, 1.0, 1.0])
-        tcp_to_obj = np.linalg.norm(obj - self.tcp_center)
-        target_to_obj = np.linalg.norm((obj - self._target_pos) * x_scaling)
-        target_to_obj_init = np.linalg.norm((obj - self.obj_init_pos) * x_scaling)
+        if self.reward_func_version == 'v2':
+            obj = obs[4:7]
+            tcp_opened = obs[3]
+            x_scaling = np.array([3.0, 1.0, 1.0])
+            tcp_to_obj = np.linalg.norm(obj - self.tcp_center)
+            target_to_obj = np.linalg.norm((obj - self._target_pos) * x_scaling)
+            target_to_obj_init = np.linalg.norm((obj - self.obj_init_pos) * x_scaling)
 
-        in_place = reward_utils.tolerance(
-            target_to_obj,
-            bounds=(0, self.TARGET_RADIUS),
-            margin=target_to_obj_init,
-            sigmoid="long_tail",
-        )
-
-        goal_line = self._target_pos[1] - 0.1
-        if obj[1] > goal_line and abs(obj[0] - self._target_pos[0]) > 0.10:
-            in_place = np.clip(
-                in_place - 2 * ((obj[1] - goal_line) / (1 - goal_line)), 0.0, 1.0
+            in_place = reward_utils.tolerance(
+                target_to_obj,
+                bounds=(0, self.TARGET_RADIUS),
+                margin=target_to_obj_init,
+                sigmoid="long_tail",
             )
 
-        object_grasped = self._gripper_caging_reward(action, obj, self.OBJ_RADIUS)
+            goal_line = self._target_pos[1] - 0.1
+            if obj[1] > goal_line and abs(obj[0] - self._target_pos[0]) > 0.10:
+                in_place = np.clip(
+                    in_place - 2 * ((obj[1] - goal_line) / (1 - goal_line)), 0.0, 1.0
+                )
 
-        reward = (3 * object_grasped) + (6.5 * in_place)
+            object_grasped = self._gripper_caging_reward(action, obj, self.OBJ_RADIUS)
 
-        if target_to_obj < self.TARGET_RADIUS:
-            reward = 10.0
-        return (
-            reward,
-            tcp_to_obj,
-            tcp_opened,
-            np.linalg.norm(obj - self._target_pos),
-            object_grasped,
-            in_place,
-        )
+            reward = (3 * object_grasped) + (6.5 * in_place)
+
+            if target_to_obj < self.TARGET_RADIUS:
+                reward = 10.0
+            return (
+                reward,
+                np.linalg.norm(obj - self._target_pos)
+            )
+        else:
+            del action
+
+            objPos = obs[4:7]
+
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+
+            goal = self._target_pos
+
+            c1 = 1000
+            c2 = 0.01
+            c3 = 0.001
+            assert np.all(goal == self._get_site_pos("goal"))
+            reachDist = np.linalg.norm(fingerCOM - objPos)
+            pushDist = np.linalg.norm(objPos[:2] - goal[:2])
+            reachRew = -reachDist
+
+            def reachCompleted():
+                return reachDist < 0.05
+
+            self.reachCompleted = reachCompleted()
+            if self.reachCompleted:
+                pushRew = 1000 * (self.maxPushDist - pushDist) + c1 * (
+                        np.exp(-(pushDist ** 2) / c2) + np.exp(-(pushDist ** 2) / c3)
+                )
+                pushRew = max(pushRew, 0)
+            else:
+                pushRew = 0
+            reward = reachRew + pushRew
+
+            return [reward, pushDist]
 
 
-class TrainSoccerv2(SawyerSoccerEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerSoccerEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 
 
 
-class TestSoccerv2(SawyerSoccerEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerSoccerEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
+ 
