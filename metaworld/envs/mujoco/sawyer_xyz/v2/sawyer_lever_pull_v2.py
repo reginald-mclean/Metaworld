@@ -27,7 +27,7 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
 
     LEVER_RADIUS = 0.2
 
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, -0.15)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.7, 0.0)
@@ -66,14 +66,9 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        (
-            reward,
-            lever_error
-        ) = self.compute_reward(action, obs)
+        (reward, lever_error) = self.compute_reward(action, obs)
 
-        info = {
-            "success": float(lever_error <= np.pi / 24)
-        }
+        info = {"success": float(lever_error <= np.pi / 24)}
 
         return reward, info
 
@@ -106,7 +101,7 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             gripper = obs[:3]
             lever = obs[4:7]
 
@@ -118,7 +113,9 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
             offset = np.array([0.0, 0.055, 0.07])
 
             shoulder_to_lever = (gripper + offset - lever) * scale
-            shoulder_to_lever_init = (self.init_tcp + offset - self._lever_pos_init) * scale
+            shoulder_to_lever_init = (
+                self.init_tcp + offset - self._lever_pos_init
+            ) * scale
 
             # This `ready_to_lift` reward should be a *hint* for the agent, not an
             # end in itself. Make sure to devalue it compared to the value of
@@ -161,10 +158,7 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
 
             # reward = 2.0 * ready_to_lift + 8.0 * lever_engagement
             reward = 10.0 * reward_utils.hamacher_product(ready_to_lift, in_place)
-            return (
-                reward,
-                lever_error
-            )
+            return (reward, lever_error)
         else:
             del action
 
@@ -190,7 +184,7 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
 
                 if self.reachCompleted:
                     pullRew = 1000 * (self.maxPullDist - pullDist) + c1 * (
-                            np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                        np.exp(-(pullDist**2) / c2) + np.exp(-(pullDist**2) / c3)
                     )
                     pullRew = max(pullRew, 0)
                     return pullRew
@@ -201,9 +195,3 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
             reward = reachRew + pullRew
 
             return [reward, pullDist]
-
-
- 
-
-
- 

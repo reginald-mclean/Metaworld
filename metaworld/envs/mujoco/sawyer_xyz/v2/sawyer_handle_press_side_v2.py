@@ -26,7 +26,7 @@ class SawyerHandlePressSideEnvV2(SawyerXYZEnv):
 
     TARGET_RADIUS = 0.02
 
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1.0, 0.5)
         obj_low = (-0.35, 0.65, -0.001)
@@ -66,14 +66,9 @@ class SawyerHandlePressSideEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        (
-            reward,
-            target_to_obj
-        ) = self.compute_reward(action, obs)
+        (reward, target_to_obj) = self.compute_reward(action, obs)
 
-        info = {
-            "success": float(target_to_obj <= self.TARGET_RADIUS)
-        }
+        info = {"success": float(target_to_obj <= self.TARGET_RADIUS)}
 
         return reward, info
 
@@ -107,14 +102,13 @@ class SawyerHandlePressSideEnvV2(SawyerXYZEnv):
         self._handle_init_pos = self._get_pos_objects()
 
         self.maxDist = np.abs(
-            self.data.site('handleStart').xpos[-1]
-            - self._target_pos[-1]
+            self.data.site("handleStart").xpos[-1] - self._target_pos[-1]
         )
 
         return self._get_obs()
 
     def compute_reward(self, actions, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             del actions
             obj = self._get_pos_objects()
             tcp = self.tcp_center
@@ -166,7 +160,7 @@ class SawyerHandlePressSideEnvV2(SawyerXYZEnv):
             c3 = 0.001
             if reachDist < 0.05:
                 pressRew = 1000 * (self.maxDist - pressDist) + c1 * (
-                        np.exp(-(pressDist ** 2) / c2) + np.exp(-(pressDist ** 2) / c3)
+                    np.exp(-(pressDist**2) / c2) + np.exp(-(pressDist**2) / c3)
                 )
             else:
                 pressRew = 0
@@ -175,9 +169,3 @@ class SawyerHandlePressSideEnvV2(SawyerXYZEnv):
             reward = -reachDist + pressRew
 
             return [reward, pressDist]
-
-
- 
-
-
- 

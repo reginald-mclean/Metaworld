@@ -27,7 +27,7 @@ class SawyerPlateSlideBackSideEnvV2(SawyerXYZEnv):
         - (6/22/20) Cabinet now sits on ground, instead of .02 units above it
     """
 
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         goal_low = (-0.05, 0.6, 0.015)
         goal_high = (0.15, 0.6, 0.015)
         hand_low = (-0.5, 0.40, 0.05)
@@ -66,16 +66,11 @@ class SawyerPlateSlideBackSideEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        (
-            reward,
-            obj_to_target
-        ) = self.compute_reward(action, obs)
+        (reward, obj_to_target) = self.compute_reward(action, obs)
 
         success = float(obj_to_target <= 0.07)
 
-        info = {
-            "success": success
-        }
+        info = {"success": success}
         return reward, info
 
     def _get_pos_objects(self):
@@ -119,7 +114,7 @@ class SawyerPlateSlideBackSideEnvV2(SawyerXYZEnv):
         return self._get_obs()
 
     def compute_reward(self, actions, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             _TARGET_RADIUS = 0.05
             tcp = self.tcp_center
             obj = obs[4:7]
@@ -173,7 +168,7 @@ class SawyerPlateSlideBackSideEnvV2(SawyerXYZEnv):
             c3 = 0.001
             if reachDist < 0.05:
                 pullRew = 1000 * (self.maxDist - pullDist) + c1 * (
-                        np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                    np.exp(-(pullDist**2) / c2) + np.exp(-(pullDist**2) / c3)
                 )
                 pullRew = max(pullRew, 0)
             else:
@@ -182,9 +177,3 @@ class SawyerPlateSlideBackSideEnvV2(SawyerXYZEnv):
             reward = -reachDist + pullRew
 
             return [reward, pullDist]
-
-
- 
-
-
- 

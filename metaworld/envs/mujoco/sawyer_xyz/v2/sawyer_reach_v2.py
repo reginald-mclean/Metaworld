@@ -26,7 +26,7 @@ class SawyerReachEnvV2(SawyerXYZEnv):
         - (6/15/20) Separated reach-push-pick-place into 3 separate envs.
     """
 
-    def __init__(self, tasks=None, render_mode=None, reward_func_version='v2'):
+    def __init__(self, tasks=None, render_mode=None, reward_func_version="v2"):
         goal_low = (-0.1, 0.8, 0.05)
         goal_high = (0.1, 0.9, 0.3)
         hand_low = (-0.5, 0.40, 0.05)
@@ -70,9 +70,7 @@ class SawyerReachEnvV2(SawyerXYZEnv):
         reward, reach_dist = self.compute_reward(action, obs)
         success = float(reach_dist <= 0.05)
 
-        info = {
-            "success": success
-        }
+        info = {"success": success}
 
         return reward, info
 
@@ -108,13 +106,11 @@ class SawyerReachEnvV2(SawyerXYZEnv):
         self.obj_init_pos = goal_pos[:3]
         self._set_obj_xyz(self.obj_init_pos)
         mujoco.mj_forward(self.model, self.data)
-        self.maxReachDist = np.linalg.norm(
-            self.init_tcp - np.array(self._target_pos)
-        )
+        self.maxReachDist = np.linalg.norm(self.init_tcp - np.array(self._target_pos))
         return self._get_obs()
 
     def compute_reward(self, actions, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             _TARGET_RADIUS = 0.05
             tcp = self.tcp_center
             # obj = obs[4:7]
@@ -148,10 +144,8 @@ class SawyerReachEnvV2(SawyerXYZEnv):
             c3 = 0.001
             reachDist = np.linalg.norm(fingerCOM - goal)
             reachRew = c1 * (self.maxReachDist - reachDist) + c1 * (
-                    np.exp(-(reachDist ** 2) / c2) + np.exp(-(reachDist ** 2) / c3)
+                np.exp(-(reachDist**2) / c2) + np.exp(-(reachDist**2) / c3)
             )
             reachRew = max(reachRew, 0)
             reward = reachRew
             return [reward, reachDist]
-
-

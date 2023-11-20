@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerButtonPressWallEnvV2(SawyerXYZEnv):
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.05, 0.85, 0.1149)
@@ -50,10 +50,7 @@ class SawyerButtonPressWallEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        (
-            reward,
-            obj_to_target
-        ) = self.compute_reward(action, obs)
+        (reward, obj_to_target) = self.compute_reward(action, obs)
 
         info = {
             "success": float(obj_to_target <= 0.03),
@@ -101,14 +98,13 @@ class SawyerButtonPressWallEnvV2(SawyerXYZEnv):
         )
 
         self.maxDist = np.abs(
-            self._get_site_pos("buttonStart")[1]
-            - self._target_pos[1]
+            self._get_site_pos("buttonStart")[1] - self._target_pos[1]
         )
 
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             del action
             obj = obs[4:7]
             tcp = self.tcp_center
@@ -153,7 +149,7 @@ class SawyerButtonPressWallEnvV2(SawyerXYZEnv):
             c3 = 0.001
             if reachDist < 0.05:
                 pressRew = 1000 * (self.maxDist - pressDist) + c1 * (
-                        np.exp(-(pressDist ** 2) / c2) + np.exp(-(pressDist ** 2) / c3)
+                    np.exp(-(pressDist**2) / c2) + np.exp(-(pressDist**2) / c3)
                 )
             else:
                 pressRew = 0
@@ -161,9 +157,3 @@ class SawyerButtonPressWallEnvV2(SawyerXYZEnv):
             reward = -reachDist + pressRew
 
             return [reward, pressDist]
-
-
-
-
-
- 

@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerDoorCloseEnvV2(SawyerXYZEnv):
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         goal_low = (0.2, 0.65, 0.1499)
         goal_high = (0.3, 0.75, 0.1501)
         hand_low = (-0.5, 0.40, 0.05)
@@ -90,13 +90,11 @@ class SawyerDoorCloseEnvV2(SawyerXYZEnv):
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
         reward, obj_to_target = self.compute_reward(action, obs)
-        info = {
-            "success": float(obj_to_target <= 0.08)
-        }
+        info = {"success": float(obj_to_target <= 0.08)}
         return reward, info
 
     def compute_reward(self, actions, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             _TARGET_RADIUS = 0.05
             tcp = self.tcp_center
             obj = obs[4:7]
@@ -152,7 +150,7 @@ class SawyerDoorCloseEnvV2(SawyerXYZEnv):
 
                 if self.reachCompleted:
                     pullRew = 1000 * (self.maxPullDist - pullDist) + c1 * (
-                            np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                        np.exp(-(pullDist**2) / c2) + np.exp(-(pullDist**2) / c3)
                     )
                     pullRew = max(pullRew, 0)
                     return pullRew
@@ -163,5 +161,3 @@ class SawyerDoorCloseEnvV2(SawyerXYZEnv):
             reward = reachRew + pullRew
 
             return [reward, pullDist]
-
-

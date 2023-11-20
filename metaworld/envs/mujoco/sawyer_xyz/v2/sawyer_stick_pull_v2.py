@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerStickPullEnvV2(SawyerXYZEnv):
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.35, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.55, 0.000)
@@ -54,19 +54,14 @@ class SawyerStickPullEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         handle = obs[11:14]
         end_of_stick = self._get_site_pos("stick_end")
-        (
-            reward
-        ) = self.compute_reward(action, obs)
+        (reward) = self.compute_reward(action, obs)
 
         success = float(
             (np.linalg.norm(handle - self._target_pos) <= 0.12)
             and self._stick_is_inserted(handle, end_of_stick)
         )
 
-
-        info = {
-            "success": success
-        }
+        info = {"success": success}
 
         return reward, info
 
@@ -136,13 +131,13 @@ class SawyerStickPullEnvV2(SawyerXYZEnv):
 
         self.maxPullDist = np.linalg.norm(self.obj_init_pos[:2] - self._target_pos[:-1])
         self.maxPlaceDist = (
-                np.linalg.norm(
-                    np.array(
-                        [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
-                    )
-                    - np.array(self.stick_init_pos)
+            np.linalg.norm(
+                np.array(
+                    [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
                 )
-                + self.heightTarget
+                - np.array(self.stick_init_pos)
+            )
+            + self.heightTarget
         )
 
         return self._get_obs()
@@ -155,7 +150,7 @@ class SawyerStickPullEnvV2(SawyerXYZEnv):
         )
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             _TARGET_RADIUS = 0.05
             tcp = self.tcp_center
             stick = obs[4:7]
@@ -276,9 +271,9 @@ class SawyerStickPullEnvV2(SawyerXYZEnv):
 
             def objDropped():
                 return (
-                        (stickPos[2] < (self.stickHeight + 0.005))
-                        and (pullDist > 0.02)
-                        and (reachDist > 0.02)
+                    (stickPos[2] < (self.stickHeight + 0.005))
+                    and (pullDist > 0.02)
+                    and (reachDist > 0.02)
                 )
                 # Object on the ground, far away from the goal, and from the gripper
                 # Can tweak the margin limits
@@ -299,12 +294,13 @@ class SawyerStickPullEnvV2(SawyerXYZEnv):
                 cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
                 if cond:
                     pullRew = 1000 * (self.maxPlaceDist - placeDist) + c1 * (
-                            np.exp(-(placeDist ** 2) / c2) + np.exp(-(placeDist ** 2) / c3)
+                        np.exp(-(placeDist**2) / c2) + np.exp(-(placeDist**2) / c3)
                     )
                     if placeDist < 0.05:
                         c4 = 2000
                         pullRew += 1000 * (self.maxPullDist - pullDist) + c4 * (
-                                np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                            np.exp(-(pullDist**2) / c2)
+                            + np.exp(-(pullDist**2) / c3)
                         )
 
                     pullRew = max(pullRew, 0)

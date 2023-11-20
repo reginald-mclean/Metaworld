@@ -12,7 +12,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 class SawyerHandInsertEnvV2(SawyerXYZEnv):
     TARGET_RADIUS = 0.05
 
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, -0.15)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.6, 0.05)
@@ -51,16 +51,9 @@ class SawyerHandInsertEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        obj = obs[4:7]
+        (reward, obj_to_target) = self.compute_reward(action, obs)
 
-        (
-            reward,
-            obj_to_target
-        ) = self.compute_reward(action, obs)
-
-        info = {
-            "success": float(obj_to_target <= 0.05)
-        }
+        info = {"success": float(obj_to_target <= 0.05)}
 
         return reward, info
 
@@ -93,7 +86,7 @@ class SawyerHandInsertEnvV2(SawyerXYZEnv):
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             obj = obs[4:7]
 
             target_to_obj = np.linalg.norm(obj - self._target_pos)
@@ -144,7 +137,7 @@ class SawyerHandInsertEnvV2(SawyerXYZEnv):
 
             if reachDist < 0.05:
                 reachNearRew = 1000 * (self.maxReachDist - reachDist_z) + c1 * (
-                        np.exp(-(reachDist_z ** 2) / c2) + np.exp(-(reachDist_z ** 2) / c3)
+                    np.exp(-(reachDist_z**2) / c2) + np.exp(-(reachDist_z**2) / c3)
                 )
             else:
                 reachNearRew = 0.0
@@ -153,9 +146,3 @@ class SawyerHandInsertEnvV2(SawyerXYZEnv):
             reward = reachRew + reachNearRew
 
             return [reward, reachDist]
-
-
- 
-
-
- 

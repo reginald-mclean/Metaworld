@@ -9,10 +9,11 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
     _assert_task_is_set,
 )
 
+
 class SawyerNutAssemblyEnvV2(SawyerXYZEnv):
     WRENCH_HANDLE_LENGTH = 0.02
 
-    def __init__(self, tasks=None, render_mode=None, reward_func_version='v2'):
+    def __init__(self, tasks=None, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (0, 0.6, 0.02)
@@ -101,7 +102,7 @@ class SawyerNutAssemblyEnvV2(SawyerXYZEnv):
             mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_SITE, "pegTop")
         ] = self._target_pos
 
-        if self.reward_func_version == 'v1':
+        if self.reward_func_version == "v1":
             self.obj_height = self.data.site_xpos[
                 mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_SITE, "RoundNut-8")
             ][2]
@@ -109,13 +110,13 @@ class SawyerNutAssemblyEnvV2(SawyerXYZEnv):
             self.pickCompleted = False
             self.placeCompleted = False
             self.maxPlacingDist = (
-                    np.linalg.norm(
-                        np.array(
-                            [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
-                        )
-                        - np.array(self._target_pos)
+                np.linalg.norm(
+                    np.array(
+                        [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
                     )
-                    + self.heightTarget
+                    - np.array(self._target_pos)
+                )
+                + self.heightTarget
             )
 
         return self._get_obs()
@@ -163,7 +164,7 @@ class SawyerNutAssemblyEnvV2(SawyerXYZEnv):
         return in_place, success
 
     def compute_reward(self, actions, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             hand = obs[:3]
             wrench = obs[4:7]
             wrench_center = self._get_site_pos("RoundNut")
@@ -237,14 +238,14 @@ class SawyerNutAssemblyEnvV2(SawyerXYZEnv):
                 self.pickCompleted = False
 
             objDropped = (
-                    (objPos[2] < (self.obj_height + 0.005))
-                    and (placingDist > 0.02)
-                    and (reachDist > 0.02)
+                (objPos[2] < (self.obj_height + 0.005))
+                and (placingDist > 0.02)
+                and (reachDist > 0.02)
             )
 
             self.placeCompleted = (
-                    abs(objPos[0] - placingGoal[0]) < 0.03
-                    and abs(objPos[1] - placingGoal[1]) < 0.03
+                abs(objPos[0] - placingGoal[0]) < 0.03
+                and abs(objPos[1] - placingGoal[1]) < 0.03
             )
 
             hScale = 100
@@ -259,31 +260,39 @@ class SawyerNutAssemblyEnvV2(SawyerXYZEnv):
             c2 = 0.01
             c3 = 0.001
             placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
-                    np.exp(-(placingDist ** 2) / c2) + np.exp(-(placingDist ** 2) / c3)
+                np.exp(-(placingDist**2) / c2) + np.exp(-(placingDist**2) / c3)
             )
             if self.placeCompleted:
                 c4 = 2000
                 c5 = 0.003
                 c6 = 0.0003
                 placeRew += 2000 * (heightTarget - placingDistFinal) + c4 * (
-                        np.exp(-(placingDistFinal ** 2) / c5)
-                        + np.exp(-(placingDistFinal ** 2) / c6)
+                    np.exp(-(placingDistFinal**2) / c5)
+                    + np.exp(-(placingDistFinal**2) / c6)
                 )
             placeRew = max(placeRew, 0)
             cond = self.placeCompleted or (
-                    self.pickCompleted and (reachDist < 0.04) and not objDropped
+                self.pickCompleted and (reachDist < 0.04) and not objDropped
             )
             if cond:
-                placeRew, placingDist, placingDistFinal = [placeRew, placingDist, placingDistFinal]
+                placeRew, placingDist, placingDistFinal = [
+                    placeRew,
+                    placingDist,
+                    placingDistFinal,
+                ]
             else:
-                placeRew, placingDist, placingDistFinal = [0, placingDist, placingDistFinal]
+                placeRew, placingDist, placingDistFinal = [
+                    0,
+                    placingDist,
+                    placingDistFinal,
+                ]
 
             assert (placeRew >= 0) and (pickRew >= 0)
             reward = reachRew + pickRew + placeRew
             success = (
-                    abs(objPos[0] - placingGoal[0]) < 0.03
-                    and abs(objPos[1] - placingGoal[1]) < 0.03
-                    and placingDistFinal <= 0.04
+                abs(objPos[0] - placingGoal[0]) < 0.03
+                and abs(objPos[1] - placingGoal[1]) < 0.03
+                and placingDistFinal <= 0.04
             )
             return [
                 reward,

@@ -14,7 +14,7 @@ class SawyerPushBackEnvV2(SawyerXYZEnv):
     OBJ_RADIUS = 0.007
     TARGET_RADIUS = 0.05
 
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         goal_low = (-0.1, 0.6, 0.0199)
         goal_high = (0.1, 0.7, 0.0201)
         hand_low = (-0.5, 0.40, 0.05)
@@ -53,16 +53,10 @@ class SawyerPushBackEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        obj = obs[4:7]
-        (
-            reward,
-            target_to_obj
-        ) = self.compute_reward(action, obs)
+        (reward, target_to_obj) = self.compute_reward(action, obs)
 
         success = float(target_to_obj <= 0.07)
-        info = {
-            "success": success
-        }
+        info = {"success": success}
         return reward, info
 
     def _get_pos_objects(self):
@@ -104,20 +98,18 @@ class SawyerPushBackEnvV2(SawyerXYZEnv):
         self.objHeight = self.data.geom("objGeom").xpos[2]
         self.heightTarget = self.objHeight + self.liftThresh
 
-        self.maxReachDist = np.linalg.norm(
-            self.init_tcp - np.array(self._target_pos)
-        )
+        self.maxReachDist = np.linalg.norm(self.init_tcp - np.array(self._target_pos))
         self.maxPushDist = np.linalg.norm(
             self.obj_init_pos[:2] - np.array(self._target_pos)[:2]
         )
         self.maxPlacingDist = (
-                np.linalg.norm(
-                    np.array(
-                        [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
-                    )
-                    - np.array(self._target_pos)
+            np.linalg.norm(
+                np.array(
+                    [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
                 )
-                + self.heightTarget
+                - np.array(self._target_pos)
+            )
+            + self.heightTarget
         )
 
         return self._get_obs()
@@ -209,7 +201,7 @@ class SawyerPushBackEnvV2(SawyerXYZEnv):
         return caging_and_gripping
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             obj = obs[4:7]
             tcp_opened = obs[3]
             tcp_to_obj = np.linalg.norm(obj - self.tcp_center)
@@ -259,7 +251,7 @@ class SawyerPushBackEnvV2(SawyerXYZEnv):
                 reachRew = -reachDist
                 if reachDist < 0.05:
                     pushRew = 1000 * (self.maxPushDist - pushDist) + c1 * (
-                            np.exp(-(pushDist ** 2) / c2) + np.exp(-(pushDist ** 2) / c3)
+                        np.exp(-(pushDist**2) / c2) + np.exp(-(pushDist**2) / c3)
                     )
                     pushRew = max(pushRew, 0)
                 else:
@@ -302,9 +294,9 @@ class SawyerPushBackEnvV2(SawyerXYZEnv):
 
                 def objDropped():
                     return (
-                            (objPos[2] < (self.objHeight + 0.005))
-                            and (placingDist > 0.02)
-                            and (reachDist > 0.02)
+                        (objPos[2] < (self.objHeight + 0.005))
+                        and (placingDist > 0.02)
+                        and (reachDist > 0.02)
                     )
                     # Object on the ground, far away from the goal, and from the gripper
                     # Can tweak the margin limits
@@ -322,11 +314,13 @@ class SawyerPushBackEnvV2(SawyerXYZEnv):
                     c1 = 1000
                     c2 = 0.01
                     c3 = 0.001
-                    cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
+                    cond = (
+                        self.pickCompleted and (reachDist < 0.1) and not (objDropped())
+                    )
                     if cond:
                         placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
-                                np.exp(-(placingDist ** 2) / c2)
-                                + np.exp(-(placingDist ** 2) / c3)
+                            np.exp(-(placingDist**2) / c2)
+                            + np.exp(-(placingDist**2) / c3)
                         )
                         placeRew = max(placeRew, 0)
                         return [placeRew, placingDist]
@@ -339,9 +333,6 @@ class SawyerPushBackEnvV2(SawyerXYZEnv):
                 assert (placeRew >= 0) and (pickRew >= 0)
                 reward = reachRew + pickRew + placeRew
 
-                return [
-                    reward,
-                    placingDist
-                ]
+                return [reward, placingDist]
 
             return compute_reward_push(action, obs)

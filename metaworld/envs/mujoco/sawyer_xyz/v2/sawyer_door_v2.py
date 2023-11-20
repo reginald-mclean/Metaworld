@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerDoorEnvV2(SawyerXYZEnv):
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (0.0, 0.85, 0.15)
@@ -54,9 +54,7 @@ class SawyerDoorEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        (
-            reward
-        ) = self.compute_reward(action, obs)
+        (reward) = self.compute_reward(action, obs)
 
         success = float(abs(obs[4] - self._target_pos[0]) <= 0.08)
 
@@ -154,7 +152,7 @@ class SawyerDoorEnvV2(SawyerXYZEnv):
         return ready_to_open, opened
 
     def compute_reward(self, actions, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             theta = self.data.joint("doorjoint").qpos
 
             reward_grab = SawyerDoorEnvV2._reward_grab_effort(actions)
@@ -196,7 +194,7 @@ class SawyerDoorEnvV2(SawyerXYZEnv):
 
             if self.reachCompleted:
                 pullRew = 1000 * (self.maxPullDist - pullDist) + c1 * (
-                        np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                    np.exp(-(pullDist**2) / c2) + np.exp(-(pullDist**2) / c3)
                 )
                 pullRew = max(pullRew, 0)
             else:
@@ -205,4 +203,3 @@ class SawyerDoorEnvV2(SawyerXYZEnv):
             reward = reachRew + pullRew
 
             return reward
-

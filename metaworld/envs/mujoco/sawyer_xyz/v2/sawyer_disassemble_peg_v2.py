@@ -13,7 +13,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 class SawyerNutDisassembleEnvV2(SawyerXYZEnv):
     WRENCH_HANDLE_LENGTH = 0.02
 
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (0.0, 0.6, 0.025)
@@ -60,9 +60,7 @@ class SawyerNutDisassembleEnvV2(SawyerXYZEnv):
             success,
         ) = self.compute_reward(action, obs)
 
-        info = {
-            "success": float(success)
-        }
+        info = {"success": float(success)}
 
         return reward, info
 
@@ -111,13 +109,13 @@ class SawyerNutDisassembleEnvV2(SawyerXYZEnv):
         self.objHeight = self.data.body("RoundNut").xpos[2]
         self.heightTarget = self.objHeight + self.liftThresh
         self.maxPlacingDist = (
-                np.linalg.norm(
-                    np.array(
-                        [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
-                    )
-                    - np.array(self._target_pos)
+            np.linalg.norm(
+                np.array(
+                    [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
                 )
-                + self.heightTarget
+                - np.array(self._target_pos)
+            )
+            + self.heightTarget
         )
         self.pickCompleted = False
         return self._get_obs()
@@ -147,7 +145,7 @@ class SawyerNutDisassembleEnvV2(SawyerXYZEnv):
         return in_place
 
     def compute_reward(self, actions, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             hand = obs[:3]
             wrench = obs[4:7]
             wrench_center = self._get_site_pos("RoundNut")
@@ -228,9 +226,9 @@ class SawyerNutDisassembleEnvV2(SawyerXYZEnv):
 
             def objDropped():
                 return (
-                        (objPos[2] < (self.objHeight + 0.005))
-                        and (placingDist > 0.02)
-                        and (reachDist > 0.02)
+                    (objPos[2] < (self.objHeight + 0.005))
+                    and (placingDist > 0.02)
+                    and (reachDist > 0.02)
                 )
 
             def orig_pickReward():
@@ -248,7 +246,7 @@ class SawyerNutDisassembleEnvV2(SawyerXYZEnv):
                 c3 = 0.001
 
                 placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
-                        np.exp(-(placingDist ** 2) / c2) + np.exp(-(placingDist ** 2) / c3)
+                    np.exp(-(placingDist**2) / c2) + np.exp(-(placingDist**2) / c3)
                 )
                 placeRew = max(placeRew, 0)
                 cond = self.pickCompleted and (reachDist < 0.03) and not (objDropped())
@@ -262,7 +260,10 @@ class SawyerNutDisassembleEnvV2(SawyerXYZEnv):
 
             peg_pos = self.model.body("peg").pos
             nut_pos = self.get_body_com("RoundNut")
-            if abs(nut_pos[0] - peg_pos[0]) > 0.05 or abs(nut_pos[1] - peg_pos[1]) > 0.05:
+            if (
+                abs(nut_pos[0] - peg_pos[0]) > 0.05
+                or abs(nut_pos[1] - peg_pos[1]) > 0.05
+            ):
                 placingDist = 0
                 reachRew = 0
                 reachDist = 0
@@ -271,17 +272,8 @@ class SawyerNutDisassembleEnvV2(SawyerXYZEnv):
             placeRew, placingDist = placeRewardMove()
             assert (placeRew >= 0) and (pickRew >= 0)
             reward = reachRew + pickRew + placeRew
-            '''success = (
+            """success = (
                               abs(nut_pos[0] - peg_pos[0]) > 0.05 or abs(nut_pos[1] - peg_pos[1]) > 0.05
-                      ) or placingDist < 0.02'''
+                      ) or placingDist < 0.02"""
             success = obs[6] > self._target_pos[2]
-            return [
-                reward,
-                float(success)
-            ]
-
-
- 
-
-
- 
+            return [reward, float(success)]

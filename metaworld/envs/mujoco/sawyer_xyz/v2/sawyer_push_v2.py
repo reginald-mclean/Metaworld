@@ -27,7 +27,7 @@ class SawyerPushEnvV2(SawyerXYZEnv):
 
     TARGET_RADIUS = 0.05
 
-    def __init__(self, tasks=None, render_mode=None, reward_func_version='v2'):
+    def __init__(self, tasks=None, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.6, 0.02)
@@ -74,10 +74,7 @@ class SawyerPushEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        (
-            reward,
-            target_to_obj
-        ) = self.compute_reward(action, obs)
+        (reward, target_to_obj) = self.compute_reward(action, obs)
 
         info = {
             "success": float(target_to_obj <= self.TARGET_RADIUS),
@@ -126,18 +123,18 @@ class SawyerPushEnvV2(SawyerXYZEnv):
             self.obj_init_pos[:2] - np.array(self._target_pos)[:2]
         )
         self.maxPlacingDist = (
-                np.linalg.norm(
-                    np.array(
-                        [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
-                    )
-                    - np.array(self._target_pos)
+            np.linalg.norm(
+                np.array(
+                    [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
                 )
-                + self.heightTarget
+                - np.array(self._target_pos)
+            )
+            + self.heightTarget
         )
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             obj = obs[4:7]
             tcp_opened = obs[3]
             tcp_to_obj = np.linalg.norm(obj - self.tcp_center)
@@ -190,13 +187,10 @@ class SawyerPushEnvV2(SawyerXYZEnv):
             reachRew = -reachDist
             if reachDist < 0.05:
                 pushRew = 1000 * (self.maxPushDist - pushDist) + c1 * (
-                        np.exp(-(pushDist ** 2) / c2) + np.exp(-(pushDist ** 2) / c3)
+                    np.exp(-(pushDist**2) / c2) + np.exp(-(pushDist**2) / c3)
                 )
                 pushRew = max(pushRew, 0)
             else:
                 pushRew = 0
             reward = reachRew + pushRew
             return [reward, pushDist]
-
-
-

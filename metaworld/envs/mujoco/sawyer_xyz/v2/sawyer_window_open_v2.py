@@ -24,7 +24,7 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
 
     TARGET_RADIUS = 0.05
 
-    def __init__(self, tasks=None, render_mode=None, reward_func_version='v2'):
+    def __init__(self, tasks=None, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.7, 0.16)
@@ -71,10 +71,7 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        (
-            reward,
-            target_to_obj
-        ) = self.compute_reward(action, obs)
+        (reward, target_to_obj) = self.compute_reward(action, obs)
 
         info = {
             "success": float(target_to_obj <= self.TARGET_RADIUS),
@@ -105,7 +102,7 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
         return self._get_obs()
 
     def compute_reward(self, actions, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             del actions
             obj = self._get_pos_objects()
             tcp = self.tcp_center
@@ -125,7 +122,9 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
 
             handle_radius = 0.02
             tcp_to_obj = np.linalg.norm(obj - tcp)
-            tcp_to_obj_init = np.linalg.norm(self.window_handle_pos_init - self.init_tcp)
+            tcp_to_obj_init = np.linalg.norm(
+                self.window_handle_pos_init - self.init_tcp
+            )
             reach = reward_utils.tolerance(
                 tcp_to_obj,
                 bounds=(0, handle_radius),
@@ -160,11 +159,10 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
             reachRew = -reachDist
             if self.reachCompleted:
                 pullRew = 1000 * (self.maxPullDist - pullDist) + c1 * (
-                        np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                    np.exp(-(pullDist**2) / c2) + np.exp(-(pullDist**2) / c3)
                 )
             else:
                 pullRew = 0
             reward = reachRew + pullRew
 
             return [reward, pullDist]
-

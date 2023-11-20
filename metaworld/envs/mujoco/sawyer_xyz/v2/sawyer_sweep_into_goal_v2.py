@@ -13,7 +13,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 class SawyerSweepIntoGoalEnvV2(SawyerXYZEnv):
     OBJ_RADIUS = 0.02
 
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.6, 0.02)
@@ -53,14 +53,9 @@ class SawyerSweepIntoGoalEnvV2(SawyerXYZEnv):
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
         # obj = obs[4:7]
-        (
-            reward,
-            target_to_obj
-        ) = self.compute_reward(action, obs)
+        (reward, target_to_obj) = self.compute_reward(action, obs)
 
-        info = {
-            "success": float(target_to_obj <= 0.05)
-        }
+        info = {"success": float(target_to_obj <= 0.05)}
         return reward, info
 
     def _get_quat_objects(self):
@@ -176,7 +171,7 @@ class SawyerSweepIntoGoalEnvV2(SawyerXYZEnv):
         return caging_and_gripping
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             _TARGET_RADIUS = 0.05
             tcp = self.tcp_center
             obj = obs[4:7]
@@ -233,7 +228,7 @@ class SawyerSweepIntoGoalEnvV2(SawyerXYZEnv):
 
             if self.reachCompleted:
                 pushRew = 1000 * (self.maxPushDist - pushDist) + c1 * (
-                        np.exp(-(pushDist ** 2) / c2) + np.exp(-(pushDist ** 2) / c3)
+                    np.exp(-(pushDist**2) / c2) + np.exp(-(pushDist**2) / c3)
                 )
                 pushRew = max(pushRew, 0)
             else:
@@ -241,9 +236,3 @@ class SawyerSweepIntoGoalEnvV2(SawyerXYZEnv):
             reward = reachRew + pushRew
 
             return [reward, pushDist]
-
-
- 
-
-
- 

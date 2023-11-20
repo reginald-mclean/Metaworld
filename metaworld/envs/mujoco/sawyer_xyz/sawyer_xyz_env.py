@@ -11,6 +11,7 @@ from gymnasium.utils.ezpickle import EzPickle
 from metaworld.envs import reward_utils
 from metaworld.envs.mujoco.mujoco_env import _assert_task_is_set
 
+
 class SawyerMocapBase(mjenv_gym):
     """Provides some commonly-shared functions for Sawyer Mujoco envs that use mocap for XYZ control."""
 
@@ -112,7 +113,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         action_scale=1.0 / 100,
         action_rot_scale=1.0,
         render_mode=None,
-        reward_func_type='v1'
+        reward_func_type="v1",
     ):
         self.action_scale = action_scale
         self.action_rot_scale = action_rot_scale
@@ -173,7 +174,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         # very first observation)
 
         self._prev_obs = self._get_curr_obs_combined_no_goal()
-        
+
         self.reward_func_type = reward_func_type
 
         EzPickle.__init__(

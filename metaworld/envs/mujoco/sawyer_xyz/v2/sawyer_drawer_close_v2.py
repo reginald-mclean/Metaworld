@@ -13,7 +13,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
     _TARGET_RADIUS = 0.04
 
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.9, 0.0)
@@ -102,7 +102,7 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             obj = obs[4:7]
             tcp = self.tcp_center
             target = self._target_pos.copy()
@@ -160,7 +160,7 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
 
             if reachDist < 0.05:
                 pullRew = 1000 * (self.maxDist - pullDist) + c1 * (
-                        np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                    np.exp(-(pullDist**2) / c2) + np.exp(-(pullDist**2) / c3)
                 )
                 pullRew = max(pullRew, 0)
             else:

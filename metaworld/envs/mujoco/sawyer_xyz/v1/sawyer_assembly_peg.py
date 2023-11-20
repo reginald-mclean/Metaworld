@@ -51,9 +51,7 @@ class SawyerNutAssemblyEnv(SawyerXYZEnv):
     @_assert_task_is_set
     def step(self, action):
         ob = super().step(action)
-        reward, success = self.compute_reward(
-            action, ob
-        )
+        reward, success = self.compute_reward(action, ob)
         info = {
             "success": float(success),
         }

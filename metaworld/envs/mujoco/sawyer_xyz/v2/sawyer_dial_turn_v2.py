@@ -13,7 +13,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 class SawyerDialTurnEnvV2(SawyerXYZEnv):
     TARGET_RADIUS = 0.07
 
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.7, 0.0)
@@ -50,14 +50,9 @@ class SawyerDialTurnEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        (
-            reward,
-            target_to_obj
-        ) = self.compute_reward(action, obs)
+        (reward, target_to_obj) = self.compute_reward(action, obs)
 
-        info = {
-            "success": float(target_to_obj <= self.TARGET_RADIUS)
-        }
+        info = {"success": float(target_to_obj <= self.TARGET_RADIUS)}
 
         return reward, info
 
@@ -98,7 +93,7 @@ class SawyerDialTurnEnvV2(SawyerXYZEnv):
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             obj = self._get_pos_objects()
             dial_push_position = self._get_pos_objects() + np.array([0.05, 0.02, 0.09])
             tcp = self.tcp_center
@@ -128,14 +123,9 @@ class SawyerDialTurnEnvV2(SawyerXYZEnv):
             gripper_closed = min(max(0, action[-1]), 1)
 
             reach = reward_utils.hamacher_product(reach, gripper_closed)
-            tcp_opened = 0
-            object_grasped = reach
 
             reward = 10 * reward_utils.hamacher_product(reach, in_place)
-            return (
-                reward,
-                target_to_obj
-            )
+            return (reward, target_to_obj)
         else:
             del action
 
@@ -161,7 +151,7 @@ class SawyerDialTurnEnvV2(SawyerXYZEnv):
 
                 if self.reachCompleted:
                     pullRew = 1000 * (self.maxPullDist - pullDist) + c1 * (
-                            np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                        np.exp(-(pullDist**2) / c2) + np.exp(-(pullDist**2) / c3)
                     )
                     pullRew = max(pullRew, 0)
                     return pullRew
@@ -172,9 +162,3 @@ class SawyerDialTurnEnvV2(SawyerXYZEnv):
             reward = reachRew + pullRew
 
             return [reward, pullDist]
-
-
- 
-
-
- 

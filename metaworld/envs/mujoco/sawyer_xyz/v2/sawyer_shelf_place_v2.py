@@ -12,7 +12,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerShelfPlaceEnvV2(SawyerXYZEnv):
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         goal_low = (-0.1, 0.8, 0.299)
         goal_high = (0.1, 0.9, 0.301)
         hand_low = (-0.5, 0.40, 0.05)
@@ -53,16 +53,10 @@ class SawyerShelfPlaceEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        obj = obs[4:7]
-        (
-            reward,
-            obj_to_target
-        ) = self.compute_reward(action, obs)
+        (reward, obj_to_target) = self.compute_reward(action, obs)
         success = float(obj_to_target <= 0.07)
 
-        info = {
-            "success": success
-        }
+        info = {"success": success}
 
         return reward, info
 
@@ -114,18 +108,18 @@ class SawyerShelfPlaceEnvV2(SawyerXYZEnv):
         self.objHeight = self.data.geom("objGeom").xpos[2]
         self.heightTarget = self.objHeight + self.liftThresh
         self.maxPlacingDist = (
-                np.linalg.norm(
-                    np.array(
-                        [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
-                    )
-                    - np.array(self._target_pos)
+            np.linalg.norm(
+                np.array(
+                    [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
                 )
-                + self.heightTarget
+                - np.array(self._target_pos)
+            )
+            + self.heightTarget
         )
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             _TARGET_RADIUS = 0.05
             tcp = self.tcp_center
             obj = obs[4:7]
@@ -221,9 +215,9 @@ class SawyerShelfPlaceEnvV2(SawyerXYZEnv):
 
             def objDropped():
                 return (
-                        (objPos[2] < (self.objHeight + 0.005))
-                        and (placingDist > 0.02)
-                        and (reachDist > 0.02)
+                    (objPos[2] < (self.objHeight + 0.005))
+                    and (placingDist > 0.02)
+                    and (reachDist > 0.02)
                 )
                 # Object on the ground, far away from the goal, and from the gripper
                 # Can tweak the margin limits
@@ -244,7 +238,8 @@ class SawyerShelfPlaceEnvV2(SawyerXYZEnv):
                 cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
                 if cond:
                     placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
-                            np.exp(-(placingDist ** 2) / c2) + np.exp(-(placingDist ** 2) / c3)
+                        np.exp(-(placingDist**2) / c2)
+                        + np.exp(-(placingDist**2) / c3)
                     )
                     placeRew = max(placeRew, 0)
                     return [placeRew, placingDist]

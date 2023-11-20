@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerFaucetOpenEnvV2(SawyerXYZEnv):
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, -0.15)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.05, 0.8, 0.0)
@@ -50,14 +50,9 @@ class SawyerFaucetOpenEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        (
-            reward,
-            target_to_obj
-        ) = self.compute_reward(action, obs)
+        (reward, target_to_obj) = self.compute_reward(action, obs)
 
-        info = {
-            "success": float(target_to_obj <= 0.07)
-        }
+        info = {"success": float(target_to_obj <= 0.07)}
 
         return reward, info
 
@@ -98,7 +93,7 @@ class SawyerFaucetOpenEnvV2(SawyerXYZEnv):
         self.reachCompleted = False
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             del action
             obj = obs[4:7] + np.array([-0.04, 0.0, 0.03])
             tcp = self.tcp_center
@@ -161,7 +156,7 @@ class SawyerFaucetOpenEnvV2(SawyerXYZEnv):
 
                 if self.reachCompleted:
                     pullRew = 1000 * (self.maxPullDist - pullDist) + c1 * (
-                            np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                        np.exp(-(pullDist**2) / c2) + np.exp(-(pullDist**2) / c3)
                     )
                     pullRew = max(pullRew, 0)
                     return pullRew
@@ -172,9 +167,3 @@ class SawyerFaucetOpenEnvV2(SawyerXYZEnv):
             reward = reachRew + pullRew
 
             return [reward, pullDist]
-
-
- 
-
-
- 

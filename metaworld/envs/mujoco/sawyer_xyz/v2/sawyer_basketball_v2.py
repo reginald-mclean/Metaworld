@@ -14,7 +14,7 @@ class SawyerBasketballEnvV2(SawyerXYZEnv):
     PAD_SUCCESS_MARGIN = 0.06
     TARGET_RADIUS = 0.08
 
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.6, 0.0299)
@@ -56,11 +56,7 @@ class SawyerBasketballEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        obj = obs[4:7]
-        (
-            reward,
-            obj_to_target
-        ) = self.compute_reward(action, obs)
+        (reward, obj_to_target) = self.compute_reward(action, obs)
 
         info = {
             "success": float(obj_to_target <= self.TARGET_RADIUS),
@@ -98,20 +94,20 @@ class SawyerBasketballEnvV2(SawyerXYZEnv):
         self.heightTarget = self.objHeight + self.liftThresh
 
         self.maxPlacingDist = (
-                np.linalg.norm(
-                    np.array(
-                        [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
-                    )
-                    - np.array(self._target_pos)
+            np.linalg.norm(
+                np.array(
+                    [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
                 )
-                + self.heightTarget
+                - np.array(self._target_pos)
+            )
+            + self.heightTarget
         )
         self.pickCompleted = False
 
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             obj = obs[4:7]
             # Force target to be slightly above basketball hoop
             target = self._target_pos.copy()
@@ -125,34 +121,35 @@ class SawyerBasketballEnvV2(SawyerXYZEnv):
             target_to_obj_init = np.linalg.norm(target_to_obj_init)
 
             in_place = reward_utils.tolerance(
-            target_to_obj,
-            bounds=(0, self.TARGET_RADIUS),
-            margin=target_to_obj_init,
-            sigmoid="long_tail",
+                target_to_obj,
+                bounds=(0, self.TARGET_RADIUS),
+                margin=target_to_obj_init,
+                sigmoid="long_tail",
             )
             tcp_opened = obs[3]
             tcp_to_obj = np.linalg.norm(obj - self.tcp_center)
 
             object_grasped = self._gripper_caging_reward(
-                    action,
-                    obj,
-                    object_reach_radius=0.01,
-                    obj_radius=0.025,
-                    pad_success_thresh=0.06,
-                    xz_thresh=0.005,
-                    high_density=True,
+                action,
+                obj,
+                object_reach_radius=0.01,
+                obj_radius=0.025,
+                pad_success_thresh=0.06,
+                xz_thresh=0.005,
+                high_density=True,
             )
-            if (tcp_to_obj < 0.035
-            and tcp_opened > 0
-            and obj[2] - 0.01 > self.obj_init_pos[2]
+            if (
+                tcp_to_obj < 0.035
+                and tcp_opened > 0
+                and obj[2] - 0.01 > self.obj_init_pos[2]
             ):
                 object_grasped = 1
             reward = reward_utils.hamacher_product(object_grasped, in_place)
 
             if (
-            tcp_to_obj < 0.035
-            and tcp_opened > 0
-            and obj[2] - 0.01 > self.obj_init_pos[2]
+                tcp_to_obj < 0.035
+                and tcp_opened > 0
+                and obj[2] - 0.01 > self.obj_init_pos[2]
             ):
                 reward += 1.0 + 5.0 * in_place
             if target_to_obj < self.TARGET_RADIUS:
@@ -199,9 +196,9 @@ class SawyerBasketballEnvV2(SawyerXYZEnv):
 
             def objDropped():
                 return (
-                        (objPos[2] < (self.objHeight + 0.005))
-                        and (placingDist > 0.02)
-                        and (reachDist > 0.02)
+                    (objPos[2] < (self.objHeight + 0.005))
+                    and (placingDist > 0.02)
+                    and (reachDist > 0.02)
                 )
 
             def orig_pickReward():
@@ -220,7 +217,8 @@ class SawyerBasketballEnvV2(SawyerXYZEnv):
                 cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
                 if cond:
                     placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
-                            np.exp(-(placingDist ** 2) / c2) + np.exp(-(placingDist ** 2) / c3)
+                        np.exp(-(placingDist**2) / c2)
+                        + np.exp(-(placingDist**2) / c3)
                     )
                     placeRew = max(placeRew, 0)
                     return [placeRew, placingDist]
@@ -233,8 +231,3 @@ class SawyerBasketballEnvV2(SawyerXYZEnv):
             assert (placeRew >= 0) and (pickRew >= 0)
             reward = reachRew + pickRew + placeRew
             return [reward, placingDist]
-
-
-
-
-

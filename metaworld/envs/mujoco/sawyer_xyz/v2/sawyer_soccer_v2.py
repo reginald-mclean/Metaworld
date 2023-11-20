@@ -15,7 +15,7 @@ class SawyerSoccerEnvV2(SawyerXYZEnv):
     OBJ_RADIUS = 0.013
     TARGET_RADIUS = 0.07
 
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         goal_low = (-0.1, 0.8, 0.0)
         goal_high = (0.1, 0.9, 0.0)
         hand_low = (-0.5, 0.40, 0.05)
@@ -59,9 +59,7 @@ class SawyerSoccerEnvV2(SawyerXYZEnv):
             target_to_obj,
         ) = self.compute_reward(action, obs)
         success = float(target_to_obj <= 0.07)
-        info = {
-            "success": success
-        }
+        info = {"success": success}
 
         return reward, info
 
@@ -180,7 +178,7 @@ class SawyerSoccerEnvV2(SawyerXYZEnv):
         return caging_and_gripping
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             obj = obs[4:7]
             tcp_opened = obs[3]
             x_scaling = np.array([3.0, 1.0, 1.0])
@@ -207,10 +205,7 @@ class SawyerSoccerEnvV2(SawyerXYZEnv):
 
             if target_to_obj < self.TARGET_RADIUS:
                 reward = 10.0
-            return (
-                reward,
-                np.linalg.norm(obj - self._target_pos)
-            )
+            return (reward, np.linalg.norm(obj - self._target_pos))
         else:
             del action
 
@@ -237,7 +232,7 @@ class SawyerSoccerEnvV2(SawyerXYZEnv):
             self.reachCompleted = reachCompleted()
             if self.reachCompleted:
                 pushRew = 1000 * (self.maxPushDist - pushDist) + c1 * (
-                        np.exp(-(pushDist ** 2) / c2) + np.exp(-(pushDist ** 2) / c3)
+                    np.exp(-(pushDist**2) / c2) + np.exp(-(pushDist**2) / c3)
                 )
                 pushRew = max(pushRew, 0)
             else:
@@ -245,9 +240,3 @@ class SawyerSoccerEnvV2(SawyerXYZEnv):
             reward = reachRew + pushRew
 
             return [reward, pushDist]
-
-
- 
-
-
- 

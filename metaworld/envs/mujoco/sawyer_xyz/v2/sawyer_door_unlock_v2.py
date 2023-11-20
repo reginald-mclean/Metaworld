@@ -10,7 +10,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, -0.15)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.8, 0.15)
@@ -49,14 +49,9 @@ class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        (
-            reward,
-            obj_to_target
-        ) = self.compute_reward(action, obs)
+        (reward, obj_to_target) = self.compute_reward(action, obs)
 
-        info = {
-            "success": float(obj_to_target <= 0.02)
-        }
+        info = {"success": float(obj_to_target <= 0.02)}
 
         return reward, info
 
@@ -96,7 +91,7 @@ class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             del action
             gripper = obs[:3]
             lock = obs[4:7]
@@ -128,10 +123,7 @@ class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
 
             reward = 2 * ready_to_push + 8 * pushed
 
-            return (
-                reward,
-                obj_to_target
-            )
+            return (reward, obj_to_target)
         else:
             del action
 
@@ -157,7 +149,7 @@ class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
 
                 if self.reachCompleted:
                     pullRew = 1000 * (self.maxPullDist - pullDist) + c1 * (
-                            np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                        np.exp(-(pullDist**2) / c2) + np.exp(-(pullDist**2) / c3)
                     )
                     pullRew = max(pullRew, 0)
                     return pullRew
@@ -168,9 +160,3 @@ class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
             reward = reachRew + pullRew
 
             return [reward, pullDist]
-
-
- 
-
-
- 

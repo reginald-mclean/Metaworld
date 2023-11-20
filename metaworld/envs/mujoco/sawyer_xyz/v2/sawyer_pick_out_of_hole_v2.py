@@ -12,7 +12,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
     _TARGET_RADIUS = 0.02
 
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, -0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (0, 0.75, 0.02)
@@ -51,16 +51,11 @@ class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        (
-            reward,
-            obj_to_target
-        ) = self.compute_reward(action, obs)
+        (reward, obj_to_target) = self.compute_reward(action, obs)
 
         success = float(obj_to_target <= 0.07)
 
-        info = {
-            "success": success
-        }
+        info = {"success": success}
 
         return reward, info
 
@@ -96,19 +91,19 @@ class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
         self.objHeight = self.data.geom("objGeom").xpos[2]
         self.heightTarget = self.objHeight + self.liftThresh
         self.maxPlacingDist = (
-                np.linalg.norm(
-                    np.array(
-                        [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
-                    )
-                    - np.array(self._target_pos)
+            np.linalg.norm(
+                np.array(
+                    [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
                 )
-                + self.heightTarget
+                - np.array(self._target_pos)
+            )
+            + self.heightTarget
         )
 
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             obj = obs[4:7]
             gripper = self.tcp_center
 
@@ -145,7 +140,10 @@ class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
                 high_density=True,
             )
             in_place = reward_utils.tolerance(
-                obj_to_target, bounds=(0, 0.02), margin=in_place_margin, sigmoid="long_tail"
+                obj_to_target,
+                bounds=(0, 0.02),
+                margin=in_place_margin,
+                sigmoid="long_tail",
             )
             reward = reward_utils.hamacher_product(object_grasped, in_place)
 
@@ -155,15 +153,14 @@ class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
             # Increase reward when properly grabbed obj
             grasp_success = near_object and lifted and not pinched_without_obj
             if grasp_success:
-                reward += 1.0 + 5.0 * reward_utils.hamacher_product(in_place, above_floor)
+                reward += 1.0 + 5.0 * reward_utils.hamacher_product(
+                    in_place, above_floor
+                )
             # Maximize reward on success
             if obj_to_target < self.TARGET_RADIUS:
                 reward = 10.0
 
-            return (
-                reward,
-                obj_to_target
-            )
+            return (reward, obj_to_target)
         else:
             objPos = obs[4:7]
 
@@ -200,9 +197,9 @@ class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
 
             def objDropped():
                 return (
-                        (objPos[2] < (self.objHeight + 0.005))
-                        and (placingDist > 0.02)
-                        and (reachDist > 0.02)
+                    (objPos[2] < (self.objHeight + 0.005))
+                    and (placingDist > 0.02)
+                    and (reachDist > 0.02)
                 )
                 # Object on the ground, far away from the goal, and from the gripper
                 # Can tweak the margin limits
@@ -212,7 +209,9 @@ class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
                 if self.pickCompleted and not (objDropped()):
                     return hScale * (heightTarget - self.objHeight + 0.02)
                 elif (reachDist < 0.1) and (objPos[2] > (self.objHeight + 0.005)):
-                    return hScale * (min(heightTarget, objPos[2]) - self.objHeight + 0.02)
+                    return hScale * (
+                        min(heightTarget, objPos[2]) - self.objHeight + 0.02
+                    )
                 else:
                     return 0
 
@@ -223,7 +222,8 @@ class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
                 cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
                 if cond:
                     placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
-                            np.exp(-(placingDist ** 2) / c2) + np.exp(-(placingDist ** 2) / c3)
+                        np.exp(-(placingDist**2) / c2)
+                        + np.exp(-(placingDist**2) / c3)
                     )
                     placeRew = max(placeRew, 0)
                     return [placeRew, placingDist]

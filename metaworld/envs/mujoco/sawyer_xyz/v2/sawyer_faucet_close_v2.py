@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerFaucetCloseEnvV2(SawyerXYZEnv):
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, -0.15)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.8, 0.0)
@@ -55,9 +55,7 @@ class SawyerFaucetCloseEnvV2(SawyerXYZEnv):
             target_to_obj,
         ) = self.compute_reward(action, obs)
 
-        info = {
-            "success": float(target_to_obj <= 0.07)
-        }
+        info = {"success": float(target_to_obj <= 0.07)}
 
         return reward, info
 
@@ -98,7 +96,7 @@ class SawyerFaucetCloseEnvV2(SawyerXYZEnv):
         self.reachCompleted = False
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             obj = obs[4:7]
             tcp = self.tcp_center
             target = self._target_pos.copy()
@@ -155,7 +153,7 @@ class SawyerFaucetCloseEnvV2(SawyerXYZEnv):
 
                 if self.reachCompleted:
                     pullRew = 1000 * (self.maxPullDist - pullDist) + c1 * (
-                            np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                        np.exp(-(pullDist**2) / c2) + np.exp(-(pullDist**2) / c3)
                     )
                     pullRew = max(pullRew, 0)
                     return pullRew
@@ -166,9 +164,3 @@ class SawyerFaucetCloseEnvV2(SawyerXYZEnv):
             reward = reachRew + pullRew
 
             return [reward, pullDist]
-
-
- 
-
-
- 

@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerPegUnplugSideEnvV2(SawyerXYZEnv):
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.25, 0.6, -0.001)
@@ -48,16 +48,11 @@ class SawyerPegUnplugSideEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        (
-            reward,
-            obj_to_target
-        ) = self.compute_reward(action, obs)
+        (reward, obj_to_target) = self.compute_reward(action, obs)
 
         success = float(obj_to_target <= 0.07)
 
-        info = {
-            "success": success
-        }
+        info = {"success": success}
 
         return reward, info
 
@@ -93,7 +88,7 @@ class SawyerPegUnplugSideEnvV2(SawyerXYZEnv):
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             tcp = self.tcp_center
             obj = obs[4:7]
             tcp_opened = obs[3]
@@ -133,10 +128,7 @@ class SawyerPegUnplugSideEnvV2(SawyerXYZEnv):
             if obj_to_target <= 0.05:
                 reward = 10.0
 
-            return (
-                reward,
-                obj_to_target
-            )
+            return (reward, obj_to_target)
         else:
             objPos = obs[4:7]
 
@@ -173,7 +165,8 @@ class SawyerPegUnplugSideEnvV2(SawyerXYZEnv):
                 c3 = 0.001
                 if self.reachCompleted:
                     placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
-                            np.exp(-(placingDist ** 2) / c2) + np.exp(-(placingDist ** 2) / c3)
+                        np.exp(-(placingDist**2) / c2)
+                        + np.exp(-(placingDist**2) / c3)
                     )
                     placeRew = max(placeRew, 0)
                     return [placeRew, placingDist]
@@ -186,9 +179,3 @@ class SawyerPegUnplugSideEnvV2(SawyerXYZEnv):
             reward = reachRew + placeRew
 
             return [reward, placingDist]
-
-
- 
-
-
- 

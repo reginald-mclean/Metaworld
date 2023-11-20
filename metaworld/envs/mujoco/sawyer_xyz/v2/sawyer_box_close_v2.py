@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerBoxCloseEnvV2(SawyerXYZEnv):
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.05, 0.5, 0.02)
@@ -105,13 +105,13 @@ class SawyerBoxCloseEnvV2(SawyerXYZEnv):
         self.heightTarget = self.objHeight + self.liftThresh
 
         self.maxPlacingDist = (
-                np.linalg.norm(
-                    np.array(
-                        [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
-                    )
-                    - np.array(self._target_pos)
+            np.linalg.norm(
+                np.array(
+                    [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
                 )
-                + self.heightTarget
+                - np.array(self._target_pos)
+            )
+            + self.heightTarget
         )
         self.pickCompleted = False
 
@@ -177,8 +177,8 @@ class SawyerBoxCloseEnvV2(SawyerXYZEnv):
         return ready_to_lift, lifted
 
     def compute_reward(self, action, obs):
-        target_thresh =  0.08
-        if self.reward_func_version == 'v2':
+        target_thresh = 0.08
+        if self.reward_func_version == "v2":
             reward_grab = SawyerBoxCloseEnvV2._reward_grab_effort(action)
             reward_quat = SawyerBoxCloseEnvV2._reward_quat(obs)
             reward_steps = SawyerBoxCloseEnvV2._reward_pos(obs, self._target_pos)
@@ -245,9 +245,9 @@ class SawyerBoxCloseEnvV2(SawyerXYZEnv):
 
             def objDropped():
                 return (
-                        (objPos[2] < (self.objHeight + 0.005))
-                        and (placingDist > 0.02)
-                        and (reachDist > 0.02)
+                    (objPos[2] < (self.objHeight + 0.005))
+                    and (placingDist > 0.02)
+                    and (reachDist > 0.02)
                 )
                 # Object on the ground, far away from the goal, and from the gripper
                 # Can tweak the margin limits
@@ -268,7 +268,8 @@ class SawyerBoxCloseEnvV2(SawyerXYZEnv):
                 cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
                 if cond:
                     placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
-                            np.exp(-(placingDist ** 2) / c2) + np.exp(-(placingDist ** 2) / c3)
+                        np.exp(-(placingDist**2) / c2)
+                        + np.exp(-(placingDist**2) / c3)
                     )
                     placeRew = max(placeRew, 0)
                     return [placeRew, placingDist]
@@ -282,9 +283,3 @@ class SawyerBoxCloseEnvV2(SawyerXYZEnv):
             reward = reachRew + pickRew + placeRew
 
             return [reward, placingDist < target_thresh]
-
-
- 
-
-
- 

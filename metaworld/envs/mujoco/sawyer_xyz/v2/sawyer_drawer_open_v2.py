@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
-    def __init__(self, render_mode=None, reward_func_version='v2'):
+    def __init__(self, render_mode=None, reward_func_version="v2"):
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
         obj_low = (-0.1, 0.9, 0.0)
@@ -58,10 +58,7 @@ class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
 
     @_assert_task_is_set
     def evaluate_state(self, obs, action):
-        (
-            reward,
-            handle_error
-        ) = self.compute_reward(action, obs)
+        (reward, handle_error) = self.compute_reward(action, obs)
 
         info = {
             "success": float(handle_error <= 0.03),
@@ -98,7 +95,7 @@ class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        if self.reward_func_version == 'v2':
+        if self.reward_func_version == "v2":
             gripper = obs[:3]
             handle = obs[4:7]
 
@@ -153,7 +150,7 @@ class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
 
             if self.reachCompleted:
                 pullRew = 1000 * (self.maxDist - pullDist) + c1 * (
-                        np.exp(-(pullDist ** 2) / c2) + np.exp(-(pullDist ** 2) / c3)
+                    np.exp(-(pullDist**2) / c2) + np.exp(-(pullDist**2) / c3)
                 )
                 pullRew = max(pullRew, 0)
             else:
@@ -162,4 +159,3 @@ class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
             reward = reachRew + pullRew
 
             return [reward, pullDist]
-
