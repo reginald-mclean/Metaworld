@@ -54,7 +54,7 @@ class SawyerStickPullEnvV2(SawyerXYZEnv):
     def evaluate_state(self, obs, action):
         handle = obs[11:14]
         end_of_stick = self._get_site_pos("stick_end")
-        (reward) = self.compute_reward(action, obs)
+        reward = self.compute_reward(action, obs)
 
         success = float(
             (np.linalg.norm(handle - self._target_pos) <= 0.12)
@@ -230,14 +230,7 @@ class SawyerStickPullEnvV2(SawyerXYZEnv):
                     if handle_to_target <= 0.12:
                         reward = 10.0
 
-            return [
-                reward,
-                tcp_to_stick,
-                tcp_opened,
-                handle_to_target,
-                object_grasped,
-                stick_in_place,
-            ]
+            return reward            
         else:
             stickPos = obs[4:7]
             objPos = obs[6:9]
@@ -313,5 +306,4 @@ class SawyerStickPullEnvV2(SawyerXYZEnv):
             pullRew, pullDist, placeDist = pullReward()
             assert (pullRew >= 0) and (pickRew >= 0)
             reward = reachRew + pickRew + pullRew
-
-            return [reward, placeDist]
+            return reward

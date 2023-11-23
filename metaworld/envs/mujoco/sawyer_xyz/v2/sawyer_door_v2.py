@@ -60,7 +60,6 @@ class SawyerDoorEnvV2(SawyerXYZEnv):
 
         info = {
             "success": success,
-            "unscaled_reward": reward,
         }
 
         return reward, info
