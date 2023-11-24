@@ -238,21 +238,19 @@ class SawyerSweepEnvV2(SawyerXYZEnv):
                 pushDistxy = 0
                 reachDist = 0
 
-            def pushReward():
-                c1 = 1000
-                c2 = 0.01
-                c3 = 0.001
-                if self.reachCompleted:
-                    pushRew = 1000 * (self.maxPushDist - pushDistxy) + c1 * (
-                        np.exp(-(pushDistxy**2) / c2)
-                        + np.exp(-(pushDistxy**2) / c3)
-                    )
-                    pushRew = max(pushRew, 0)
-                    return pushRew
-                else:
-                    return 0
+            c1 = 1000
+            c2 = 0.01
+            c3 = 0.001
+            if self.reachCompleted:
+                pushRew = 1000 * (self.maxPushDist - pushDistxy) + c1 * (
+                    np.exp(-(pushDistxy**2) / c2)
+                    + np.exp(-(pushDistxy**2) / c3)
+                )
+                pushRew = max(pushRew, 0)
+                pushRew = pushRew
+            else:
+                pushRew = 0
 
-            pushRew = pushReward()
             reward = reachRew + pushRew
 
             return [reward, pushDistxy]

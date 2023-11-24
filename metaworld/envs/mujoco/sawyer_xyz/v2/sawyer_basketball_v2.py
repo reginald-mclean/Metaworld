@@ -170,64 +170,60 @@ class SawyerBasketballEnvV2(SawyerXYZEnv):
             placingDist = np.linalg.norm(objPos - goal)
             assert np.all(goal == self._get_site_pos("goal"))
 
-            def reachReward():
+            reachRew = -reachDist
+            reachDistxy = np.linalg.norm(objPos[:-1] - fingerCOM[:-1])
+            zRew = np.linalg.norm(fingerCOM[-1] - self.init_tcp[-1])
+            if reachDistxy < 0.05:
                 reachRew = -reachDist
-                reachDistxy = np.linalg.norm(objPos[:-1] - fingerCOM[:-1])
-                zRew = np.linalg.norm(fingerCOM[-1] - self.init_tcp[-1])
-                if reachDistxy < 0.05:
-                    reachRew = -reachDist
-                else:
-                    reachRew = -reachDistxy - 2 * zRew
+            else:
+                reachRew = -reachDistxy - 2 * zRew
 
-                # incentive to close fingers when reachDist is small
-                if reachDist < 0.05:
-                    reachRew = -reachDist + max(action[-1], 0) / 50
-                return reachRew, reachDist
+            # incentive to close fingers when reachDist is small
+            if reachDist < 0.05:
+                reachRew = -reachDist + max(action[-1], 0) / 50
 
-            def pickCompletionCriteria():
-                tolerance = 0.01
-                if objPos[2] >= (heightTarget - tolerance):
-                    return True
-                else:
-                    return False
 
-            if pickCompletionCriteria():
+            tolerance = 0.01
+            if objPos[2] >= (heightTarget - tolerance):
                 self.pickCompleted = True
+            else:
+                self.pickCompleted = False
 
-            def objDropped():
-                return (
+            objDropped = (
+                (objPos[2] < (self.objHeight + 0.005))
+                and (placingDist > 0.02)
+                and (reachDist > 0.02)
+            )
+
+            hScale = 100
+            if self.pickCompleted and not (objDropped()):
+                pickRew = hScale * heightTarget
+            elif (reachDist < 0.1) and (objPos[2] > (self.objHeight + 0.005)):
+                pickRew = hScale * min(heightTarget, objPos[2])
+            else:
+                pickRew = 0
+
+            c1 = 1000
+            c2 = 0.01
+            c3 = 0.001
+
+            objDropped = (
                     (objPos[2] < (self.objHeight + 0.005))
                     and (placingDist > 0.02)
                     and (reachDist > 0.02)
+            )
+
+            cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
+            if cond:
+                placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
+                    np.exp(-(placingDist**2) / c2)
+                    + np.exp(-(placingDist**2) / c3)
                 )
+                placeRew = max(placeRew, 0)
+                placeRew, placingDist = [placeRew, placingDist]
+            else:
+                placeRew, placingDist = [0, placingDist]
 
-            def orig_pickReward():
-                hScale = 100
-                if self.pickCompleted and not (objDropped()):
-                    return hScale * heightTarget
-                elif (reachDist < 0.1) and (objPos[2] > (self.objHeight + 0.005)):
-                    return hScale * min(heightTarget, objPos[2])
-                else:
-                    return 0
-
-            def placeReward():
-                c1 = 1000
-                c2 = 0.01
-                c3 = 0.001
-                cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
-                if cond:
-                    placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
-                        np.exp(-(placingDist**2) / c2)
-                        + np.exp(-(placingDist**2) / c3)
-                    )
-                    placeRew = max(placeRew, 0)
-                    return [placeRew, placingDist]
-                else:
-                    return [0, placingDist]
-
-            reachRew, reachDist = reachReward()
-            pickRew = orig_pickReward()
-            placeRew, placingDist = placeReward()
             assert (placeRew >= 0) and (pickRew >= 0)
             reward = reachRew + pickRew + placeRew
             return [reward, placingDist]
