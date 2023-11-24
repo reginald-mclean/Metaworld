@@ -72,12 +72,6 @@ class SawyerStickPushEnvV2(SawyerXYZEnv):
 
         info = {
             "success": grasp_success and success,
-            "near_object": near_object,
-            "grasp_success": grasp_success,
-            "grasp_reward": grasp_reward,
-            "in_place_reward": stick_in_place,
-            "obj_to_target": container_to_target,
-            "unscaled_reward": reward,
         }
 
         return reward, info

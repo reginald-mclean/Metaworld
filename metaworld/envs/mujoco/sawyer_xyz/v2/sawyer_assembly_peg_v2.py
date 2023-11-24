@@ -59,8 +59,7 @@ class SawyerNutAssemblyEnvV2(SawyerXYZEnv):
         ) = self.compute_reward(action, obs)
 
         info = {
-            "success": float(success),
-            "unscaled_reward": reward,
+            "success": float(success)
         }
 
         return reward, info
