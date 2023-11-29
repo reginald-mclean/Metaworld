@@ -348,7 +348,7 @@ class SawyerStickPushEnvV2(SawyerXYZEnv):
                 # Can tweak the margin limits
 
             hScale = 100
-            if self.pickCompleted and not (objDropped()):
+            if self.pickCompleted and not objDropped:
                 pickRew = hScale * heightTarget
             elif (reachDist < 0.1) and (stickPos[2] > (self.stickHeight + 0.005)):
                 pickRew = hScale * min(heightTarget, stickPos[2])
@@ -358,7 +358,7 @@ class SawyerStickPushEnvV2(SawyerXYZEnv):
             c1 = 1000
             c2 = 0.01
             c3 = 0.001
-            cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
+            cond = self.pickCompleted and (reachDist < 0.1) and not objDropped
             if cond:
                 pushRew = 1000 * (self.maxPlaceDist - placeDist) + c1 * (
                     np.exp(-(placeDist**2) / c2) + np.exp(-(placeDist**2) / c3)

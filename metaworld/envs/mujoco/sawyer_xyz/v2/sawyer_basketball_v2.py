@@ -196,7 +196,7 @@ class SawyerBasketballEnvV2(SawyerXYZEnv):
             )
 
             hScale = 100
-            if self.pickCompleted and not (objDropped()):
+            if self.pickCompleted and not objDropped:
                 pickRew = hScale * heightTarget
             elif (reachDist < 0.1) and (objPos[2] > (self.objHeight + 0.005)):
                 pickRew = hScale * min(heightTarget, objPos[2])

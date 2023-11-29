@@ -198,7 +198,7 @@ class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
                 # Can tweak the margin limits
 
             hScale = 100
-            if self.pickCompleted and not (objDropped()):
+            if self.pickCompleted and not objDropped:
                 pickRew = hScale * (heightTarget - self.objHeight + 0.02)
             elif (reachDist < 0.1) and (objPos[2] > (self.objHeight + 0.005)):
                 pickRew = hScale * (
@@ -210,7 +210,7 @@ class SawyerPickOutOfHoleEnvV2(SawyerXYZEnv):
             c1 = 1000
             c2 = 0.01
             c3 = 0.001
-            cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
+            cond = self.pickCompleted and (reachDist < 0.1) and not objDropped
             if cond:
                 placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
                     np.exp(-(placingDist**2) / c2)

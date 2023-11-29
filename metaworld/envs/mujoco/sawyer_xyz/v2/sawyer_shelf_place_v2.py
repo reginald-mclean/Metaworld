@@ -227,7 +227,7 @@ class SawyerShelfPlaceEnvV2(SawyerXYZEnv):
             c1 = 1000
             c2 = 0.01
             c3 = 0.001
-            cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
+            cond = self.pickCompleted and (reachDist < 0.1) and not objDropped
             if cond:
                 placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
                     np.exp(-(placingDist**2) / c2)

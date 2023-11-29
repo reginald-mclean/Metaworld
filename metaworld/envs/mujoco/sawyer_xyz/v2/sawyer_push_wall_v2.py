@@ -267,7 +267,7 @@ class SawyerPushWallEnvV2(SawyerXYZEnv):
                     # Can tweak the margin limits
 
                 hScale = 100
-                if self.pickCompleted and not (objDropped()):
+                if self.pickCompleted and not objDropped:
                     pickRew = hScale * heightTarget
                 elif (reachDist < 0.1) and (objPos[2] > (self.objHeight + 0.005)):
                     pickRew = hScale * min(heightTarget, objPos[2])
@@ -279,7 +279,7 @@ class SawyerPushWallEnvV2(SawyerXYZEnv):
                 c2 = 0.01
                 c3 = 0.001
                 cond = (
-                    self.pickCompleted and (reachDist < 0.1) and not (objDropped())
+                    self.pickCompleted and (reachDist < 0.1) and not objDropped
                 )
                 if cond:
                     placeRew = 1000 * (self.maxPlacingDist - placingDist) + c1 * (
