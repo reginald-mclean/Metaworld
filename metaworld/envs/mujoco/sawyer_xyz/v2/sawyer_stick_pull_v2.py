@@ -247,23 +247,17 @@ class SawyerStickPullEnvV2(SawyerXYZEnv):
             placeDist = np.linalg.norm(stickPos - objPos)
             reachDist = np.linalg.norm(stickPos - fingerCOM)
 
-            def reachReward():
-                reachRew = -reachDist
+            reachRew = -reachDist
 
-                # incentive to close fingers when reachDist is small
-                if reachDist < 0.05:
-                    reachRew = -reachDist + max(action[-1], 0) / 50
+            # incentive to close fingers when reachDist is small
+            if reachDist < 0.05:
+                reachRew = -reachDist + max(action[-1], 0) / 50
+            tolerance = 0.01
+            self.pickCompleted = stickPos[2] >= (heightTarget - tolerance)
 
-                return reachRew, reachDist
 
-            def pickCompletionCriteria():
-                tolerance = 0.01
-                return stickPos[2] >= (heightTarget - tolerance)
 
-            self.pickCompleted = pickCompletionCriteria()
-
-            def objDropped():
-                return (
+            objDropped = (
                     (stickPos[2] < (self.stickHeight + 0.005))
                     and (pullDist > 0.02)
                     and (reachDist > 0.02)
@@ -271,39 +265,34 @@ class SawyerStickPullEnvV2(SawyerXYZEnv):
                 # Object on the ground, far away from the goal, and from the gripper
                 # Can tweak the margin limits
 
-            def orig_pickReward():
-                hScale = 100
-                if self.pickCompleted and not (objDropped()):
-                    return hScale * heightTarget
-                elif (reachDist < 0.1) and (stickPos[2] > (self.stickHeight + 0.005)):
-                    return hScale * min(heightTarget, stickPos[2])
-                else:
-                    return 0
+            hScale = 100
+            if self.pickCompleted and not objDropped:
+                pickRew =  hScale * heightTarget
+            elif (reachDist < 0.1) and (stickPos[2] > (self.stickHeight + 0.005)):
+                pickRew =  hScale * min(heightTarget, stickPos[2])
+            else:
+                pickRew =  0
 
-            def pullReward():
-                c1 = 1000
-                c2 = 0.01
-                c3 = 0.001
-                cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
-                if cond:
-                    pullRew = 1000 * (self.maxPlaceDist - placeDist) + c1 * (
-                        np.exp(-(placeDist**2) / c2) + np.exp(-(placeDist**2) / c3)
+            c1 = 1000
+            c2 = 0.01
+            c3 = 0.001
+            cond = self.pickCompleted and (reachDist < 0.1) and not objDropped
+            if cond:
+                pullRew = 1000 * (self.maxPlaceDist - placeDist) + c1 * (
+                    np.exp(-(placeDist**2) / c2) + np.exp(-(placeDist**2) / c3)
+                )
+                if placeDist < 0.05:
+                    c4 = 2000
+                    pullRew += 1000 * (self.maxPullDist - pullDist) + c4 * (
+                        np.exp(-(pullDist**2) / c2)
+                        + np.exp(-(pullDist**2) / c3)
                     )
-                    if placeDist < 0.05:
-                        c4 = 2000
-                        pullRew += 1000 * (self.maxPullDist - pullDist) + c4 * (
-                            np.exp(-(pullDist**2) / c2)
-                            + np.exp(-(pullDist**2) / c3)
-                        )
 
-                    pullRew = max(pullRew, 0)
-                    return [pullRew, pullDist, placeDist]
-                else:
-                    return [0, pullDist, placeDist]
+                pullRew = max(pullRew, 0)
+                pullRew, pullDist, placeDist = [pullRew, pullDist, placeDist]
+            else:
+                pullRew, pullDist, placeDist = [0, pullDist, placeDist]
 
-            reachRew, reachDist = reachReward()
-            pickRew = orig_pickReward()
-            pullRew, pullDist, placeDist = pullReward()
             assert (pullRew >= 0) and (pickRew >= 0)
             reward = reachRew + pickRew + pullRew
             return reward

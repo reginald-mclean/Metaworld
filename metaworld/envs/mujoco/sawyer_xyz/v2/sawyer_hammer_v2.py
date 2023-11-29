@@ -195,25 +195,20 @@ class SawyerHammerEnvV2(SawyerXYZEnv):
             screwDist = np.abs(objPos[1] - self._target_pos[1])
             reachDist = np.linalg.norm(hammerPos - fingerCOM)
 
-            def reachReward():
-                reachRew = -reachDist
-                # incentive to close fingers when reachDist is small
-                if reachDist < 0.05:
-                    reachRew = -reachDist + max(actions[-1], 0) / 50
-                return reachRew, reachDist
+            reachRew = -reachDist
+            # incentive to close fingers when reachDist is small
+            if reachDist < 0.05:
+                reachRew = -reachDist + max(actions[-1], 0) / 50
 
-            def pickCompletionCriteria():
-                tolerance = 0.01
-                if hammerPos[2] >= (heightTarget - tolerance):
-                    return True
-                else:
-                    return False
 
-            if pickCompletionCriteria():
+            tolerance = 0.01
+            if hammerPos[2] >= (heightTarget - tolerance):
                 self.pickCompleted = True
+            else:
+                self.pickCompleted = False
 
-            def objDropped():
-                return (
+
+            objDropped = (
                     (hammerPos[2] < (self.hammerHeight + 0.005))
                     and (hammerDist > 0.02)
                     and (reachDist > 0.02)
@@ -221,37 +216,31 @@ class SawyerHammerEnvV2(SawyerXYZEnv):
                 # Object on the ground, far away from the goal, and from the gripper
                 # Can tweak the margin limits
 
-            def orig_pickReward():
-                hScale = 100
+            hScale = 100
 
-                if self.pickCompleted and not (objDropped()):
-                    return hScale * heightTarget
-                elif (reachDist < 0.1) and (hammerPos[2] > (self.hammerHeight + 0.005)):
-                    return hScale * min(heightTarget, hammerPos[2])
-                else:
-                    return 0
+            if self.pickCompleted and not (objDropped()):
+                pickRew = hScale * heightTarget
+            elif (reachDist < 0.1) and (hammerPos[2] > (self.hammerHeight + 0.005)):
+                pickRew = hScale * min(heightTarget, hammerPos[2])
+            else:
+                pickRew = 0
 
-            def hammerReward():
-                c1 = 1000
-                c2 = 0.01
-                c3 = 0.001
+            c1 = 1000
+            c2 = 0.01
+            c3 = 0.001
 
-                cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
-                if cond:
-                    hammerRew = 1000 * (
-                        self.maxHammerDist - hammerDist - screwDist
-                    ) + c1 * (
-                        np.exp(-((hammerDist + screwDist) ** 2) / c2)
-                        + np.exp(-((hammerDist + screwDist) ** 2) / c3)
-                    )
-                    hammerRew = max(hammerRew, 0)
-                    return [hammerRew, hammerDist, screwDist]
-                else:
-                    return [0, hammerDist, screwDist]
+            cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
+            if cond:
+                hammerRew = 1000 * (
+                    self.maxHammerDist - hammerDist - screwDist
+                ) + c1 * (
+                    np.exp(-((hammerDist + screwDist) ** 2) / c2)
+                    + np.exp(-((hammerDist + screwDist) ** 2) / c3)
+                )
+                hammerRew = max(hammerRew, 0)
+            else:
+                hammerRew, hammerDist, screwDist = [0, hammerDist, screwDist]
 
-            reachRew, reachDist = reachReward()
-            pickRew = orig_pickReward()
-            hammerRew, hammerDist, screwDist = hammerReward()
             assert (hammerRew >= 0) and (pickRew >= 0)
             reward = reachRew + pickRew + hammerRew
             success = self.data.joint("NailSlideJoint").qpos > 0.09

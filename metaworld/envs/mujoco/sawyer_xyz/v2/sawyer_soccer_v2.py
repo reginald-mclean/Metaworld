@@ -226,10 +226,7 @@ class SawyerSoccerEnvV2(SawyerXYZEnv):
             pushDist = np.linalg.norm(objPos[:2] - goal[:2])
             reachRew = -reachDist
 
-            def reachCompleted():
-                return reachDist < 0.05
-
-            self.reachCompleted = reachCompleted()
+            self.reachCompleted = reachDist < 0.05
             if self.reachCompleted:
                 pushRew = 1000 * (self.maxPushDist - pushDist) + c1 * (
                     np.exp(-(pushDist**2) / c2) + np.exp(-(pushDist**2) / c3)
