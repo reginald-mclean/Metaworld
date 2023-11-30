@@ -273,4 +273,4 @@ class SawyerBoxCloseEnvV2(SawyerXYZEnv):
             assert (placeRew >= 0) and (pickRew >= 0)
             reward = reachRew + pickRew + placeRew
 
-            return [reward, placingDist < target_thresh]
+            return [reward, float(placingDist < target_thresh)]

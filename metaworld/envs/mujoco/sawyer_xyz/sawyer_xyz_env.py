@@ -530,6 +530,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         self._prev_obs = obs[:18].copy()
         obs[18:36] = self._prev_obs
         obs = np.float64(obs)
+        mujoco.mj_forward(self.model, self.data)
         return obs, info
 
     def _reset_hand(self, steps=50):
