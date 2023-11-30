@@ -123,7 +123,7 @@ class SawyerButtonPressTopdownEnvV2(SawyerXYZEnv):
             if tcp_to_obj <= 0.03:
                 reward += 5 * button_pressed
 
-            return (reward, tcp_to_obj)
+            return (reward, obj_to_target)
         else:
             objPos = obs[4:7]
 
