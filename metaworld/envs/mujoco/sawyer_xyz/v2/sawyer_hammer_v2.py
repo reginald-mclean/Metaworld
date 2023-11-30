@@ -218,7 +218,7 @@ class SawyerHammerEnvV2(SawyerXYZEnv):
 
             hScale = 100
 
-            if self.pickCompleted and not (objDropped()):
+            if self.pickCompleted and not objDropped:
                 pickRew = hScale * heightTarget
             elif (reachDist < 0.1) and (hammerPos[2] > (self.hammerHeight + 0.005)):
                 pickRew = hScale * min(heightTarget, hammerPos[2])
@@ -229,7 +229,7 @@ class SawyerHammerEnvV2(SawyerXYZEnv):
             c2 = 0.01
             c3 = 0.001
 
-            cond = self.pickCompleted and (reachDist < 0.1) and not (objDropped())
+            cond = self.pickCompleted and (reachDist < 0.1) and not objDropped
             if cond:
                 hammerRew = 1000 * (
                     self.maxHammerDist - hammerDist - screwDist

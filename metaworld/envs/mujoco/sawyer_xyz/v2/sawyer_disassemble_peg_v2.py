@@ -239,7 +239,7 @@ class SawyerNutDisassembleEnvV2(SawyerXYZEnv):
                 np.exp(-(placingDist**2) / c2) + np.exp(-(placingDist**2) / c3)
             )
             placeRew = max(placeRew, 0)
-            cond = self.pickCompleted and (reachDist < 0.03) and not (objDropped())
+            cond = self.pickCompleted and (reachDist < 0.03) and not objDropped
             if cond:
                 placeRew, placingDist = [placeRew, placingDist]
             else:
