@@ -6,8 +6,8 @@
             <geom material="bskt_red" mesh="backboardsquareouter" pos="0 -.001 0.29" />
             <geom material="bskt_metal" mesh="pole"/>
             <geom class="basketball_col" pos="0 0 0.29" size="0.1 0.01 0.07" type="box" mass=".2"/>
-            <geom class="basketball_col" pos="0 0 0.118" size="0.007 0.108" type="cylinder" mass=".2"/>
-            <geom class="basketball_col" pos="0 0 0.005" size="0.013 0.005" type="cylinder" mass=".01"/>
+            <geom class="basketball_col" pos="0 0 0.118" size="0.007 0.108" type="capsule" mass=".2"/>
+            <geom class="basketball_col" pos="0 0 0.005" size="0.013 0.005" type="capsule" mass=".01"/>
             <body name="hooplink" pos="0 -0.083 0.25">
                 <geom material="bskt_red" mesh="hoop" pos="0 0 -0.001" />
                 <geom class="basketball_col" pos="0 .06  0" size="0.01 0.014 0.004" type="box" />

@@ -15,7 +15,7 @@
           <geom material="hdlprs_red" euler="0 1.57 0" mesh="handle_press_grip" pos="0 -0.166 0" />
           <geom material="hdlprs_black" mesh="handle_press_lever" pos="0 -0.089 0" />
           <geom class="hdlprs_col" pos="0 -0.081 0" size="0.032 0.075 0.011" type="box" mass=".001"/>
-          <geom class="hdlprs_col" euler="0 1.57 0" pos="0 -0.166 0" size="0.022 0.07" type="cylinder" mass=".001"/>
+          <geom class="hdlprs_col" euler="0 1.57 0" pos="0 -0.166 0" size="0.022 0.07" type="capsule" mass=".001"/>
       </body>
     </body>
 

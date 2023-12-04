@@ -15,9 +15,9 @@
         <geom material="btn_red" euler="1.57 0 0" mesh="stopbutton" pos="0 -0.158 0" name="btnGeom"/>
         <geom material="btn_black" euler="1.57 0 0" mesh="stopbuttonrod" pos="0 -0.126 0"/>
 
-        <geom class="buttonbox_col" euler="1.57 0 0" pos="0 -0.128 0" size="0.021 0.039" type="cylinder"/>
-        <geom class="buttonbox_col" euler="1.57 0 0" pos="0 -0.166 0" size="0.026 0.008" type="cylinder"/>
-        <geom class="buttonbox_col" euler="1.57 0 0" pos="0 -0.183 0" size="0.043 0.011" type="cylinder"/>
+        <geom class="buttonbox_col" euler="1.57 0 0" pos="0 -0.128 0" size="0.021 0.039" type="capsule"/>
+        <geom class="buttonbox_col" euler="1.57 0 0" pos="0 -0.166 0" size="0.026 0.008" type="capsule"/>
+        <geom class="buttonbox_col" euler="1.57 0 0" pos="0 -0.183 0" size="0.043 0.011" type="capsule"/>
       </body>
     </body>
 </mujocoinclude>

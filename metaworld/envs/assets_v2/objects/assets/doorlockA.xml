@@ -11,8 +11,8 @@
           <geom material="dl_metal" euler="1.57 0 0" mesh="door_handle" pos="0.325 -0.062 -0.05"/>
           <geom material="dl_metal" mesh="handle_base" pos="0.325 -0.006 -0.05"/>
           <geom material="dl_metal" mesh="lock_base" pos="0.185 -0.009 0.061"/>
-          <geom material="dl_metal" pos="0 0 .07" size="0.013 .045" type="cylinder"/>
-          <geom material="dl_metal" pos="0 0 -.07" size="0.013 .045" type="cylinder"/>
+          <geom material="dl_metal" pos="0 0 .07" size="0.013 .045" type="capsule"/>
+          <geom material="dl_metal" pos="0 0 -.07" size="0.013 .045" type="capsule"/>
 
           <geom class="dl_col" pos="0.185 -0.009 0.061" size="0.047 0.013 0.047" type="box"/>
           <geom class="dl_col" pos="0.325 -0.006 -0.05" size="0.028 0.012 0.028" type="box"/>
