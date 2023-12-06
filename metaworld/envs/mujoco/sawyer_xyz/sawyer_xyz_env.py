@@ -1,8 +1,6 @@
 import copy
 import pickle
 
-import mujoco
-import numpy as np
 from gymnasium.envs.mujoco import MujocoEnv as mjenv_gym
 from gymnasium.spaces import Box, Discrete
 from gymnasium.utils import seeding
@@ -14,9 +12,7 @@ from metaworld.envs.mujoco.mujoco_env import _assert_task_is_set
 
 from datetime import datetime
 import functools
-import jax
-from jax import numpy as jp
-import numpy as np
+
 from typing import Any, Dict, Tuple, Union
 
 from brax import envs
@@ -29,102 +25,18 @@ from brax.io import model
 from etils import epath
 from flax import struct
 from ml_collections import config_dict
+
+
+import numpy as np
+
 import mujoco
+# try this and error out if not avaliable
 from mujoco import mjx
-
-@struct.dataclass
-class State(Base):
-    """Environment state for training and inference with brax.
-
-    Args:
-      pipeline_state: the physics state, mjx.Data
-      obs: environment observations
-      reward: environment reward
-      done: boolean, True if the current episode has terminated
-      metrics: metrics that get tracked per environment step
-      info: environment variables defined and updated by the environment reset
-      and step functions
-    """
-
-    pipeline_state: mjx.Data
-    obs: jax.Array
-    reward: jax.Array
-    done: jax.Array
-    metrics: Dict[str, jax.Array] = struct.field(default_factory=dict)
-    info: Dict[str, Any] = struct.field(default_factory=dict)
-
-class MjxEnv(Env):
-    """API for driving an MJX system for training and inference in brax."""
-    def __init__(
-        self,
-        mj_model: mujoco.MjModel,
-        physics_steps_per_control_step: int = 1,
-    ):
-        """Initializes MjxEnv.
-
-        Args:
-         mj_model: mujoco.MjModel
-         physics_steps_per_control_step: the number of times to step the physics
-          pipeline for each environment step
-        """
-        self.model = mj_model
-        self.data = mujoco.MjData(mj_model)
-        self.sys = mjx.device_put(mj_model)
-        self._physics_steps_per_control_step = physics_steps_per_control_step
-
-    def pipeline_init(
-      self, qpos: jax.Array, qvel: jax.Array
-    ) -> mjx.Data:
-        """Initializes the physics state."""
-        data = mjx.device_put(self.data)
-        data = data.replace(qpos=qpos, qvel=qvel, ctrl=jp.zeros(self.sys.nu))
-        data = mjx.forward(self.sys, data)
-        return data
-
-    def pipeline_step(
-      self, data: mjx.Data, ctrl: jax.Array
-    ) -> mjx.Data:
-        """Takes a physics step using the physics pipeline."""
-        def f(data, _):
-          data = data.replace(ctrl=ctrl)
-          return (
-              mjx.step(self.sys, data),
-              None,
-          )
-        data, _ = jax.lax.scan(f, data, (), self._physics_steps_per_control_step)
-        return data
-
-    @property
-    def dt(self) -> jax.Array:
-        """The timestep used for each env step."""
-        return self.sys.opt.timestep * self._physics_steps_per_control_step
-
-    @property
-    def observation_size(self) -> int:
-        rng = jax.random.PRNGKey(0)
-        reset_state = self.unwrapped.reset(rng)
-        return reset_state.obs.shape[-1]
-
-    @property
-    def action_size(self) -> int:
-        return self.sys.nu
-
-    @property
-    def backend(self) -> str:
-        return 'mjx'
-
-    def _pos_vel(self, data: mjx.Data) -> Tuple[Transform, Motion]:
-        """Returns 6d spatial transform and 6d velocity for all bodies."""
-        x = Transform(pos=data.xpos[1:, :], rot=data.xquat[1:, :])
-        cvel = Motion(vel=data.cvel[1:, 3:], ang=data.cvel[1:, :3])
-        offset = data.xpos[1:, :] - data.subtree_com[
-            self.model.body_rootid[np.arange(1, self.model.nbody)]]
-        xd = Transform.create(pos=offset).vmap().do(cvel)
-        return x, xd
+import jax
+import jax.numpy as jnp
 
 class SawyerMocapBase(mjenv_gym):
     """Provides some commonly-shared functions for Sawyer Mujoco envs that use mocap for XYZ control."""
-
     mocap_low = np.array([-0.2, 0.5, 0.06])
     mocap_high = np.array([0.2, 0.7, 0.6])
     metadata = {
@@ -144,6 +56,7 @@ class SawyerMocapBase(mjenv_gym):
             observation_space=self.sawyer_observation_space,
             render_mode=render_mode,
         )
+
         self.reset_mocap_welds()
         self.frame_skip = frame_skip
 
@@ -199,20 +112,16 @@ class SawyerMocapBase(mjenv_gym):
 
 
 
-class SawyerXYZEnv(MjxEnv):
+class SawyerXYZEnv(SawyerMocapBase, EzPickle):
     _HAND_SPACE = Box(
-        np.array([-0.525, 0.348, -0.0525]),
-        np.array([+0.525, 1.025, 0.7]),
+        np.asarray([-0.525, 0.348, -0.0525]),
+        np.asarray([+0.525, 1.025, 0.7]),
         dtype=np.float64,
     )
+
     max_path_length = 500
 
     TARGET_RADIUS = 0.05
-
-    current_task = 0
-    classes = None
-    classes_kwargs = None
-    tasks = None
 
     def __init__(
         self,
@@ -225,6 +134,7 @@ class SawyerXYZEnv(MjxEnv):
         action_scale=1.0 / 100,
         action_rot_scale=1.0,
         render_mode=None,
+        use_mjx = True
     ):
         self.action_scale = action_scale
         self.action_rot_scale = action_rot_scale
@@ -251,20 +161,13 @@ class SawyerXYZEnv(MjxEnv):
         self.active_discrete_goal = None
 
         self._partially_observable = True
-        gym_env = mjenv_gym(model_name, frame_skip, render_mode)
-        super().__init__(gym_env.model, physics_steps_per_control_step=frame_skip)
-        exit(0)
-        mujoco.mj_forward(
-            self.model, self.data
-        )  # *** DO NOT REMOVE: EZPICKLE WON'T WORK *** #
+        super().__init__(model_name, frame_skip=frame_skip, render_mode=render_mode)
 
         self._did_see_sim_exception = False
-        self.init_left_pad = self.get_body_com("leftpad")
-        self.init_right_pad = self.get_body_com("rightpad")
 
         self.action_space = Box(
-            np.array([-1, -1, -1, -1]),
-            np.array([+1, +1, +1, +1]),
+            np.asarray([-1, -1, -1, -1]),
+            np.asarray([+1, +1, +1, +1]),
             dtype=np.float64,
         )
 
@@ -284,19 +187,51 @@ class SawyerXYZEnv(MjxEnv):
         # doesn't seem to matter (it will only effect frame-stacking for the
         # very first observation)
 
-        self._prev_obs = self._get_curr_obs_combined_no_goal()
+        if not use_mjx:
+            mujoco.mj_forward(
+                self.model, self.data
+            )  # *** DO NOT REMOVE: EZPICKLE WON'T WORK *** #
+            self.reset = self.reset_mujoco
+            self.init_left_pad = self.get_body_com("leftpad")
+            self.init_right_pad = self.get_body_com("rightpad")
 
-        EzPickle.__init__(
-            self,
-            model_name,
-            frame_skip,
-            hand_low,
-            hand_high,
-            mocap_low,
-            mocap_high,
-            action_scale,
-            action_rot_scale,
-        )
+            self._get_curr_obs_combined_no_goal = self._get_curr_obs_combined_no_goal_mujoco
+            self.reset_model = self.reset_model_mujoco
+            self._reset_hand = self._reset_hand_mujoco
+            self._prev_obs = self._get_curr_obs_combined_no_goal()
+
+            EzPickle.__init__(
+                self,
+                model_name,
+                frame_skip,
+                hand_low,
+                hand_high,
+                mocap_low,
+                mocap_high,
+                action_scale,
+                action_rot_scale,
+            )
+        else:
+            print('mjx is true')
+            self.reset = self.reset_mjx
+
+            mj_model = mujoco.MjModel.from_xml_path(model_name)
+            self.model = mj_model
+            self.data = mujoco.MjData(mj_model)
+            self.sys = mjx.device_put(mj_model)
+            self._physics_steps_per_control_step = frame_skip
+
+
+            # init the model, the data, the pipeline
+            #overwrite the step function
+
+            self.init_left_pad = self.get_body_com("leftpad")
+            self.init_right_pad = self.get_body_com("rightpad")
+            self._prev_obs = self._get_curr_obs_combined_no_goal_mujoco()
+            self._get_curr_obs_combined_no_goal = self._get_curr_obs_combined_no_goal_mjx
+            self.get_body_com = self.get_body_com_mjx
+
+
 
     def seed(self, seed):
         assert seed is not None
@@ -343,12 +278,18 @@ class SawyerXYZEnv(MjxEnv):
         # update the goal_space to a Discrete space
         self.discrete_goal_space = Discrete(len(self.discrete_goals))
 
-    def _set_obj_xyz(self, pos):
-        qpos = self.data.qpos.flat.copy()
-        qvel = self.data.qvel.flat.copy()
-        qpos[9:12] = pos.copy()
-        qvel[9:15] = 0
-        self.set_state(qpos, qvel)
+    def _set_obj_xyz(self, pos, data: mjx.Data):
+        qpos = data.qpos.copy()
+        qvel = data.qvel.copy()
+        qpos = qpos.at[9:12].set(pos.copy())
+        qvel = qvel.at[9:15].set(0)
+        self.set_state(qpos, qvel, data)
+
+    def set_state(self, qpos, qvel, data: mjx.Data):
+        data = data.replace(qpos=qpos, qvel=qvel)
+        data = mjx.forward(self.sys, data)
+
+        return data
 
     def _get_site_pos(self, siteName):
         _id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_SITE, siteName)
@@ -468,7 +409,7 @@ class SawyerXYZEnv(MjxEnv):
         assert self._target_pos.ndim == 1
         return self._target_pos
 
-    def _get_curr_obs_combined_no_goal(self):
+    def _get_curr_obs_combined_no_goal_mujoco(self):
         """Combines the end effector's {pos, closed amount} and the object(s)' {pos, quat} into a single flat observation.
 
         Note: The goal's position is *not* included in this.
@@ -502,12 +443,51 @@ class SawyerXYZEnv(MjxEnv):
         obj_quat = self._get_quat_objects()
         assert len(obj_quat) % 4 == 0
         obj_quat_split = np.split(obj_quat, len(obj_quat) // 4)
+        obs_obj_padded[: len(obj_pos) + len(obj_quat)] = (np.hstack(
+            [np.hstack((pos, quat)) for pos, quat in zip(obj_pos_split, obj_quat_split)]
+        ))
+        return np.hstack((pos_hand, gripper_distance_apart, obs_obj_padded))
+
+    def _get_curr_obs_combined_no_goal_mjx(self, data):
+        """Combines the end effector's {pos, closed amount} and the object(s)' {pos, quat} into a single flat observation.
+
+        Note: The goal's position is *not* included in this.
+
+        Returns:
+            np.ndarray: The flat observation array (18 elements)
+
+        """
+
+        pos_hand = self.get_body_com("hand", data)
+
+        finger_right, finger_left = (
+            self.get_body_com("rightclaw", data),
+            self.get_body_com("leftclaw", data),
+        )
+        # the gripper can be at maximum about ~0.1 m apart.
+        # dividing by 0.1 normalized the gripper distance between
+        # 0 and 1. Further, we clip because sometimes the grippers
+        # are slightly more than 0.1m apart (~0.00045 m)
+        # clipping removes the effects of this random extra distance
+        # that is produced by mujoco
+
+        gripper_distance_apart = np.linalg.norm(finger_right - finger_left)
+        gripper_distance_apart = np.clip(gripper_distance_apart / 0.1, 0.0, 1.0)
+
+        obs_obj_padded = np.zeros(self._obs_obj_max_len)
+        obj_pos = self._get_pos_objects_mjx(data)
+        assert len(obj_pos) % 3 == 0
+        obj_pos_split = np.split(obj_pos, len(obj_pos) // 3)
+
+        obj_quat = self._get_quat_objects_mjx(data)
+        assert len(obj_quat) % 4 == 0
+        obj_quat_split = np.split(obj_quat, len(obj_quat) // 4)
         obs_obj_padded[: len(obj_pos) + len(obj_quat)] = np.hstack(
             [np.hstack((pos, quat)) for pos, quat in zip(obj_pos_split, obj_quat_split)]
         )
         return np.hstack((pos_hand, gripper_distance_apart, obs_obj_padded))
 
-    def _get_obs(self):
+    def _get_obs(self, data):
         """Frame stacks `_get_curr_obs_combined_no_goal()` and concatenates the goal position to form a single flat observation.
 
         Returns:
@@ -517,9 +497,9 @@ class SawyerXYZEnv(MjxEnv):
         pos_goal = self._get_pos_goal()
         if self._partially_observable:
             pos_goal = np.zeros_like(pos_goal)
-        curr_obs = self._get_curr_obs_combined_no_goal()
+        curr_obs = self._get_curr_obs_combined_no_goal(data)
         # do frame stacking
-        obs = np.hstack((curr_obs, self._prev_obs, pos_goal))
+        obs = jnp.hstack((curr_obs, self._prev_obs, pos_goal))
         self._prev_obs = curr_obs
         return obs
 
@@ -567,7 +547,7 @@ class SawyerXYZEnv(MjxEnv):
         )
 
     @_assert_task_is_set
-    def step(self, action):
+    def step_mujoco(self, action):
         assert len(action) == 4, f"Actions should be size 4, got {len(action)}"
         self.set_xyz_action(action[:3])
         if self.curr_path_length >= self.max_path_length:
@@ -619,6 +599,62 @@ class SawyerXYZEnv(MjxEnv):
             info,
         )
 
+    def step_mjx(self, state:State, action:jnp.array) -> State:
+        self.set_xyz_action(action[:3]) # TODO: make this mjx compliant
+        if self.curr_path_length >= self.max_path_length:
+            raise ValueError("You must reset the env manually once truncate==True")
+        data0 = state.pipeline_state
+        data = self.pipeline_step(data0, jnp.asarray([-1., 1.]))
+
+        self.curr_path_length += 1
+
+        # Running the simulator can sometimes mess up site positions, so
+        # re-position them here to make sure they're accurate
+        for site in self._target_site_config:
+            self._set_pos_site(*site)
+
+        if self._did_see_sim_exception:
+            return (
+                self._last_stable_obs,  # observation just before going unstable
+                0.0,  # reward (penalize for causing instability)
+                False,
+                False,  # termination flag always False
+                {  # info
+                    "success": False,
+                    "near_object": 0.0,
+                    "grasp_success": False,
+                    "grasp_reward": 0.0,
+                    "in_place_reward": 0.0,
+                    "obj_to_target": 0.0,
+                    "unscaled_reward": 0.0,
+                },
+            )
+
+        self._last_stable_obs = self._get_obs()
+
+        self._last_stable_obs = np.clip(
+            self._last_stable_obs,
+            a_max=self.sawyer_observation_space.high,
+            a_min=self.sawyer_observation_space.low,
+            dtype=np.float64,
+        )
+        reward, info = self.evaluate_state(self._last_stable_obs, action)
+        # step will never return a terminate==True if there is a success
+        # but we can return truncate=True if the current path length == max path length
+        truncate = False
+        if self.curr_path_length == self.max_path_length:
+            truncate = True
+        return (
+            np.array(self._last_stable_obs, dtype=np.float64),
+            reward,
+            False,
+            truncate,
+            info,
+        )
+
+    def get_endeff_pos(self):
+        return self.data.body("hand").xpos
+
     def evaluate_state(self, obs, action):
         """Does the heavy-lifting for `step()` -- namely, calculating reward and populating the `info` dict with training metrics.
 
@@ -633,7 +669,7 @@ class SawyerXYZEnv(MjxEnv):
         # V1 environments don't have to implement it
         raise NotImplementedError
 
-    def reset(self, seed=None, options=None):
+    def reset_mujoco(self, seed=None, options=None):
         self.curr_path_length = 0
         obs, info = super().reset()
         self._prev_obs = obs[:18].copy()
@@ -641,7 +677,16 @@ class SawyerXYZEnv(MjxEnv):
         obs = np.float64(obs)
         return obs, info
 
-    def _reset_hand(self, steps=50):
+    def reset_mjx(self):
+        print('reset mjx')
+        data = self.pipeline_init()
+        obs, data = self.reset_model_mjx(data)
+        reward, truncate, terminate, done = jnp.zeros(4)
+        print(State(data, obs, reward, done))
+        exit(0)
+        return State(data, obs, reward, done)
+
+    def _reset_hand_mujoco(self, steps=50):
         mocap_id = self.model.body_mocapid[self.data.body("mocap").id]
         for _ in range(steps):
             self.data.mocap_pos[mocap_id][:] = self.hand_init_pos
@@ -649,7 +694,23 @@ class SawyerXYZEnv(MjxEnv):
             self.do_simulation([-1, 1], self.frame_skip)
         self.init_tcp = self.tcp_center
 
-        self.init_tcp = self.tcp_center
+    def _reset_hand_mjx(self, data) -> mjx.Data:
+        mocap_id = self.model.body_mocapid[self.data.body("mocap").id]
+        hand_pos = self.hand_init_pos
+        def f(data, _):
+            data = data.replace(xpos=data.xpos.at[mocap_id].set(np.asarray(hand_pos)))
+            data = data.replace(xquat=data.xquat.at[mocap_id].set(np.array([1, 0, 1, 0])))
+            data = data.replace(ctrl=np.array([-1., 1.], dtype=np.float32))
+            return (
+                mjx.step(self.sys, data),
+                None,
+            )
+
+        data, _ = jax.lax.scan(f, data, (), self._physics_steps_per_control_step)
+        right_finger_pos = data.xpos[mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_SITE, "rightEndEffector")]
+        left_finger_pos = data.xpos[mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_SITE, "leftEndEffector")]
+        self.init_tcp = np.array((right_finger_pos + left_finger_pos) / 2.0)
+        return data
 
     def _get_state_rand_vec(self):
         if self._freeze_rand_vec:
@@ -795,3 +856,58 @@ class SawyerXYZEnv(MjxEnv):
             caging_and_gripping = (caging_and_gripping + reach) / 2
 
         return caging_and_gripping
+
+    def get_body_com_mjx(self, body_name, data:mjx.Data):
+        return data.xpos[mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, body_name)]
+
+    def pipeline_init(
+            self
+    ) -> mjx.Data:
+        """Initializes the physics state."""
+        data = mjx.device_put(self.data)
+        data = data.replace(ctrl=jnp.asarray([-1., 1.]))
+        data = mjx.forward(self.sys, data)
+        return data
+
+    def pipeline_step(
+            self, data: mjx.Data, ctrl: jax.Array
+    ) -> mjx.Data:
+        """Takes a physics step using the physics pipeline."""
+
+        def f(data, _):
+            data = data.replace(ctrl=ctrl)
+            return (
+                mjx.step(self.sys, data),
+                None,
+            )
+
+        data, _ = jax.lax.scan(f, data, (), self.frame_skip)
+        return data
+
+    @property
+    def dt(self) -> jax.Array:
+        """The timestep used for each env step."""
+        return self.model.opt.timestep * self.frame_skip
+
+    @property
+    def observation_size(self) -> int:
+        rng = jax.random.PRNGKey(0)
+        reset_state = self.unwrapped.reset(rng)
+        return reset_state.obs.shape[-1]
+
+    @property
+    def action_size(self) -> int:
+        return self.sys.nu
+
+    @property
+    def backend(self) -> str:
+        return 'mjx'
+
+@struct.dataclass
+class State:
+    pipeline_state: mjx.Data
+    obs: jax.Array
+    reward: jax.Array
+    done: jax.Array
+    metrics: Dict[str, jax.Array] = struct.field(default_factory=dict)
+    info: Dict[str, Any] = struct.field(default_factory=dict)

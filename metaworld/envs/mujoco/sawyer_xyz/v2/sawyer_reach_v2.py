@@ -10,6 +10,8 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
     _assert_task_is_set,
 )
 
+from ..v3.jax_common import MjxEnv
+from mujoco import mjx
 
 class SawyerReachEnvV2(SawyerXYZEnv):
     """SawyerReachEnv.
@@ -36,9 +38,7 @@ class SawyerReachEnvV2(SawyerXYZEnv):
 
         super().__init__(
             self.model_name,
-            hand_low=hand_low,
-            hand_high=hand_high,
-            render_mode=render_mode,
+            5
         )
 
         if tasks is not None:
@@ -62,6 +62,8 @@ class SawyerReachEnvV2(SawyerXYZEnv):
         )
         self.goal_space = Box(np.array(goal_low), np.array(goal_high))
 
+
+
     @property
     def model_name(self):
         return full_v2_path_for("sawyer_xyz/sawyer_reach_v2.xml")
@@ -83,6 +85,9 @@ class SawyerReachEnvV2(SawyerXYZEnv):
 
         return reward, info
 
+    def _get_pos_objects_mjx(self, data):
+        return self.get_body_com("obj", data)
+
     def _get_pos_objects(self):
         return self.get_body_com("obj")
 
@@ -90,17 +95,21 @@ class SawyerReachEnvV2(SawyerXYZEnv):
         geom_xmat = self.data.geom("objGeom").xmat.reshape(3, 3)
         return Rotation.from_matrix(geom_xmat).as_quat()
 
-    def fix_extreme_obj_pos(self, orig_init_pos):
+    def _get_quat_objects_mjx(self, data: mjx.Data):
+        geom_xmat = data.geom_xmat[mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_GEOM, "objGeom")].reshape(3, 3)
+        return Rotation.from_matrix(geom_xmat).as_quat()
+
+    def fix_extreme_obj_pos(self, orig_init_pos, data):
         # This is to account for meshes for the geom and object are not
         # aligned. If this is not done, the object could be initialized in an
         # extreme position
-        diff = self.get_body_com("obj")[:2] - self.get_body_com("obj")[:2]
+        diff = self.get_body_com("obj", data)[:2] - self.get_body_com("obj", data)[:2]
         adjusted_pos = orig_init_pos[:2] + diff
         # The convention we follow is that body_com[2] is always 0,
         # and geom_pos[2] is the object height
-        return [adjusted_pos[0], adjusted_pos[1], self.get_body_com("obj")[-1]]
+        return [adjusted_pos[0], adjusted_pos[1], self.get_body_com("obj", data)[-1]]
 
-    def reset_model(self):
+    def reset_model_mujoco(self):
         self._reset_hand()
         self._target_pos = self.goal.copy()
         self.obj_init_pos = self.fix_extreme_obj_pos(self.init_config["obj_init_pos"])
@@ -117,15 +126,29 @@ class SawyerReachEnvV2(SawyerXYZEnv):
         mujoco.mj_forward(self.model, self.data)
         return self._get_obs()
 
+    def reset_model_mjx(self, data):
+        data = self._reset_hand_mjx(data)
+        self._target_pos = self.goal.copy()
+        self.obj_init_pos = self.fix_extreme_obj_pos(self.init_config["obj_init_pos"], data)
+        self.obj_init_angle = self.init_config["obj_init_angle"]
+
+        goal_pos = self._get_state_rand_vec()
+        self._target_pos = goal_pos[3:]
+        while np.linalg.norm(goal_pos[:2] - self._target_pos[:2]) < 0.15:
+            goal_pos = self._get_state_rand_vec()
+            self._target_pos = goal_pos[3:]
+        self._target_pos = goal_pos[-3:]
+        self.obj_init_pos = goal_pos[:3]
+        self._set_obj_xyz(self.obj_init_pos, data)
+        data = mjx.forward(self.sys, data)
+        return self._get_obs(data), data
+
     def compute_reward(self, actions, obs):
         _TARGET_RADIUS = 0.05
         tcp = self.tcp_center
-        # obj = obs[4:7]
-        # tcp_opened = obs[3]
         target = self._target_pos
 
         tcp_to_target = np.linalg.norm(tcp - target)
-        # obj_to_target = np.linalg.norm(obj - target)
 
         in_place_margin = np.linalg.norm(self.hand_init_pos - target)
         in_place = reward_utils.tolerance(
