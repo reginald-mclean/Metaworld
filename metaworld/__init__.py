@@ -4,10 +4,10 @@ import pickle
 from collections import OrderedDict
 from typing import List, NamedTuple, Type
 
-import numpy as np
-
+import jax.numpy as jnp
+import jax
 import metaworld.envs.mujoco.env_dict as _env_dict
-
+import numpy as np
 EnvName = str
 
 
@@ -78,10 +78,8 @@ def _encode_task(env_name, data):
     return Task(env_name=env_name, data=pickle.dumps(data))
 
 
-def _make_tasks(classes, args_kwargs, kwargs_override, seed=None):
-    if seed is not None:
-        st0 = np.random.get_state()
-        np.random.seed(seed)
+def _make_tasks(classes, args_kwargs, kwargs_override, seed=0):
+    """TODO: Add seeding with Jax"""
     tasks = []
     for env_name, args in args_kwargs.items():
         assert len(args["args"]) == 0
@@ -93,6 +91,9 @@ def _make_tasks(classes, args_kwargs, kwargs_override, seed=None):
         del kwargs["task_id"]
         env._set_task_inner(**kwargs)
         for _ in range(_N_GOALS):
+            #env_key = jax.random.split(key, 1)
+            #print(env_key, env_name)
+            print(env_name)
             env.reset()
             rand_vecs.append(env._last_rand_vec)
         unique_task_rand_vecs = np.unique(np.array(rand_vecs), axis=0)
@@ -107,8 +108,8 @@ def _make_tasks(classes, args_kwargs, kwargs_override, seed=None):
             kwargs.update(kwargs_override)
             tasks.append(_encode_task(env_name, kwargs))
         del env
-    if seed is not None:
-        np.random.set_state(st0)
+    #if seed is not None:
+    #    np.random.set_state(st0)
     return tasks
 
 
@@ -145,7 +146,7 @@ class ML1(Benchmark):
 class MT1(Benchmark):
     ENV_NAMES = _ml1_env_names()
 
-    def __init__(self, env_name, seed=None):
+    def __init__(self, env_name, seed=42):
         super().__init__()
         if env_name not in _env_dict.ALL_V2_ENVIRONMENTS:
             raise ValueError(f"{env_name} is not a V2 environment")
@@ -195,7 +196,7 @@ class ML45(Benchmark):
 
 
 class MT10(Benchmark):
-    def __init__(self, seed=None):
+    def __init__(self, seed=42):
         super().__init__()
         self._train_classes = _env_dict.MT10_V2
         self._test_classes = OrderedDict()

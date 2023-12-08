@@ -196,7 +196,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
             self.init_right_pad = self.get_body_com("rightpad")
 
             self._get_curr_obs_combined_no_goal = self._get_curr_obs_combined_no_goal_mujoco
-            self.reset_model = self.reset_model_mujoco
+            self.reset_model = self._reset_model
             self._reset_hand = self._reset_hand_mujoco
             self._prev_obs = self._get_curr_obs_combined_no_goal()
 
@@ -682,8 +682,6 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         data = self.pipeline_init()
         obs, data = self.reset_model_mjx(data)
         reward, truncate, terminate, done = jnp.zeros(4)
-        print(State(data, obs, reward, done))
-        exit(0)
         return State(data, obs, reward, done)
 
     def _reset_hand_mujoco(self, steps=50):
