@@ -174,4 +174,11 @@ class SawyerHandlePressEnvV2(SawyerXYZEnv):
             # Calculate reward
             reward = w_dist * dist_to_handle + w_goal_diff * handle_goal_diff + w_action_reg * action_reg
 
-            return reward
+
+            obj = self._get_pos_objects()
+            target = self._target_pos.copy()
+
+            target_to_obj = obj[2] - target[2]
+            target_to_obj = np.linalg.norm(target_to_obj)
+
+            return reward, target_to_obj

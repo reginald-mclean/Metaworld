@@ -142,7 +142,7 @@ class SawyerHandlePressSideEnvV2(SawyerXYZEnv):
             reward = 1 if target_to_obj <= self.TARGET_RADIUS else reward
             reward *= 10
             return (reward, target_to_obj)
-        else:
+        elif self.reward_func_version == 'v1':
             del actions
 
             objPos = obs[4:7]

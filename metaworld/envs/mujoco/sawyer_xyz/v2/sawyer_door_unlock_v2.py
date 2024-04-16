@@ -173,14 +173,14 @@ class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
             action_penalty = ACTION_PENALTY * np.square(action).sum()
 
             # Check if the goal has been reached
-            goal_reached = cdist(obs[4:7].reshape(1, -1), self.env._get_pos_goal().reshape(1, -1), 'cosine') < 0.01
+            goal_reached = cdist(obs[4:7].reshape(1, -1), obs[-3:].reshape(1, -1), 'cosine') < 0.01
 
-           # Calculate reward
-           reward = - DISTANCE_WEIGHT * distance - goal_diff - action_penalty
-           if goal_reached:
-               reward += GOAL_REACHED_REWARD
+            # Calculate reward
+            reward = - DISTANCE_WEIGHT * distance - goal_diff - action_penalty
+            if goal_reached:
+                reward += GOAL_REACHED_REWARD
 
 
-           lock = obs[4:7]
-           obj_to_target = abs(self._target_pos[0] - lock[0])
-           return reward, obj_to_target
+            lock = obs[4:7]
+            obj_to_target = abs(self._target_pos[0] - lock[0])
+            return reward, obj_to_target
