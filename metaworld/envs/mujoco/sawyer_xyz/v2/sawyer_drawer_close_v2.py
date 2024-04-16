@@ -174,7 +174,7 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
             gripper_handle_dist = np.linalg.norm(obs[:3] - obs[4:7])
 
             # Difference between current state of drawer's position and its goal state
-            drawer_goal_dist = np.linalg.norm(obs[4:7] - self.env._get_pos_goal())
+            drawer_goal_dist = np.linalg.norm(obs[4:7] - obs[-3:])
 
             # The gripper should be able to grasp the handle. We can encourage this by
             # adding a reward component that takes into account the gripper's openness.
@@ -192,4 +192,10 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
             # Combine the reward components
             reward = w1 * (-gripper_handle_dist) + w2 * (-drawer_goal_dist) + w3 * gripper_reward + w4 * action_reg
 
-            return reward
+
+            obj = obs[4:7]
+            target = self._target_pos.copy()
+
+            target_to_obj = np.linalg.norm(obj - target)
+
+            return reward, target_to_obj

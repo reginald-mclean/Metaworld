@@ -172,5 +172,7 @@ class SawyerButtonPressEnvV2(SawyerXYZEnv):
 
             # calculate the total reward
             reward = dist_weight * dist_to_goal + state_diff_weight * state_diff + action_reg + goal_reached_weight * goal_reached
+            obj = obs[4:7]
+            obj_to_target = abs(self._target_pos[1] - obj[1])
 
-            return reward
+            return reward, obj_to_target

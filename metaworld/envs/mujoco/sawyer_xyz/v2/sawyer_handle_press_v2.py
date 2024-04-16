@@ -161,10 +161,10 @@ class SawyerHandlePressEnvV2(SawyerXYZEnv):
             dist_to_handle = np.linalg.norm(obs[:3] - obs[4:7])
 
             # Calculate difference between handle's current and goal positions
-            handle_goal_diff = np.linalg.norm(obs[4:7] - self.env._get_pos_goal())
+            handle_goal_diff = np.linalg.norm(obs[4:7] - obs[-3:])
 
             # Regularization term (the smaller the action, the smaller the penalty)
-            action_reg = np.sum(np.square(action))
+            action_reg = np.sum(np.square(actions))
 
             # Define weights for the components of the reward function
             w_dist = -1.0  # penalize distance to handle

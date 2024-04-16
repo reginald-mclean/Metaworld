@@ -1,6 +1,6 @@
 import numpy as np
 from gymnasium.spaces import Box
-
+from scipy.spatial.distance import cdist
 from metaworld.envs import reward_utils
 from metaworld.envs.asset_path_utils import full_v2_path_for
 from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
@@ -167,7 +167,7 @@ class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
             distance = np.linalg.norm(obs[:3] - obs[4:7])
 
             # Compute difference between current state of object and its goal state
-            goal_diff = np.linalg.norm(obs[4:7] - self.env._get_pos_goal())
+            goal_diff = np.linalg.norm(obs[4:7] - obs[-3:])
 
             # Compute action regularization term
             action_penalty = ACTION_PENALTY * np.square(action).sum()
@@ -180,4 +180,7 @@ class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
            if goal_reached:
                reward += GOAL_REACHED_REWARD
 
-           return reward
+
+           lock = obs[4:7]
+           obj_to_target = abs(self._target_pos[0] - lock[0])
+           return reward, obj_to_target

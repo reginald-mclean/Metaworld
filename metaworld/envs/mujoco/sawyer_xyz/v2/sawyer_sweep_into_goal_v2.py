@@ -241,7 +241,7 @@ class SawyerSweepIntoGoalEnvV2(SawyerXYZEnv):
             gripper_obj_dist = np.linalg.norm(obs[:3] - obs[4:7])
 
             # Calculate the Euclidean distance between the puck and the goal hole
-            obj_goal_dist = np.linalg.norm(obs[4:7] - self.env._get_pos_goal())
+            obj_goal_dist = np.linalg.norm(obs[4:7] - obs[-3:])
 
             # The reward for getting the puck into the hole
             if obj_goal_dist < 0.05:  # Threshold for 'close enough'
@@ -257,4 +257,10 @@ class SawyerSweepIntoGoalEnvV2(SawyerXYZEnv):
             action_penalty = 0.001 * np.sum(np.square(action))
             reward -= action_penalty
 
-            return reward
+
+            obj = obs[4:7]
+            target = np.array([self._target_pos[0], self._target_pos[1], obj[2]])
+
+            obj_to_target = np.linalg.norm(obj - target)
+
+            return reward, obj_to_target

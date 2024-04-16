@@ -181,12 +181,12 @@ class SawyerHandlePressSideEnvV2(SawyerXYZEnv):
             gripper_handle_distance = np.clip(gripper_handle_distance, -1, 1)
 
             # Computing the difference between the current and goal states of the handle
-            state_difference = np.linalg.norm(obs[4:7] - self.env._get_pos_goal())
+            state_difference = np.linalg.norm(obs[4:7] - obs[-3:])
             # Normalizing the difference to be within the range -1 to 1
             state_difference = np.clip(state_difference, -1, 1)
 
             # Computing the regularization of the robot's action
-            action_regularization = np.linalg.norm(action)
+            action_regularization = np.linalg.norm(actions)
             # Normalizing the regularization to be within the range -1 to 1
             action_regularization = np.clip(action_regularization, -1, 1)
 
@@ -195,4 +195,10 @@ class SawyerHandlePressSideEnvV2(SawyerXYZEnv):
               -state_difference_weight * state_difference \
               -action_regularization_weight * action_regularization
 
-            return reward
+            obj = self._get_pos_objects()
+            target = self._target_pos.copy()
+
+            target_to_obj = obj[2] - target[2]
+            target_to_obj = np.linalg.norm(target_to_obj)
+
+            return reward, target_to_obj

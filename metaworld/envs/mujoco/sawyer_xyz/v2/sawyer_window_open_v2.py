@@ -173,10 +173,10 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
             handle_dist = np.linalg.norm(obs[:3] - obs[4:7])
 
             # Calculate the difference between the current state of the window and its goal state
-            window_diff = np.linalg.norm(obs[4:7] - self.env._get_pos_goal())
+            window_diff = np.linalg.norm(obs[4:7] - obs[-3:])
 
             # Regularize the robot's action
-            action_reg = np.linalg.norm(action)
+            action_reg = np.linalg.norm(actions)
 
             # Define the weights for the components of the reward
             w1, w2, w3 = 1.0, 1.0, 0.1
@@ -184,4 +184,10 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
             # Compute the reward as a weighted sum of the above components
             reward = -w1*handle_dist - w2*window_diff - w3*action_reg
 
-            return reward
+            obj = self._get_pos_objects()
+            target = self._target_pos.copy()
+
+            target_to_obj = obj[0] - target[0]
+            target_to_obj = np.linalg.norm(target_to_obj)
+
+            return reward, target_to_obj

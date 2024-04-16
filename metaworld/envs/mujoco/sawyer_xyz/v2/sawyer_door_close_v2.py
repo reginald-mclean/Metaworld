@@ -179,4 +179,11 @@ class SawyerDoorCloseEnvV2(SawyerXYZEnv):
 
             # Combine the rewards
             reward = reach_reward + push_reward + gripper_reward
-            return reward
+
+            obj = obs[4:7]
+            target = self._target_pos
+
+            obj_to_target = np.linalg.norm(obj - target)
+
+            return reward, obj_to_target
+

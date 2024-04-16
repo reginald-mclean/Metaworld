@@ -184,10 +184,10 @@ class SawyerWindowCloseEnvV2(SawyerXYZEnv):
             grip_to_handle_dist = np.linalg.norm(obs[:3] - obs[4:7])
 
             # Compute the difference between the window handle's current position and its goal position
-            handle_to_goal_dist = np.linalg.norm(obs[4:7] - self.env._get_pos_goal())
+            handle_to_goal_dist = np.linalg.norm(obs[4:7] - obs[-3:])
 
             # Compute the regularization of the robot's action
-            action_regularization = np.linalg.norm(action)
+            action_regularization = np.linalg.norm(actions)
 
             # Compute the reward as a weighted sum of the above components
             reward = - distance_weight * grip_to_handle_dist - goal_weight * handle_to_goal_dist - action_weight * action_regularization
@@ -200,4 +200,11 @@ class SawyerWindowCloseEnvV2(SawyerXYZEnv):
             if handle_to_goal_dist < 0.05 and obs[3] > 0:
                 reward -= 1.0  # The penalty value 1.0 can be adjusted
 
-            return reward
+
+            obj = self._get_pos_objects()
+            target = self._target_pos.copy()
+
+            target_to_obj = obj[0] - target[0]
+            target_to_obj = np.linalg.norm(target_to_obj)
+
+            return reward, target_to_obj
