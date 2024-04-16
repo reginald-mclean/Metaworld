@@ -130,7 +130,7 @@ class SawyerHandlePressEnvV2(SawyerXYZEnv):
             reward = 1 if target_to_obj <= self.TARGET_RADIUS else reward
             reward *= 10
             return (reward, target_to_obj)
-        else:
+        elif self.reward_func_version == 'v1':
             del actions
 
             objPos = obs[4:7]
@@ -156,3 +156,22 @@ class SawyerHandlePressEnvV2(SawyerXYZEnv):
             reward = -reachDist + pressRew
 
             return [reward, pressDist]
+        elif self.reward_func_version == 'text2reward':
+            # Calculate distance from end effector to handle
+            dist_to_handle = np.linalg.norm(obs[:3] - obs[4:7])
+
+            # Calculate difference between handle's current and goal positions
+            handle_goal_diff = np.linalg.norm(obs[4:7] - self.env._get_pos_goal())
+
+            # Regularization term (the smaller the action, the smaller the penalty)
+            action_reg = np.sum(np.square(action))
+
+            # Define weights for the components of the reward function
+            w_dist = -1.0  # penalize distance to handle
+            w_goal_diff = -1.0  # penalize difference from goal
+            w_action_reg = -0.1  # penalize large actions
+
+            # Calculate reward
+            reward = w_dist * dist_to_handle + w_goal_diff * handle_goal_diff + w_action_reg * action_reg
+
+            return reward

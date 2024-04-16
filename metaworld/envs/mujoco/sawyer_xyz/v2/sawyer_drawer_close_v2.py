@@ -141,7 +141,7 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
             reward *= 10
 
             return (reward, target_to_obj)
-        else:
+        elif self.reward_func_version == 'v1':
             objPos = obs[4:7]
             rightFinger, leftFinger = self._get_site_pos(
                 "rightEndEffector"
@@ -169,3 +169,27 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
             reward = -reachDist + pullRew
 
             return [reward, pullDist]
+        elif self.reward_func_version == 'text2reward':
+            # Distance between robot's gripper and the drawer's handle
+            gripper_handle_dist = np.linalg.norm(obs[:3] - obs[4:7])
+
+            # Difference between current state of drawer's position and its goal state
+            drawer_goal_dist = np.linalg.norm(obs[4:7] - self.env._get_pos_goal())
+
+            # The gripper should be able to grasp the handle. We can encourage this by
+            # adding a reward component that takes into account the gripper's openness.
+            # Assuming that a gripper_openness of -1 means fully open, and 1 means fully closed.
+            gripper_reward = -abs(obs[3] + 1)  # Maximum reward when fully open.
+
+            # Regularization of the robot's action: we want the robot to perform the task
+            # with minimal and efficient action. A common way to achieve this is to penalize
+            # large actions.
+            action_reg = -np.linalg.norm(action)
+
+            # Weights for each reward component
+            w1, w2, w3, w4 = 1.0, 1.0, 0.5, 0.1
+
+            # Combine the reward components
+            reward = w1 * (-gripper_handle_dist) + w2 * (-drawer_goal_dist) + w3 * gripper_reward + w4 * action_reg
+
+            return reward

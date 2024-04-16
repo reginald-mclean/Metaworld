@@ -126,7 +126,7 @@ class SawyerButtonPressEnvV2(SawyerXYZEnv):
                 reward += 8 * button_pressed
 
             return (reward, obj_to_target)
-        else:
+        elif self.reward_func_version == "v1":
             del action
             objPos = obs[4:7]
 
@@ -151,3 +151,26 @@ class SawyerButtonPressEnvV2(SawyerXYZEnv):
             reward = -reachDist + pressRew
 
             return [reward, pressDist]
+        elif self.reward_func_version == "text2reward":
+            # calculate the distance between the robot's gripper and the target object
+            dist_to_goal = np.linalg.norm(obs[:3] - obs[-3:])
+
+            # calculate the difference between current state of object and its goal state
+            state_diff = np.linalg.norm(obs[4:7] - obs[-3:])
+
+            # regularization of the robot's action
+            action_norm = np.linalg.norm(action)
+            action_reg = -0.01 * action_norm
+
+            # check if the goal is reached in y direction
+            goal_reached = float(obs[:3][1] == obs[-2])
+
+            # define the weights for different parts of the reward
+            dist_weight = -1
+            state_diff_weight = -1
+            goal_reached_weight = 100
+
+            # calculate the total reward
+            reward = dist_weight * dist_to_goal + state_diff_weight * state_diff + action_reg + goal_reached_weight * goal_reached
+
+            return reward
