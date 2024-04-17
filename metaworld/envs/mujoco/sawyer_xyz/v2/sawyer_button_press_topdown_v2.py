@@ -124,7 +124,7 @@ class SawyerButtonPressTopdownEnvV2(SawyerXYZEnv):
                 reward += 5 * button_pressed
 
             return (reward, obj_to_target)
-        else:
+        elif self.reward_func_version == 'v1':
             objPos = obs[4:7]
 
             rightFinger, leftFinger = self._get_site_pos(
@@ -151,3 +151,20 @@ class SawyerButtonPressTopdownEnvV2(SawyerXYZEnv):
             reward = reachRew + pressRew
 
             return [reward, pressDist]
+        elif self.reward_func_version == 'text2reward':
+            ee_pos = obs[:3]
+            goal_pos = obs[-3:]
+
+            # 1. Distance metric (focusing on z-coordinate for pressing action)
+            # Using the squared difference for smoother gradients and penalization
+            z_distance = (ee_pos[2] - goal_pos[2]) ** 2
+
+            # 2. Action regularization
+            # Penalize larger actions to encourage minimal and smooth movements
+            action_cost = np.sum(np.square(action))
+
+            # Construct the reward function
+            # Note: We use negative rewards for cost terms (distance and action)
+            reward = -z_distance - 0.01 * action_cost  # scale action cost to reduce its dominance
+            obj = obs[4:7]
+            return reward, np.linalg.norm(self._target_pos[2] - obj[2])

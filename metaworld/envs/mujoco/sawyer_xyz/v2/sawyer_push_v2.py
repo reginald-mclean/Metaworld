@@ -164,7 +164,7 @@ class SawyerPushEnvV2(SawyerXYZEnv):
             if target_to_obj < self.TARGET_RADIUS:
                 reward = 10.0
             return (reward, target_to_obj)
-        else:
+        elif self.reward_func_version == 'v1':
             objPos = obs[4:7]
 
             rightFinger, leftFinger = self._get_site_pos(
@@ -194,3 +194,22 @@ class SawyerPushEnvV2(SawyerXYZEnv):
                 pushRew = 0
             reward = reachRew + pushRew
             return [reward, pushDist]
+        elif self.reward_func_version == 'text2reward':
+            # Extract relevant information from the environment state
+            obj_position = obs[4:7]  # Position of the object to be pushed
+            goal_position = obs[-3:] # The desired goal position
+            action_magnitude = np.linalg.norm(action) # Magnitude of the action vector
+
+            # 1. Distance reward: negative squared Euclidean distance between object and goal
+            distance_to_goal = np.linalg.norm(obj_position - goal_position)
+            distance_reward = -np.square(distance_to_goal)
+
+            # 2. Action regularization: Penalize large actions to encourage smooth movements
+            action_penalty = -0.01 * np.square(action_magnitude)  # Small weight to action penalty
+
+            # Total reward is a combination of distance reward and action penalty
+            total_reward = distance_reward + action_penalty
+
+            return total_reward, distance_to_goal
+
+

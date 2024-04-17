@@ -170,7 +170,7 @@ class SawyerDoorEnvV2(SawyerXYZEnv):
                 reward = 10.0
 
             return reward
-        else:
+        elif self.reward_func_version == 'v1':
             del actions
             objPos = obs[4:7]
 
@@ -200,5 +200,34 @@ class SawyerDoorEnvV2(SawyerXYZEnv):
                 pullRew = 0
 
             reward = reachRew + pullRew
+
+            return reward
+
+        elif self.reward_func_version == 'text2reward':
+            # Constants for reward calculation
+            DISTANCE_WEIGHT = 1.0
+            GOAL_ACHIEVEMENT_WEIGHT = 1.0
+            ACTION_COST_WEIGHT = 0.01
+
+            # Extract relevant data from observation
+            # Assuming obs is structured in a way that we can access the object's properties.
+            gripper_pos = obs[:3]
+            handle_pos = self._get_pos_objects()  # Assuming obj1 is the door handle
+            goal_pos = obs[-3:]
+
+            # 1. Calculate the distance between the gripper and the handle
+            distance_to_handle = np.linalg.norm(gripper_pos - handle_pos)
+
+            # 2. Calculate the progress towards the goal position (how close the handle is to the goal)
+            # We use negative distance as we want to maximize closeness
+            handle_to_goal_distance = -np.linalg.norm(handle_pos - goal_pos)
+
+            # 3. Regularization of the action (penalize large actions)
+            action_cost = np.sum(np.square(action))
+
+            # Compute the total reward
+            reward = (-DISTANCE_WEIGHT * distance_to_handle + 
+                GOAL_ACHIEVEMENT_WEIGHT * handle_to_goal_distance -
+                ACTION_COST_WEIGHT * action_cost)
 
             return reward

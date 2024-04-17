@@ -129,7 +129,7 @@ class SawyerReachEnvV2(SawyerXYZEnv):
             )
 
             return [10 * in_place, tcp_to_target]
-        else:
+        elif self.reward_func_version == 'v1':
             rightFinger, leftFinger = self._get_site_pos(
                 "rightEndEffector"
             ), self._get_site_pos("leftEndEffector")
@@ -149,3 +149,17 @@ class SawyerReachEnvV2(SawyerXYZEnv):
             reachRew = max(reachRew, 0)
             reward = reachRew
             return [reward, reachDist]
+        elif self.reward_func_version == 'text2reward':
+            # Calculate the distance between the end-effector and the goal position
+            distance_to_goal = np.linalg.norm(obs[:3] - obs[-3:])
+
+            # Regularize the action to discourage large movements
+            action_cost = np.sum(np.square(action))
+
+            # Formulate the reward as a weighted sum of the negative distance (to maximize closeness)
+            # and the negative square sum of the action (to encourage smaller actions)
+            reward = -distance_to_goal - 0.1 * action_cost
+
+            return reward, distance_to_goal
+
+

@@ -167,22 +167,31 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
 
             return [reward, pullDist]
         elif self.reward_func_version == 'text2reward':
-            """Computes the dense reward for the Open Window task"""
+            # Extract necessary components from observations (assuming `obs` encapsulates necessary observations)
+            ee_position = obs[:3]
+            handle_position = obs[4:7]
+            window_goal_position = obs[-3:]
+            window_current_position = obs[4:7]
 
-            # Calculate the distance between the robot's gripper and the window's handle
-            handle_dist = np.linalg.norm(obs[:3] - obs[4:7])
+            # Part 1: Distance to Handle Reward
+            # Calculate the Euclidean distance from the end-effector to the window handle
+            distance_to_handle = np.linalg.norm(ee_position - handle_position)
+            # We can normalize this reward in a range where closer distances get higher reward
+            distance_reward = -distance_to_handle  # Negative because we want to minimize distance
 
-            # Calculate the difference between the current state of the window and its goal state
-            window_diff = np.linalg.norm(obs[4:7] - obs[-3:])
+            # Part 2: Goal State Difference
+            # Calculate how far the window is from its desired open position
+            distance_to_goal = np.linalg.norm(window_current_position - window_goal_position)
+            goal_distance_reward = -distance_to_goal  # Negative because we want to minimize this distance
+    
+            # Part 3: Action Regularization
+            # Penalize large actions to encourage smooth and minimal movements
+            action_magnitude = np.linalg.norm(action)
+            action_penalty = -0.1 * action_magnitude  # Regularization factor can be tuned
 
-            # Regularize the robot's action
-            action_reg = np.linalg.norm(actions)
-
-            # Define the weights for the components of the reward
-            w1, w2, w3 = 1.0, 1.0, 0.1
-
-            # Compute the reward as a weighted sum of the above components
-            reward = -w1*handle_dist - w2*window_diff - w3*action_reg
+            # Combine the rewards
+            # The weights for each part can be adjusted based on their importance to the task
+            total_reward = distance_reward + goal_distance_reward + action_penalty
 
             obj = self._get_pos_objects()
             target = self._target_pos.copy()
@@ -190,4 +199,4 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
             target_to_obj = obj[0] - target[0]
             target_to_obj = np.linalg.norm(target_to_obj)
 
-            return reward, target_to_obj
+            return total_reward, target_to_obj

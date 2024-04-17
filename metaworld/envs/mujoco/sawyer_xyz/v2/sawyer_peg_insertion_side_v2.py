@@ -193,7 +193,7 @@ class SawyerPegInsertionSideEnvV2(SawyerXYZEnv):
                 reward = 10.0
 
             return [reward, obj_to_target]
-        else:
+        elif self.reward_func_version == 'v1':
             objPos = obs[4:7]
             pegHeadPos = self._get_site_pos("pegHead")
 
@@ -274,3 +274,40 @@ class SawyerPegInsertionSideEnvV2(SawyerXYZEnv):
             reward = reachRew + pickRew + placeRew
 
             return [reward, placingDist]
+        elif self.reward_func_version == 'text2reward':
+            # Constants for reward calculation
+            DISTANCE_WEIGHT = -1.0
+            GRIPPER_WEIGHT = -0.5
+            ACTION_REGULARIZATION_WEIGHT = -0.1
+
+            # Calculate the distance from the end-effector to the stick
+            distance_to_stick = np.linalg.norm(obs[:3] - obs[4:7])
+            distance_reward = DISTANCE_WEIGHT * distance_to_stick
+
+            # Encourage the gripper to be open before grasping and closed during holding
+            # Assuming the gripper needs to be open (close to 1) to grasp
+            if distance_to_stick < 0.1:  # Threshold for being 'close' to the stick
+                gripper_reward = GRIPPER_WEIGHT * (1 - np.abs(obs[3]))
+            else:
+                gripper_reward = GRIPPER_WEIGHT * np.abs(obs[3])
+
+            # Once the stick is grasped, minimize the distance to the goal position
+            if obs[3] < -0.8:  # Assuming that -1 is fully closed
+                distance_to_goal = np.linalg.norm(obs[4:7] - obs[-3:])
+                goal_distance_reward = DISTANCE_WEIGHT * distance_to_goal
+            else:
+                goal_distance_reward = 0
+
+            # Regularization on the magnitude of the action to encourage smaller, smoother movements
+            action_regularization_reward = ACTION_REGULARIZATION_WEIGHT * np.linalg.norm(action)
+
+            # Total reward
+            total_reward = distance_reward + gripper_reward + goal_distance_reward + action_regularization_reward
+
+            obj_head = self._get_site_pos("pegHead")
+            target = self._target_pos
+            scale = np.array([1.0, 2.0, 2.0])
+            #  force agent to pick up object then insert
+            obj_to_target = np.linalg.norm((obj_head - target) * scale)
+
+            return total_reward, obj_to_target

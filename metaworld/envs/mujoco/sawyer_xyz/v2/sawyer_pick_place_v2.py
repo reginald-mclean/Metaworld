@@ -231,7 +231,7 @@ class SawyerPickPlaceEnvV2(SawyerXYZEnv):
             if obj_to_target < _TARGET_RADIUS:
                 reward = 10.0
             return [reward, obj_to_target]
-        else:
+        elif self.reward_func_version == 'v1':
             objPos = obs[4:7]
 
             rightFinger, leftFinger = self._get_site_pos(
@@ -303,3 +303,35 @@ class SawyerPickPlaceEnvV2(SawyerXYZEnv):
             reward = reachRew + pickRew + placeRew
 
             return reward, placingDist
+        elif self.reward_func_version == 'text2reward':
+            # Extract necessary components from observation for clarity
+            robot_ee_position = obs[:3]
+            gripper_openness = obs[3]
+            obj1_position = obs[4:7]
+            goal_position = obs[-3:]
+    
+            # Constants for reward tuning
+            distance_scale = 1.0
+            gripper_scale = 0.1
+            action_scale = 0.01
+
+            # Part 1: Distance between end-effector and object (approach and lift)
+            ee_to_obj_distance = np.linalg.norm(robot_ee_position - obj1_position)
+            distance_reward = -distance_scale * ee_to_obj_distance
+
+            # Part 2: Distance between object and goal position (transport)
+            obj_to_goal_distance = np.linalg.norm(obj1_position - goal_position)
+            goal_distance_reward = -distance_scale * obj_to_goal_distance
+
+            # Part 3: Gripper reward for grasping
+            # Assuming optimal openness for grasping is around 0 (slightly open)
+            optimal_openness = 0
+            gripper_reward = -gripper_scale * (gripper_openness - optimal_openness) ** 2
+
+            # Part 4: Regularization of the action (smooth and small actions are better)
+            action_penalty = -action_scale * np.sum(np.square(action))
+
+            # Total reward
+            total_reward = distance_reward + goal_distance_reward + gripper_reward + action_penalty
+
+            return total_reward, obj_to_goal_distance

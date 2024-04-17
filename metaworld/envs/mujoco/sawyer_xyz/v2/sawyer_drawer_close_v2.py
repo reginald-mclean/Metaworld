@@ -170,32 +170,32 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
 
             return [reward, pullDist]
         elif self.reward_func_version == 'text2reward':
-            # Distance between robot's gripper and the drawer's handle
-            gripper_handle_dist = np.linalg.norm(obs[:3] - obs[4:7])
-
-            # Difference between current state of drawer's position and its goal state
-            drawer_goal_dist = np.linalg.norm(obs[4:7] - obs[-3:])
-
-            # The gripper should be able to grasp the handle. We can encourage this by
-            # adding a reward component that takes into account the gripper's openness.
-            # Assuming that a gripper_openness of -1 means fully open, and 1 means fully closed.
-            gripper_reward = -abs(obs[3] + 1)  # Maximum reward when fully open.
-
-            # Regularization of the robot's action: we want the robot to perform the task
-            # with minimal and efficient action. A common way to achieve this is to penalize
-            # large actions.
-            action_reg = -np.linalg.norm(action)
-
-            # Weights for each reward component
-            w1, w2, w3, w4 = 1.0, 1.0, 0.5, 0.1
-
-            # Combine the reward components
-            reward = w1 * (-gripper_handle_dist) + w2 * (-drawer_goal_dist) + w3 * gripper_reward + w4 * action_reg
-
-
+            # Constants for reward tuning
+            distance_weight = -1.0  # Negative because we want to minimize distance
+            closure_weight = 1.0  # Positive as we want to maximize the state of closure
+            action_penalty = -0.1  # Penalize the magnitude of action to ensure smoothness
+    
+            # Calculate distance from end-effector to the handle of the drawer (assuming obj1 is the drawer)
+            handle_position = obs[4:7]  # Assuming the handle's position is synonymous with the object's position
+            distance_to_handle = np.linalg.norm(obs[:3] - handle_position)
+    
+            # Calculate how closed the drawer is (simplified assumption: closer to goal_position means more closed)
+            # We assume goal_position indicates the fully closed position of the drawer
+            drawer_closure = -np.linalg.norm(obs[4:7] - obs[-3:])  # More negative when farther from goal
+    
+            # Calculate action penalty (sum of squared action values)
+            action_cost = np.sum(np.square(action))
+    
+            # Combine the parts of the reward function
+            reward = (distance_weight * distance_to_handle +
+                closure_weight * drawer_closure +
+                action_penalty * action_cost)
+    
             obj = obs[4:7]
+            tcp = self.tcp_center
             target = self._target_pos.copy()
 
-            target_to_obj = np.linalg.norm(obj - target)
-
+            target_to_obj = obj - target
+            target_to_obj = np.linalg.norm(target_to_obj)
             return reward, target_to_obj
+

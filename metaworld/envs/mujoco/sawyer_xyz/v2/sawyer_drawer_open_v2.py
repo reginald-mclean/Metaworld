@@ -160,30 +160,33 @@ class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
 
             return [reward, pullDist]
         elif self.reward_func_version == 'text2reward':
-            # Define weights for different components of the reward
-            w1, w2, w3, w4 = 1.0, 1.0, 0.01, 0.001 
+            """
+            Compute the reward for the task of opening a drawer.
 
-            # Compute the distance between the robot's end effector and the handle
-            dist_to_handle = np.linalg.norm(obs[:3] - obs[4:7])
-
-            # Compute the difference between the drawer's current and goal positions
-            goal_diff = np.linalg.norm(obs[4:7] - obs[-3:])
-
-            # Check gripper openness. If the robot is close to the handle and the gripper is not closed, penalize
-            gripper_penalty = 0.0
-            if dist_to_handle < 0.1 and obs[3] > -1:
-                gripper_penalty = 1.0
-
-            # Compute the regularization term for the robot's action
-            action_reg = np.linalg.norm(action)
-
-            # Compute the final reward as a weighted sum of the different components
-            reward = -w1*dist_to_handle - w2*goal_diff - w3*gripper_penalty - w4*action_reg
-
+            :param action: np.ndarray, the action taken by the robot
+            :param obs: observation which might include positions and states of robot and objects
+            :return: float, the calculated reward
+            """
+            # Constants for reward calculation
+            distance_weight = -1.0  # Penalize distance
+            gripper_weight = -0.5   # Penalize incorrect gripper openness
+            action_weight = -0.01   # Small penalty on large actions to encourage smoothness
+        
+            # 1. Distance from gripper to the handle of the drawer (assuming obj1 is the handle)
+            distance_to_handle = np.linalg.norm(obs[:3] - obs[4:7])
+        
+            # 2. Gripper openness penalty (assuming a value of 1 is fully open and appropriate for grasping)
+            gripper_penalty = np.square(obs[3] - 1)
+        
+            # 3. Regularization of the action (encourage smaller actions)
+            action_penalty = np.sum(np.square(action))
+        
+            # Calculate total reward
+            reward = (distance_weight * distance_to_handle +
+                    gripper_weight * gripper_penalty +
+                    action_weight * action_penalty)
             handle = obs[4:7]
 
             handle_error = np.linalg.norm(handle - self._target_pos)
-
             return reward, handle_error
-
 
