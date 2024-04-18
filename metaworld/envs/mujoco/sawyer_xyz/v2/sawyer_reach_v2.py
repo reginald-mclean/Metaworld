@@ -154,7 +154,7 @@ class SawyerReachEnvV2(SawyerXYZEnv):
             distance_to_goal = np.linalg.norm(obs[:3] - obs[-3:])
 
             # Regularize the action to discourage large movements
-            action_cost = np.sum(np.square(action))
+            action_cost = np.sum(np.square(actions))
 
             # Formulate the reward as a weighted sum of the negative distance (to maximize closeness)
             # and the negative square sum of the action (to encourage smaller actions)

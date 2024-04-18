@@ -223,7 +223,7 @@ class SawyerDoorEnvV2(SawyerXYZEnv):
             handle_to_goal_distance = -np.linalg.norm(handle_pos - goal_pos)
 
             # 3. Regularization of the action (penalize large actions)
-            action_cost = np.sum(np.square(action))
+            action_cost = np.sum(np.square(actions))
 
             # Compute the total reward
             reward = (-DISTANCE_WEIGHT * distance_to_handle + 

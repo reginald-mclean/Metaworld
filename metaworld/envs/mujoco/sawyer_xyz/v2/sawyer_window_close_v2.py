@@ -187,7 +187,7 @@ class SawyerWindowCloseEnvV2(SawyerXYZEnv):
             handle_goal_dist = np.linalg.norm(obs[4:7] - obs[-3:])
 
             # Regularization on the action: penalize larger actions to encourage smooth movements
-            action_magnitude = np.linalg.norm(action)
+            action_magnitude = np.linalg.norm(actions)
 
             # Compute the total reward
             reward = (distance_weight * ee_to_handle_dist +

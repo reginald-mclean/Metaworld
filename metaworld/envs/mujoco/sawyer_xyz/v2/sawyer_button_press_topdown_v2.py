@@ -97,7 +97,6 @@ class SawyerButtonPressTopdownEnvV2(SawyerXYZEnv):
         return self._get_obs()
 
     def compute_reward(self, action, obs):
-        del action
         if self.reward_func_version == "v2":
             obj = obs[4:7]
             tcp = self.tcp_center

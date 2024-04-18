@@ -186,7 +186,7 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
     
             # Part 3: Action Regularization
             # Penalize large actions to encourage smooth and minimal movements
-            action_magnitude = np.linalg.norm(action)
+            action_magnitude = np.linalg.norm(actions)
             action_penalty = -0.1 * action_magnitude  # Regularization factor can be tuned
 
             # Combine the rewards
