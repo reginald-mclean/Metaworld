@@ -189,4 +189,38 @@ class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
 
             handle_error = np.linalg.norm(handle - self._target_pos)
             return reward, handle_error
+        elif self.reward_func_version == 't2r3':
+            gripper_pos = obs[:3]
+            gripper_openness = obs[3]
+            handle_pos = obs[4:7]  # Assuming obj1 is the handle of the drawer
 
+            # Constants to tune the reward function
+            distance_scale = 1.0
+            goal_scale = 2.0
+            openness_reward_scale = 0.5
+            action_magnitude_scale = 0.1
+
+            # 1. Distance to Handle Reward: Negative squared Euclidean distance between gripper and handle
+            dist_to_handle = np.linalg.norm(gripper_pos - handle_pos)
+            distance_reward = - (distance_scale * dist_to_handle ** 2)
+
+            # 2. Goal State Reward: Negative squared distance between current drawer position and goal position
+            drawer_pos = obs[11:14]  # Assuming obj2 is the drawer
+            goal_distance = np.linalg.norm(drawer_pos - obs[-3:])
+            goal_reward = - (goal_scale * goal_distance ** 2)
+
+            # 3. Gripper Openness Reward: Encourage the gripper to be closed when near the handle (simple heuristic)
+            if dist_to_handle < 0.1:  # Assuming 0.1 as a threshold distance to consider "near" the handle
+                gripper_openness_reward = -abs(gripper_openness + 1) * openness_reward_scale  # Reward for having t>
+            else:
+                gripper_openness_reward = -abs(gripper_openness) * openness_reward_scale  # Reward for having the g>
+
+            # 4. Action Magnitude Penalty: Discourage too large actions (energy efficiency)
+            action_magnitude_penalty = -action_magnitude_scale * np.linalg.norm(action)
+
+            # Total Reward
+            total_reward = distance_reward + goal_reward + gripper_openness_reward + action_magnitude_penalty
+            handle = obs[4:7]
+
+            handle_error = np.linalg.norm(handle - self._target_pos)
+            return total_reward, handle_error

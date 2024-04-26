@@ -335,3 +335,30 @@ class SawyerPickPlaceEnvV2(SawyerXYZEnv):
             total_reward = distance_reward + goal_distance_reward + gripper_reward + action_penalty
 
             return total_reward, obj_to_goal_distance
+        elif self.reward_func_version == 't2r3':
+            gripper_pos = obs[:3]
+            gripper_openness = obs[3]
+            obj_pos = obs[4:7]
+            goal_pos = obs[-3:]
+
+            # Constants for reward tuning
+            DISTANCE_SCALE = 1.0
+            GOAL_REACHED_REWARD = 100.0
+            GRASP_REWARD = 50.0
+
+            # Calculate distances
+            distance_to_obj = np.linalg.norm(gripper_pos - obj_pos)
+            distance_to_goal = np.linalg.norm(obj_pos - goal_pos)
+
+            # Reward for being close to the object
+            reward = -DISTANCE_SCALE * distance_to_obj
+
+            # Check if the gripper is close enough to potentially grasp the object
+            if distance_to_obj < 0.05:  # Threshold for being considered 'close'
+                reward += -gripper_openness * GRASP_REWARD  # Encourage gripper to close when near the object
+
+            # Reward for object being close to goal
+            if np.linalg.norm(obj_pos - goal_pos) < 0.05:  # Threshold for being considered 'at goal'
+                reward += GOAL_REACHED_REWARD
+
+            return reward, distance_to_goal

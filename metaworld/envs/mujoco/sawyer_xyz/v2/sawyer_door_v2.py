@@ -231,3 +231,23 @@ class SawyerDoorEnvV2(SawyerXYZEnv):
                 ACTION_COST_WEIGHT * action_cost)
 
             return reward
+        elif self.reward_func_version == 't2r3':
+            handle_position = obs[4:7]  # Assuming obj1 is the door handle
+            door_position = obs[11:14]  # Assuming obj2 is the door hinge/base
+            goal_position = obs[-3:]  # Target position for the door to be considered 'open'
+            ee_position = obs[:3]  # End-effector position
+            gripper_openness = obs[3]
+
+            # 1. Distance from gripper to handle (want this to be small)
+            distance_to_handle = np.linalg.norm(ee_position - handle_position)
+            distance_reward = -distance_to_handle  # Negative because we want to minimize this distance
+
+            # 2. Door's current position relative to the goal position (want this to be small)
+            distance_to_goal = np.linalg.norm(door_position - goal_position)
+            position_reward = -distance_to_goal  # Negative because we want to minimize this distance
+
+            # Assemble the total reward
+            # We are using a weighted sum of rewards where weights are adjusted as per the task priority
+            total_reward = (distance_reward * 0.5) + (position_reward * 0.5)
+
+            return total_reward

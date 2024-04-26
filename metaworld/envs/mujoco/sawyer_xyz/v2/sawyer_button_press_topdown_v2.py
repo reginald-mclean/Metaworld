@@ -167,3 +167,53 @@ class SawyerButtonPressTopdownEnvV2(SawyerXYZEnv):
             reward = -z_distance - 0.01 * action_cost  # scale action cost to reduce its dominance
             obj = obs[4:7]
             return reward, np.linalg.norm(self._target_pos[2] - obj[2])
+        elif self.reward_func_version == 'text2reward2':
+            ee_pos = obs[:3]  # End-effector position
+            goal_pos = obs[-3:]    # Goal position (button location)
+
+            # Part 1: Horizontal Distance Reward
+            # Calculate the horizontal (x, y) distance and penalize it to encourage alignment over the button
+            horizontal_distance = np.linalg.norm(ee_pos[:2] - goal_pos[:2])
+            horizontal_distance_reward = -horizontal_distance
+
+            # Part 2: Vertical Alignment Reward
+            # Specifically focus on the z-axis alignment, rewarding the robot for being exactly above the button before descending
+            vertical_distance = np.abs(ee_pos[2] - goal_pos[2])  # Absolute vertical distance to the goal
+            vertical_alignment_reward = -vertical_distance
+
+            # Part 3: Regularization on the action
+            # Encourage smaller and smoother actions by penalizing the square of action values
+            action_penalty = -np.sum(np.square(action))
+
+            # Total reward
+            # We use different weights for horizontal alignment and vertical positioning to prioritize vertical alignment as per task requirements
+            total_reward = 0.5 * horizontal_distance_reward + vertical_alignment_reward + 0.01 * action_penalty
+
+            obj = obs[4:7]
+            return total_reward, np.linalg.norm(self._target_pos[2] - obj[2])
+        elif self.reward_func_version == 't2r3':
+            # Extract necessary components from the observation
+            ee_position = obs[:3]  # End-effector position
+            goal_position = obs[-3:]  # Target position for pressing the button
+    
+            # Calculate the Euclidean distance between the end-effector and the goal position
+            distance_to_goal = np.linalg.norm(ee_position - goal_position)
+    
+            # Reward for getting closer to the goal
+            # We use negative distance as we want the reward to increase as the distance decreases
+            # Additionally, we can scale this or use an exponential to shape the reward function
+            reward_distance = -distance_to_goal
+    
+            # If the distance is very small, we can assume the button can be pressed
+            # We give a large positive reward if the end-effector is very close to the goal position
+            if distance_to_goal < 0.05:  # Threshold for being close enough to press the button
+                reward_press = 100  # Large reward for achieving the main task goal
+            else:
+                reward_press = 0
+    
+            # Total reward is a combination of the distance reward and the button press reward
+            total_reward = reward_distance + reward_press
+            obj = obs[4:7]
+            return total_reward, np.linalg.norm(self._target_pos[2] - obj[2])
+
+

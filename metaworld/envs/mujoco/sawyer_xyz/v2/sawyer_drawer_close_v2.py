@@ -198,4 +198,34 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
             target_to_obj = obj - target
             target_to_obj = np.linalg.norm(target_to_obj)
             return reward, target_to_obj
+        elif self.reward_func_version =='t2r3':
+            distance_to_handle = np.linalg.norm(obs[:3] - obs[4:7])
 
+            # Calculate the current drawer position's distance to the goal position
+            drawer_to_goal_distance = np.linalg.norm(obs[4:7] - obs[-3:])
+
+            # Normalize distances for reward scaling
+            # Assuming max possible distance in the workspace for normalization (workspace_diagonal)
+            workspace_diagonal = 2.0  # Example value, adjust according to actual workspace dimensions
+            normalized_dist_to_handle = distance_to_handle / workspace_diagonal
+            normalized_drawer_to_goal_distance = drawer_to_goal_distance / workspace_diagonal
+
+            # Invert distances to make rewards positive (closer to zero means better, so subtract from 1)
+            reward_dist_to_handle = 1 - normalized_dist_to_handle
+            reward_drawer_to_goal = 1 - normalized_drawer_to_goal_distance
+
+            # Weight components of the reward function
+            # We might prioritize reaching the handle first and then focus on closing the drawer
+            weight_handle = 0.6
+            weight_drawer = 0.4
+
+            # Combine the rewards
+            total_reward = weight_handle * reward_dist_to_handle + weight_drawer * reward_drawer_to_goal
+
+            obj = obs[4:7]
+            tcp = self.tcp_center
+            target = self._target_pos.copy()
+
+            target_to_obj = obj - target
+            target_to_obj = np.linalg.norm(target_to_obj)
+            return total_reward, target_to_obj

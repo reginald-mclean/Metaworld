@@ -200,3 +200,31 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
             target_to_obj = np.linalg.norm(target_to_obj)
 
             return total_reward, target_to_obj
+        elif self.reward_func_version == 't2r3':
+            gripper_pos = obs[:3]
+            handle_pos = obs[4:7]  # Assuming obj1 is the window handle
+            window_pos = obs[11:14]  # Assuming obj2 is the main part of the window
+            goal_pos = obs[-3:]
+    
+            # Calculate the distance from the gripper to the handle
+            dist_gripper_to_handle = np.linalg.norm(gripper_pos - handle_pos)
+    
+            # Calculate the distance from the window to its goal position
+            dist_window_to_goal = np.linalg.norm(window_pos - goal_pos)
+    
+            # Define reward components
+            # Penalize the distance of the gripper from the handle (we want this to be small)
+            reward_handle = -dist_gripper_to_handle
+    
+            # Reward progress towards opening the window (we want this distance to decrease)
+            reward_opening = -dist_window_to_goal
+    
+            # Scale and sum components to form the total reward
+            total_reward = (reward_handle * 0.5) + (reward_opening * 0.5)
+    
+            # Since we want positive rewards that increase as the task gets closer to completion,
+            # we might consider transforming these negative rewards to positive ones
+            # Here we use an exponential scale to convert distances to a more 'rewarding' scale
+            reward = np.exp(total_reward)
+    
+            return reward, dist_window_to_goal

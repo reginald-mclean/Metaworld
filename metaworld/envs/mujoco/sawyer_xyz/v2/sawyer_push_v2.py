@@ -211,5 +211,28 @@ class SawyerPushEnvV2(SawyerXYZEnv):
             total_reward = distance_reward + action_penalty
 
             return total_reward, distance_to_goal
-
-
+        elif self.reward_func_version == 't2r3':
+            obj_position = obs[4:7]
+            goal_position = obs[-3:]
+            ee_position = obs[:3]
+    
+            # Compute the Euclidean distance between the object's position and the goal position
+            dist_object_to_goal = np.linalg.norm(obj_position - goal_position)
+    
+            # Compute the Euclidean distance between the end-effector and the object
+            dist_ee_to_object = np.linalg.norm(ee_position - obj_position)
+    
+            # Reward for bringing the object closer to the goal
+            # Negative sign because smaller distances should have higher rewards
+            reward_closeness = -dist_object_to_goal
+    
+            # Additional potential reward components:
+            # 1. Penalize large distances between the end-effector and the object
+            #    to encourage the robot to stay close to the object it needs to manipulate
+            reward_efficiency = -dist_ee_to_object
+    
+            # Combine the rewards with weights (weights can be tuned based on empirical performance)
+            # Using a larger weight for reward_closeness encourages task completion more directly
+            combined_reward = 10 * reward_closeness + 0.1 * reward_efficiency
+            
+            return combined_reward, dist_object_to_goal

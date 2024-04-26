@@ -161,5 +161,14 @@ class SawyerReachEnvV2(SawyerXYZEnv):
             reward = -distance_to_goal - 0.1 * action_cost
 
             return reward, distance_to_goal
+        elif self.reward_func_version == 't2r3':
+            # Extract the current position of the robot's end-effector
+            current_ee_position = obs[:3]
 
+            # Calculate the Euclidean distance to the goal position
+            distance_to_goal = np.linalg.norm(current_ee_position - obs[-3:])
+
+            reward = -distance_to_goal**2
+    
+            return reward, distance_to_goal
 

@@ -201,3 +201,32 @@ class SawyerWindowCloseEnvV2(SawyerXYZEnv):
             target_to_obj = np.linalg.norm(target_to_obj)
 
             return reward, target_to_obj
+        elif self.reward_func_version == 't2r3':
+            ee_position = obs[:3]  # End-effector position
+            handle_position = obs[4:7]  # Assuming obj1 is the window's handle
+            goal_position = obs[-3:]  # Desired final position of the handle
+    
+            # Calculate distances
+            distance_to_handle = np.linalg.norm(ee_position - handle_position)
+            distance_to_goal = np.linalg.norm(handle_position - goal_position)
+    
+            # Reward components
+            # 1. Proximity to the handle: We want the robot to be close to the handle to manipulate it
+            proximity_reward = -distance_to_handle
+    
+            # 2. Progress towards the goal: We want the handle to move towards the goal position
+            progress_reward = -distance_to_goal
+    
+            # Optional: Penalize large actions to encourage smooth movements
+            action_magnitude = np.linalg.norm(action)
+            action_penalty = -0.1 * action_magnitude
+    
+            # Aggregate the rewards
+            total_reward = proximity_reward + progress_reward + action_penalty
+    
+            # Normalize and ensure positive rewards
+            # Assuming the maximum possible distance as some large value (e.g., the max size of the environment)
+            max_distance = 10.0
+            normalized_reward = (total_reward + 2 * max_distance) / (4 * max_distance)  # Adjust scale to keep rewa>
+    
+            return normalized_reward, distance_to_goal
