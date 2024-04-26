@@ -26,13 +26,22 @@ class SawyerMocapBase(mjenv_gym):
         "render_fps": 80,
     }
 
-    def __init__(self, model_name, frame_skip=5, render_mode=None):
+    def __init__(
+        self,
+        model_name,
+        frame_skip=5,
+        render_mode=None,
+        camera_name=None,
+        camera_id=None,
+    ):
         mjenv_gym.__init__(
             self,
             model_name,
             frame_skip=frame_skip,
             observation_space=self.sawyer_observation_space,
             render_mode=render_mode,
+            camera_name=camera_name,
+            camera_id=camera_id,
         )
         self.reset_mocap_welds()
         self.frame_skip = frame_skip
@@ -113,6 +122,8 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         action_scale=1.0 / 100,
         action_rot_scale=1.0,
         render_mode=None,
+        camera_id=None,
+        camera_name=None,
     ):
         self.action_scale = action_scale
         self.action_rot_scale = action_rot_scale
@@ -140,7 +151,13 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
 
         self._partially_observable = True
 
-        super().__init__(model_name, frame_skip=frame_skip, render_mode=render_mode)
+        super().__init__(
+            model_name,
+            frame_skip=frame_skip,
+            render_mode=render_mode,
+            camera_name=camera_name,
+            camera_id=camera_id,
+        )
 
         mujoco.mj_forward(
             self.model, self.data
@@ -155,13 +172,8 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
             np.array([+1, +1, +1, +1]),
             dtype=np.float64,
         )
-
-        # Technically these observation lengths are different between v1 and v2,
-        # but we handle that elsewhere and just stick with v2 numbers here
         self._obs_obj_max_len = 14
-
         self._set_task_called = False
-
         self.hand_init_pos = None  # OVERRIDE ME
         self._target_pos = None  # OVERRIDE ME
         self._random_reset_space = None  # OVERRIDE ME
@@ -172,6 +184,8 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         # doesn't seem to matter (it will only effect frame-stacking for the
         # very first observation)
 
+        self.init_qpos = np.copy(self.data.qpos)
+        self.init_qvel = np.copy(self.data.qvel)
         self._prev_obs = self._get_curr_obs_combined_no_goal()
 
         EzPickle.__init__(
@@ -521,8 +535,14 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         # V1 environments don't have to implement it
         raise NotImplementedError
 
+    def reset_model(self):
+        qpos = self.init_qpos
+        qvel = self.init_qvel
+        self.set_state(qpos, qvel)
+
     def reset(self, seed=None, options=None):
         self.curr_path_length = 0
+        self.reset_model()
         obs, info = super().reset()
         mujoco.mj_forward(self.model, self.data)
         self._prev_obs = obs[:18].copy()
@@ -544,6 +564,14 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         if self._freeze_rand_vec:
             assert self._last_rand_vec is not None
             return self._last_rand_vec
+        elif self.seeded_rand_vec:
+            rand_vec = self.np_random.uniform(
+                self._random_reset_space.low,
+                self._random_reset_space.high,
+                size=self._random_reset_space.low.size,
+            )
+            self._last_rand_vec = rand_vec
+            return rand_vec
         else:
             rand_vec = np.random.uniform(
                 self._random_reset_space.low,

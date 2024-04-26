@@ -11,7 +11,7 @@ from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import (
 
 
 class SawyerDoorCloseEnvV2(SawyerXYZEnv):
-    def __init__(self, tasks=None, render_mode=None):
+    def __init__(self, render_mode=None, camera_name=None, camera_id=None):
         goal_low = (0.2, 0.65, 0.1499)
         goal_high = (0.3, 0.75, 0.1501)
         hand_low = (-0.5, 0.40, 0.05)
@@ -24,10 +24,9 @@ class SawyerDoorCloseEnvV2(SawyerXYZEnv):
             hand_low=hand_low,
             hand_high=hand_high,
             render_mode=render_mode,
+            camera_name=camera_name,
+            camera_id=camera_id,
         )
-
-        if tasks is not None:
-            self.tasks = tasks
 
         self.init_config = {
             "obj_init_angle": 0.3,
@@ -81,7 +80,7 @@ class SawyerDoorCloseEnvV2(SawyerXYZEnv):
 
         # keep the door open after resetting initial positions
         self._set_obj_xyz(-1.5708)
-
+        self.model.site("goal").pos = self._target_pos
         return self._get_obs()
 
     @_assert_task_is_set
@@ -130,23 +129,3 @@ class SawyerDoorCloseEnvV2(SawyerXYZEnv):
             reward = 10
 
         return [reward, obj_to_target, hand_in_place]
-
-
-class TrainDoorClosev2(SawyerDoorCloseEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerDoorCloseEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
-
-
-class TestDoorClosev2(SawyerDoorCloseEnvV2):
-    tasks = None
-
-    def __init__(self):
-        SawyerDoorCloseEnvV2.__init__(self, self.tasks)
-
-    def reset(self, seed=None, options=None):
-        return super().reset(seed=seed, options=options)
