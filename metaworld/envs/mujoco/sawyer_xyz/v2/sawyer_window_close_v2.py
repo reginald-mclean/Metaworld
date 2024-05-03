@@ -175,6 +175,31 @@ class SawyerWindowCloseEnvV2(SawyerXYZEnv):
 
             return [reward, pullDist]
         elif self.reward_func_version == 'text2reward': 
+            # Define weight parameters for different parts of the reward
+            distance_weight = 1.0
+            goal_weight = 1.0
+            action_weight = 0.01
+
+            # Compute the distance between the robot's gripper and the window handle
+            grip_to_handle_dist = np.linalg.norm(obs[:3] - obs[4:7])
+
+            # Compute the difference between the window handle's current position and its goal position
+            handle_to_goal_dist = np.linalg.norm(obs[4:7] - obs[-3:])
+
+            # Compute the regularization of the robot's action
+            action_regularization = np.linalg.norm(actions)
+
+            # Compute the reward as a weighted sum of the above components
+            reward = - distance_weight * grip_to_handle_dist - goal_weight * handle_to_goal_dist - action_weight * action_regularization
+
+            # If the window handle's current position is close enough to the goal position, give a bonus reward
+            if handle_to_goal_dist < 0.05:  # The threshold 0.05 can be adjusted
+                reward += 1.0  # The bonus reward value 1.0 can be adjusted
+
+            # If the robot's gripper is open when the window handle is at the goal position, give a penalty
+            if handle_to_goal_dist < 0.05 and obs[3] > 0:
+                reward -= 1.0  # The penalty value 1.0 can be adjusted
+            '''
             # Constants for reward tuning
             distance_weight = -1.0  # Negative as we want to minimize distance
             goal_state_weight = -1.0  # Negative as we want to minimize state difference
@@ -192,7 +217,7 @@ class SawyerWindowCloseEnvV2(SawyerXYZEnv):
             # Compute the total reward
             reward = (distance_weight * ee_to_handle_dist +
                 goal_state_weight * handle_goal_dist +
-                action_penalty * action_magnitude)
+                action_penalty * action_magnitude)'''
 
             obj = self._get_pos_objects()
             target = self._target_pos.copy()
@@ -218,7 +243,7 @@ class SawyerWindowCloseEnvV2(SawyerXYZEnv):
             progress_reward = -distance_to_goal
     
             # Optional: Penalize large actions to encourage smooth movements
-            action_magnitude = np.linalg.norm(action)
+            action_magnitude = np.linalg.norm(actions)
             action_penalty = -0.1 * action_magnitude
     
             # Aggregate the rewards

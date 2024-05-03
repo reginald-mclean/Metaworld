@@ -167,7 +167,28 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
 
             return [reward, pullDist]
         elif self.reward_func_version == 'text2reward':
-            # Extract necessary components from observations (assuming `obs` encapsulates necessary observations)
+            # Calculate the distance between the robot's gripper and the window's handle
+            handle_dist = np.linalg.norm(obs[:3] - obs[4:7])
+
+            # Calculate the difference between the current state of the window and its goal state
+            window_diff = np.linalg.norm(obs[4:7] - self._target_pos)
+
+            # Regularize the robot's action
+            action_reg = np.linalg.norm(actions)
+
+            # Define the weights for the components of the reward
+            w1, w2, w3 = 1.0, 1.0, 0.1
+
+            # Compute the reward as a weighted sum of the above components
+            reward = -w1*handle_dist - w2*window_diff - w3*action_reg
+            obj = self._get_pos_objects()
+            target = self._target_pos.copy()
+
+            target_to_obj = obj[0] - target[0]
+            target_to_obj = np.linalg.norm(target_to_obj)
+
+            return reward, target_to_obj
+            '''# Extract necessary components from observations (assuming `obs` encapsulates necessary observations)
             ee_position = obs[:3]
             handle_position = obs[4:7]
             window_goal_position = obs[-3:]
@@ -199,7 +220,7 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
             target_to_obj = obj[0] - target[0]
             target_to_obj = np.linalg.norm(target_to_obj)
 
-            return total_reward, target_to_obj
+            return total_reward, target_to_obj'''
         elif self.reward_func_version == 't2r3':
             gripper_pos = obs[:3]
             handle_pos = obs[4:7]  # Assuming obj1 is the window handle
