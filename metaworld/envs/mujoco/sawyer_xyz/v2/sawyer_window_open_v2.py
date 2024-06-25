@@ -111,7 +111,9 @@ class SawyerWindowOpenEnvV2(SawyerXYZEnv):
 
         self.window_handle_pos_init = self._get_pos_objects()
         self.data.joint("window_slide").qpos = 0.0
-        mujoco.mj_forward(self.model, self.data)
+
+        self.model.site("goal").pos = self._target_pos
+
         return self._get_obs()
 
     def compute_reward(self, actions, obs):

@@ -101,6 +101,8 @@ class SawyerPegUnplugSideEnvV2(SawyerXYZEnv):
 
         self._target_pos = pos_plug + np.array([0.15, 0.0, 0.0])
 
+        self.model.site("goal").pos = self._target_pos
+
         return self._get_obs()
 
     def compute_reward(self, action, obs):

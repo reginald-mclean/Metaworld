@@ -131,6 +131,8 @@ class SawyerPickPlaceWallEnvV2(SawyerXYZEnv):
 
         self._set_obj_xyz(self.obj_init_pos)
 
+        self.model.site("goal").pos = self._target_pos
+
         return self._get_obs()
 
     def compute_reward(self, action, obs):
