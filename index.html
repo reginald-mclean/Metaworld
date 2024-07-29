@@ -8,10 +8,10 @@
     <meta property="og:type" content="website" />
     <meta property="og:description" content="Collections of robotics environments geared towards benchmarking multi-task and meta reinforcement learning" />
     <meta property="og:url" content="https://metaworld.farama.org/index.html" /><meta property="og:image" content="https://metaworld.farama.org/_static/img/metaworld_black-github.png" /><meta name="twitter:card" content="summary_large_image"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex/" /><link rel="search" title="Search" href="search/" /><link rel="next" title="Installation" href="introduction/installation/" />
+<link rel="index" title="Index" href="genindex/" /><link rel="search" title="Search" href="search/" /><link rel="next" title="Basic Usage" href="introduction/basic_usage/" />
         <link rel="canonical" href="https://metaworld.farama.org/index.html" />
 
-    <link rel="shortcut icon" href="_static/favicon.svg"/><!-- Generated with Sphinx 7.2.6 and Furo 2023.08.19.dev1 -->
+    <link rel="shortcut icon" href="_static/favicon.svg"/><!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
         <title>Metaworld Documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=3e7f4c72" />
@@ -212,10 +212,9 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="introduction/installation/">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction/basic_usage/">Basic Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction/rendering/">Rendering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction/scripted_policies/">Scripted Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation/installation/">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rendering/rendering/">Rendering</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -279,7 +278,7 @@
           <article role="main">
             
             <figure class="farama-project-logo align-default">
-<img alt="Metaworld Logo" src="_static/metaworld-text.svg" />
+<img alt="Metaworld Logo" src="_images/metaworld-text.svg" />
 </figure>
 <div class="docutils container">
 <h2 class='farama-project-heading'>
@@ -287,7 +286,8 @@ Meta-World is an open-source simulated benchmark for meta-reinforcement learning
 </h2>
 </div>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_static/mt10.gif"><img alt="REPLACE ME" src="_static/mt10.gif" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="_images/mt10.gif"><img alt="REPLACE ME" src="_images/mt10.gif" style="width: 500px;" />
+</a>
 </figure>
 <p><strong>Basic example:</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">metaworld</span>
@@ -303,7 +303,7 @@ Meta-World is an open-source simulated benchmark for meta-reinforcement learning
 
 <span class="n">obs</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>  <span class="c1"># Reset environment</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>  <span class="c1"># Sample an action</span>
-<span class="n">obs</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">obs</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminate</span><span class="p">,</span> <span class="n">truncate</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="toctree-wrapper compound">
@@ -376,7 +376,7 @@ Meta-World is an open-source simulated benchmark for meta-reinforcement learning
     
 
     <script src="_static/documentation_options.js?v=b59dc8fc"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=7660844c"></script>
     
