@@ -299,7 +299,7 @@ The ML1 benchmark tests for few-shot adaptation to goal variations within a sing
 <section id="mt1">
 <h3>MT1<a class="headerlink" href="#mt1" title="Link to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">import</span> <span class="nn">metaworld</span> 
+<span class="kn">import</span> <span class="nn">metaworld</span>
 
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span> <span class="c1"># for reproducibility</span>
 
@@ -345,7 +345,7 @@ For users with limited compute resources, the synchronous option needs the least
 
 <span class="n">envs</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/MT50-sync&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> <span class="c1"># this returns a Synchronous Vector Environment with 50 environments</span>
 
-<span class="n">obs</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">envs</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span> <span class="c1"># reset all 50 environments   </span>
+<span class="n">obs</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">envs</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span> <span class="c1"># reset all 50 environments</span>
 
 <span class="n">a</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># sample an action for each environment</span>
 
@@ -367,7 +367,7 @@ For users with limited compute resources, the synchronous option needs the least
 
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
 
-<span class="n">train_envs</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/ML1-train-reach-V3&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> 
+<span class="n">train_envs</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/ML1-train-reach-V3&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
 <span class="n">test_envs</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/ML1-test-reach-V3&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
 
 <span class="c1"># training procedure use train_envs</span>
@@ -402,7 +402,7 @@ For users with limited compute resources, the synchronous option needs the least
 <h2>Custom Benchmarks<a class="headerlink" href="#custom-benchmarks" title="Link to this heading">¶</a></h2>
 <p>Finally, we also provide support for creating custom benchmarks by combining any number of Meta-World environments.</p>
 <p>The prefix ‘mt’ will return environments that are goal observable for Multi-Task reinforcement learning, while the prefix ‘ml’ will return environments that are partially observable for Meta-reinforcement learning.
-Like the included MT and ML benchmarks, these environments can also be run in synchronous or asyncronous mode.
+Like the included MT and ML benchmarks, these environments can also be run in synchronous or asynchronous mode.
 In order to create a custom benchmark, the user must provide a list of environment names with the suffix ‘-V3’.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
 <span class="kn">import</span> <span class="nn">metaworld</span>
