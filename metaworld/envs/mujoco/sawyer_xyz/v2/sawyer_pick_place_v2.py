@@ -304,37 +304,43 @@ class SawyerPickPlaceEnvV2(SawyerXYZEnv):
 
             return reward, placingDist
         elif self.reward_func_version == 'text2reward':
-            # Extract necessary components from observation for clarity
-            robot_ee_position = obs[:3]
-            gripper_openness = obs[3]
-            obj1_position = obs[4:7]
-            goal_position = obs[-3:]
-    
-            # Constants for reward tuning
-            distance_scale = 1.0
-            gripper_scale = 0.1
-            action_scale = 0.01
+            # Constants for weighting different components of the reward
+            DISTANCE_WEIGHT = 1.0
+            GOAL_DISTANCE_WEIGHT = 1.0
+            ACTION_REGULARIZATION_WEIGHT = -0.01
+            GRASP_SUCCESS_WEIGHT = 2.0
+            ALIGNMENT_WEIGHT = 1.0
+            STABILITY_WEIGHT = 1.0
+            self.max_ee_to_obj_distance = 2
 
-            # Part 1: Distance between end-effector and object (approach and lift)
-            ee_to_obj_distance = np.linalg.norm(robot_ee_position - obj1_position)
-            distance_reward = -distance_scale * ee_to_obj_distance
 
-            # Part 2: Distance between object and goal position (transport)
-            obj_to_goal_distance = np.linalg.norm(obj1_position - goal_position)
-            goal_distance_reward = -distance_scale * obj_to_goal_distance
+            # Calculate the Euclidean distance between the end effector and the object
+            ee_to_obj_distance = np.linalg.norm(obs[:3] - obs[4:7])
 
-            # Part 3: Gripper reward for grasping
-            # Assuming optimal openness for grasping is around 0 (slightly open)
-            optimal_openness = 0
-            gripper_reward = -gripper_scale * (gripper_openness - optimal_openness) ** 2
+            # Reward for reducing the distance to the object
+            distance_reward = max(0, 1 - (ee_to_obj_distance / self.max_ee_to_obj_distance))
 
-            # Part 4: Regularization of the action (smooth and small actions are better)
-            action_penalty = -action_scale * np.sum(np.square(action))
+            # Calculate the distance from the object to the goal position once it is grasped
+            obj_to_goal_distance = np.linalg.norm(obs[4:7] - obs[-3:])
 
-            # Total reward
-            total_reward = distance_reward + goal_distance_reward + gripper_reward + action_penalty
+            # Reward for placing the object close to the goal
+            goal_distance_reward = max(0, 1 - (obj_to_goal_distance / self.max_obj_to_goal_distance))
 
-            return total_reward, obj_to_goal_distance
+            # Action regularization to discourage excessive or large actions
+            action_cost = np.sum(np.square(action))
+
+            # Grasp success reward based on gripper openness
+            grasp_success = 1 if obs[3] < -0.5 else 0
+
+            # Alignment reward based on the quaternion alignment
+            alignment_reward = self.quaternion_alignment(self.data.mocap_quat, self.obj1.quaternion)
+
+            reward =  (DISTANCE_WEIGHT * distance_reward + 
+               GOAL_DISTANCE_WEIGHT * goal_distance_reward +
+               GRASP_SUCCESS_WEIGHT * grasp_success +
+               ALIGNMENT_WEIGHT * alignment_reward +
+               ACTION_REGULARIZATION_WEIGHT * action_cost)
+            return reward, obj_to_goal_distance
         elif self.reward_func_version == 't2r3':
             gripper_pos = obs[:3]
             gripper_openness = obs[3]
