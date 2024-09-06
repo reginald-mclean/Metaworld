@@ -126,15 +126,15 @@ class SawyerButtonPressTopdownEnvV2(SawyerXYZEnv):
         tcp_closed = 1 - obs[3]
         near_button = reward_utils.tolerance(
             tcp_to_obj,
-            bounds=(0, 0.01),
+            bounds=(0.0, 0.01),
             margin=tcp_to_obj_init,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         button_pressed = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, 0.005),
+            bounds=(0.0, 0.005),
             margin=self._obj_to_target_init,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         reward = 5 * reward_utils.hamacher_product(tcp_closed, near_button)

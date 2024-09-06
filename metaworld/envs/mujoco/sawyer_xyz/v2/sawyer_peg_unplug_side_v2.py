@@ -137,9 +137,9 @@ class SawyerPegUnplugSideEnvV2(SawyerXYZEnv):
 
         in_place = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, 0.05),
+            bounds=(0.0, 0.05),
             margin=in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         grasp_success = tcp_opened > 0.5 and (obj[0] - self.obj_init_pos[0] > 0.015)
 

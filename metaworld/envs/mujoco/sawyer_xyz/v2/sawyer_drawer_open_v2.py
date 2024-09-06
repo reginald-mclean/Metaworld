@@ -118,7 +118,10 @@ class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
         handle_error = float(np.linalg.norm(handle - self._target_pos))
 
         reward_for_opening = reward_utils.tolerance(
-            handle_error, bounds=(0, 0.02), margin=self.maxDist, sigmoid="long_tail"
+            handle_error,
+            bounds=(0.0, 0.02),
+            margin=self.maxDist,
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         handle_pos_init = self._target_pos + np.array([0.0, self.maxDist, 0.0])
@@ -133,9 +136,9 @@ class SawyerDrawerOpenEnvV2(SawyerXYZEnv):
 
         reward_for_caging = reward_utils.tolerance(
             float(np.linalg.norm(gripper_error)),
-            bounds=(0, 0.01),
-            margin=np.linalg.norm(gripper_error_init),
-            sigmoid="long_tail",
+            bounds=(0.0, 0.01),
+            margin=float(np.linalg.norm(gripper_error_init)),
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         reward = reward_for_caging + reward_for_opening

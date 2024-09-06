@@ -136,15 +136,15 @@ class SawyerCoffeeButtonEnvV2(SawyerXYZEnv):
         tcp_closed = max(obs[3], 0.0)
         near_button = reward_utils.tolerance(
             tcp_to_obj,
-            bounds=(0, 0.05),
+            bounds=(0.0, 0.05),
             margin=tcp_to_obj_init,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         button_pressed = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, 0.005),
+            bounds=(0.0, 0.005),
             margin=self.max_dist,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         reward = 2 * reward_utils.hamacher_product(tcp_closed, near_button)

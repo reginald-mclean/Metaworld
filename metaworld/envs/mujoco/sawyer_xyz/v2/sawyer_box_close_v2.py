@@ -155,15 +155,15 @@ class SawyerBoxCloseEnvV2(SawyerXYZEnv):
                 floor - hand[2],
                 bounds=(0.0, 0.01),
                 margin=floor / 2.0,
-                sigmoid="long_tail",
+                sigmoid=reward_utils.SigmoidType.long_tail,
             )
         )
         # grab the lid's handle
         in_place = reward_utils.tolerance(
             float(np.linalg.norm(hand - lid)),
-            bounds=(0, 0.02),
+            bounds=(0.0, 0.02),
             margin=0.5,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         ready_to_lift = reward_utils.hamacher_product(above_floor, in_place)
 
@@ -174,9 +174,9 @@ class SawyerBoxCloseEnvV2(SawyerXYZEnv):
         b = 0.8  # Relative importance of placing the lid on the box
         lifted = a * float(lid[2] > 0.04) + b * reward_utils.tolerance(
             float(np.linalg.norm(pos_error * error_scale)),
-            bounds=(0, 0.05),
+            bounds=(0.0, 0.05),
             margin=0.25,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         return ready_to_lift, lifted

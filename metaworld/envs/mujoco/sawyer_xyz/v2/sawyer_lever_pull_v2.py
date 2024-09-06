@@ -141,9 +141,9 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
         # actually lifting the lever
         ready_to_lift = reward_utils.tolerance(
             float(np.linalg.norm(shoulder_to_lever)),
-            bounds=(0, 0.02),
+            bounds=(0.0, 0.02),
             margin=np.linalg.norm(shoulder_to_lever_init),
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         # The skill of the agent should be measured by its ability to get the
@@ -159,9 +159,9 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
         # reward accidents too much. Past 15deg is probably intentional movement
         lever_engagement = reward_utils.tolerance(
             lever_error,
-            bounds=(0, np.pi / 48.0),
+            bounds=(0.0, np.pi / 48.0),
             margin=(np.pi / 2.0) - (np.pi / 12.0),
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         target = self._target_pos
@@ -170,9 +170,9 @@ class SawyerLeverPullEnvV2(SawyerXYZEnv):
 
         in_place = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, 0.04),
+            bounds=(0.0, 0.04),
             margin=in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         # reward = 2.0 * ready_to_lift + 8.0 * lever_engagement

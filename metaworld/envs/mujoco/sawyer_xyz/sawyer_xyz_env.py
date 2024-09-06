@@ -398,19 +398,13 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         leftpad_object_contacts = [
             x
             for x in self.data.contact
-            if (
-                leftpad_geom_id in (x.geom1, x.geom2)
-                and object_geom_id in (x.geom1, x.geom2)
-            )
+            if (leftpad_geom_id in x.geom and object_geom_id in x.geom)
         ]
 
         rightpad_object_contacts = [
             x
             for x in self.data.contact
-            if (
-                rightpad_geom_id in (x.geom1, x.geom2)
-                and object_geom_id in (x.geom1, x.geom2)
-            )
+            if (rightpad_geom_id in x.geom and object_geom_id in x.geom)
         ]
 
         leftpad_object_contact_force = sum(
@@ -788,7 +782,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
                 pad_to_obj_lr[i],  # "x" in the description above
                 bounds=(obj_radius, pad_success_thresh),
                 margin=caging_lr_margin[i],  # "margin" in the description above
-                sigmoid="long_tail",
+                sigmoid=reward_utils.SigmoidType.long_tail,
             )
             for i in range(2)
         ]
@@ -806,9 +800,9 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         caging_xz_margin -= xz_thresh
         caging_xz = reward_utils.tolerance(
             np.linalg.norm(tcp[xz] - obj_pos[xz]),  # "x" in the description above
-            bounds=(0, xz_thresh),
+            bounds=(0.0, xz_thresh),
             margin=caging_xz_margin,  # "margin" in the description above
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         # MARK: Closed-extent gripper information for caging reward-------------
@@ -833,9 +827,9 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
             reach_margin = abs(tcp_to_obj_init - object_reach_radius)
             reach = reward_utils.tolerance(
                 tcp_to_obj,
-                bounds=(0, object_reach_radius),
+                bounds=(0.0, object_reach_radius),
                 margin=reach_margin,
-                sigmoid="long_tail",
+                sigmoid=reward_utils.SigmoidType.long_tail,
             )
             caging_and_gripping = (caging_and_gripping + float(reach)) / 2
 

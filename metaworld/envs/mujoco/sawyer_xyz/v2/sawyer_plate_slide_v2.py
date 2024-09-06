@@ -131,9 +131,9 @@ class SawyerPlateSlideEnvV2(SawyerXYZEnv):
 
         in_place = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         tcp_to_obj = float(np.linalg.norm(tcp - obj))
@@ -141,9 +141,9 @@ class SawyerPlateSlideEnvV2(SawyerXYZEnv):
 
         object_grasped = reward_utils.tolerance(
             tcp_to_obj,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=obj_grasped_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         in_place_and_object_grasped = reward_utils.hamacher_product(

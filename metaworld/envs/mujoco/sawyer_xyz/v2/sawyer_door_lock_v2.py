@@ -129,15 +129,15 @@ class SawyerDoorLockEnvV2(SawyerXYZEnv):
         tcp_opened = max(obs[3], 0.0)
         near_lock = reward_utils.tolerance(
             tcp_to_obj,
-            bounds=(0, 0.01),
+            bounds=(0.0, 0.01),
             margin=tcp_to_obj_init,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         lock_pressed = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, 0.005),
+            bounds=(0.0, 0.005),
             margin=self._lock_length,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         reward = 2 * reward_utils.hamacher_product(tcp_opened, near_lock)

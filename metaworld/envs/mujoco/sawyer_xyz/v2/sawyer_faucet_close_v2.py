@@ -131,9 +131,9 @@ class SawyerFaucetCloseEnvV2(SawyerXYZEnv):
 
         in_place = reward_utils.tolerance(
             target_to_obj,
-            bounds=(0, self._target_radius),
+            bounds=(0.0, self._target_radius),
             margin=abs(target_to_obj_init - self._target_radius),
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         faucet_reach_radius = 0.01
@@ -141,9 +141,9 @@ class SawyerFaucetCloseEnvV2(SawyerXYZEnv):
         tcp_to_obj_init = np.linalg.norm(self.obj_init_pos - self.init_tcp)
         reach = reward_utils.tolerance(
             tcp_to_obj,
-            bounds=(0, faucet_reach_radius),
-            margin=abs(tcp_to_obj_init - faucet_reach_radius),
-            sigmoid="gaussian",
+            bounds=(0.0, faucet_reach_radius),
+            margin=float(abs(tcp_to_obj_init - faucet_reach_radius)),
+            sigmoid=reward_utils.SigmoidType.gaussian,
         )
 
         tcp_opened = 0

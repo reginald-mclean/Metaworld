@@ -136,17 +136,17 @@ class SawyerDoorUnlockEnvV2(SawyerXYZEnv):
         # actually unlocking the lock
         ready_to_push = reward_utils.tolerance(
             float(np.linalg.norm(shoulder_to_lock)),
-            bounds=(0, 0.02),
-            margin=np.linalg.norm(shoulder_to_lock_init),
-            sigmoid="long_tail",
+            bounds=(0.0, 0.02),
+            margin=float(np.linalg.norm(shoulder_to_lock_init)),
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         obj_to_target = abs(float(self._target_pos[0] - lock[0]))
         pushed = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, 0.005),
+            bounds=(0.0, 0.005),
             margin=self._lock_length,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         reward = 2 * ready_to_push + 8 * pushed

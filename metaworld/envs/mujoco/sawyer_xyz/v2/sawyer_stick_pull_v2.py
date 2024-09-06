@@ -194,27 +194,27 @@ class SawyerStickPullEnvV2(SawyerXYZEnv):
         )
         stick_in_place = reward_utils.tolerance(
             stick_to_container,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=stick_in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         stick_to_target = float(np.linalg.norm(stick - target))
         stick_in_place_margin_2 = float(np.linalg.norm(self.stick_init_pos - target))
         stick_in_place_2 = reward_utils.tolerance(
             stick_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=stick_in_place_margin_2,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         container_to_target = float(np.linalg.norm(container - target))
         container_in_place_margin = float(np.linalg.norm(self.obj_init_pos - target))
         container_in_place = reward_utils.tolerance(
             container_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=container_in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         object_grasped = self._gripper_caging_reward(

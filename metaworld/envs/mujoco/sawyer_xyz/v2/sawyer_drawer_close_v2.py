@@ -129,9 +129,9 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
 
         in_place = reward_utils.tolerance(
             target_to_obj,
-            bounds=(0, self.TARGET_RADIUS),
+            bounds=(0.0, self.TARGET_RADIUS),
             margin=abs(target_to_obj_init - self.TARGET_RADIUS),
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         handle_reach_radius = 0.005
@@ -139,9 +139,9 @@ class SawyerDrawerCloseEnvV2(SawyerXYZEnv):
         tcp_to_obj_init = np.linalg.norm(self.obj_init_pos - self.init_tcp)
         reach = reward_utils.tolerance(
             tcp_to_obj,
-            bounds=(0, handle_reach_radius),
+            bounds=(0.0, handle_reach_radius),
             margin=abs(tcp_to_obj_init - handle_reach_radius),
-            sigmoid="gaussian",
+            sigmoid=reward_utils.SigmoidType.gaussian,
         )
         gripper_closed = min(max(0, action[-1]), 1)
 

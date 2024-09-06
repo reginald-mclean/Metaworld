@@ -120,20 +120,20 @@ class SawyerDoorCloseEnvV2(SawyerXYZEnv):
         # tcp_to_obj = float(np.linalg.norm(tcp - obj))
         obj_to_target = float(np.linalg.norm(obj - target))
 
-        in_place_margin = np.linalg.norm(self.obj_init_pos - target)
+        in_place_margin = float(np.linalg.norm(self.obj_init_pos - target))
         in_place = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=in_place_margin,
-            sigmoid="gaussian",
+            sigmoid=reward_utils.SigmoidType.gaussian,
         )
 
         hand_margin = float(np.linalg.norm(self.hand_init_pos - obj)) + 0.1
         hand_in_place = reward_utils.tolerance(
             tcp_to_target,
-            bounds=(0, 0.25 * _TARGET_RADIUS),
+            bounds=(0.0, 0.25 * _TARGET_RADIUS),
             margin=hand_margin,
-            sigmoid="gaussian",
+            sigmoid=reward_utils.SigmoidType.gaussian,
         )
 
         reward = 3 * hand_in_place + 6 * in_place

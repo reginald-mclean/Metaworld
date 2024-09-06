@@ -143,9 +143,9 @@ class SawyerCoffeePullEnvV2(SawyerXYZEnv):
 
         in_place = reward_utils.tolerance(
             target_to_obj,
-            bounds=(0, 0.05),
+            bounds=(0.0, 0.05),
             margin=target_to_obj_init,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         tcp_opened = obs[3]
         tcp_to_obj = float(np.linalg.norm(obj - self.tcp_center))

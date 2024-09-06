@@ -129,9 +129,9 @@ class SawyerDialTurnEnvV2(SawyerXYZEnv):
 
         in_place = reward_utils.tolerance(
             target_to_obj,
-            bounds=(0, self.TARGET_RADIUS),
+            bounds=(0.0, self.TARGET_RADIUS),
             margin=abs(target_to_obj_init - self.TARGET_RADIUS),
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         dial_reach_radius = 0.005
@@ -141,9 +141,9 @@ class SawyerDialTurnEnvV2(SawyerXYZEnv):
         )
         reach = reward_utils.tolerance(
             tcp_to_obj,
-            bounds=(0, dial_reach_radius),
+            bounds=(0.0, dial_reach_radius),
             margin=abs(tcp_to_obj_init - dial_reach_radius),
-            sigmoid="gaussian",
+            sigmoid=reward_utils.SigmoidType.gaussian,
         )
         gripper_closed = min(max(0, action[-1]), 1)
 

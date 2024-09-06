@@ -208,7 +208,7 @@ class SawyerStickPushEnvV2(SawyerXYZEnv):
                 pad_to_obj_lr[i],  # "x" in the description above
                 bounds=(obj_radius, pad_success_thresh),
                 margin=caging_lr_margin[i],  # "margin" in the description above
-                sigmoid="long_tail",
+                sigmoid=reward_utils.SigmoidType.long_tail,
             )
             for i in range(2)
         ]
@@ -224,9 +224,9 @@ class SawyerStickPushEnvV2(SawyerXYZEnv):
             float(
                 np.linalg.norm(tcp[xz] - obj_pos[xz])
             ),  # "x" in the description above
-            bounds=(0, xz_thresh),
+            bounds=(0.0, xz_thresh),
             margin=caging_xz_margin,  # "margin" in the description above
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         # MARK: Closed-extent gripper information for caging reward-------------
@@ -248,9 +248,9 @@ class SawyerStickPushEnvV2(SawyerXYZEnv):
             reach_margin = abs(tcp_to_obj_init - object_reach_radius)
             reach = reward_utils.tolerance(
                 float(tcp_to_obj),
-                bounds=(0, object_reach_radius),
+                bounds=(0.0, object_reach_radius),
                 margin=reach_margin,
-                sigmoid="long_tail",
+                sigmoid=reward_utils.SigmoidType.long_tail,
             )
             caging_and_gripping = (caging_and_gripping + reach) / 2
 
@@ -274,9 +274,9 @@ class SawyerStickPushEnvV2(SawyerXYZEnv):
         )
         stick_in_place = reward_utils.tolerance(
             stick_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=stick_in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         container_to_target = float(np.linalg.norm(container - target))
@@ -285,9 +285,9 @@ class SawyerStickPushEnvV2(SawyerXYZEnv):
         )
         container_in_place = reward_utils.tolerance(
             container_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=container_in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         object_grasped = self._gripper_caging_reward(

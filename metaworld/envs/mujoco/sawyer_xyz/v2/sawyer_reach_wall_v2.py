@@ -133,9 +133,9 @@ class SawyerReachWallEnvV2(SawyerXYZEnv):
         in_place_margin = float(np.linalg.norm(self.hand_init_pos - target))
         in_place = reward_utils.tolerance(
             tcp_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         return (10 * in_place, tcp_to_target, in_place)
