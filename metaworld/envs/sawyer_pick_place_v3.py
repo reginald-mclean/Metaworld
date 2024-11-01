@@ -184,13 +184,13 @@ class SawyerPickPlaceEnvV3(SawyerXYZEnv):
             delta_object_y_right_pad,
             bounds=(obj_radius, pad_success_margin),
             margin=right_caging_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         left_caging = reward_utils.tolerance(
             delta_object_y_left_pad,
             bounds=(obj_radius, pad_success_margin),
             margin=left_caging_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         y_caging = reward_utils.hamacher_product(left_caging, right_caging)
@@ -210,9 +210,9 @@ class SawyerPickPlaceEnvV3(SawyerXYZEnv):
 
         x_z_caging = reward_utils.tolerance(
             tcp_obj_norm_x_z,
-            bounds=(0, x_z_success_margin),
+            bounds=(0.0, x_z_success_margin),
             margin=tcp_obj_x_z_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         gripper_closed = min(max(0, action[-1]), 1)
@@ -239,9 +239,9 @@ class SawyerPickPlaceEnvV3(SawyerXYZEnv):
 
         in_place = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         object_grasped = self._gripper_caging_reward(action, obj)

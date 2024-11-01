@@ -1,10 +1,11 @@
 """A set of reward utilities written by the authors of dm_control."""
 from __future__ import annotations
 
-from typing import Any, Literal, TypeVar
+from typing import Any, Literal, TypeVar, Union, overload
 
 import numpy as np
 import numpy.typing as npt
+from numpy.typing import NDArray
 
 # The value returned by tolerance() at `margin` distance from `bounds` interval.
 _DEFAULT_VALUE_AT_MARGIN = 0.1
@@ -21,7 +22,7 @@ SIGMOID_TYPE = Literal[
     "tanh_squared",
 ]
 
-X = TypeVar("X", float, npt.NDArray, np.floating)
+X = TypeVar("X", float, npt.NDArray, np.floating, np.float64)
 
 
 def _sigmoids(x: X, value_at_1: float, sigmoid: SIGMOID_TYPE) -> X:
@@ -94,13 +95,46 @@ def _sigmoids(x: X, value_at_1: float, sigmoid: SIGMOID_TYPE) -> X:
         raise ValueError(f"Unknown sigmoid type {sigmoid!r}.")
 
 
+@overload
 def tolerance(
-    x: X,
+    x: float,
+    bounds: tuple[float, float] = ...,
+    margin: float | np.floating[Any] = ...,
+    sigmoid: SIGMOID_TYPE = ...,
+    value_at_margin: float = ...,
+) -> float:
+    ...
+
+
+@overload
+def tolerance(
+    x: np.floating[Any],
+    bounds: tuple[float, float] = ...,
+    margin: float | np.floating[Any] | np.floating[Any | _64Bit] = ...,
+    sigmoid: SIGMOID_TYPE = ...,
+    value_at_margin: float = ...,
+) -> np.floating[Any]:
+    ...
+
+
+@overload
+def tolerance(
+    x: np.floating[np._64Bit],
+    bounds: tuple[float, float] = ...,
+    margin: float | np.floating[Any] | np.floating[Any | _64Bit] = ...,
+    sigmoid: SIGMOID_TYPE = ...,
+    value_at_margin: float = ...,
+) -> np.floating[np._64Bit]:
+    ...
+
+
+def tolerance(
+    x: float | np.floating[Any] | np.floating[np._64Bit],
     bounds: tuple[float, float] = (0.0, 0.0),
-    margin: float | np.floating[Any] = 0.0,
+    margin: float | np.floating[Any] | np.floating[Any | _64Bit] = 0.0,
     sigmoid: SIGMOID_TYPE = "gaussian",
     value_at_margin: float = _DEFAULT_VALUE_AT_MARGIN,
-) -> X:
+) -> float | np.floating[Any] | np.floating[np._64Bit]:
     """Returns 1 when `x` falls inside the bounds, between 0 and 1 otherwise.
 
     Args:

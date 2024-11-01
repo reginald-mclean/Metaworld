@@ -163,26 +163,26 @@ class SawyerPushBackEnvV3(SawyerXYZEnv):
             delta_object_y_right_pad,
             bounds=(obj_radius, pad_success_margin),
             margin=right_caging_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         left_caging = reward_utils.tolerance(
             delta_object_y_left_pad,
             bounds=(obj_radius, pad_success_margin),
             margin=left_caging_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         right_gripping = reward_utils.tolerance(
             delta_object_y_right_pad,
             bounds=(obj_radius, grip_success_margin),
             margin=right_caging_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         left_gripping = reward_utils.tolerance(
             delta_object_y_left_pad,
             bounds=(obj_radius, grip_success_margin),
             margin=left_caging_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         assert right_caging >= 0 and right_caging <= 1
@@ -205,9 +205,9 @@ class SawyerPushBackEnvV3(SawyerXYZEnv):
         )
         x_z_caging = reward_utils.tolerance(
             float(tcp_obj_norm_x_z),
-            bounds=(0, x_z_success_margin),
+            bounds=(0.0, x_z_success_margin),
             margin=tcp_obj_x_z_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         assert right_caging >= 0 and right_caging <= 1
@@ -239,9 +239,9 @@ class SawyerPushBackEnvV3(SawyerXYZEnv):
 
         in_place = reward_utils.tolerance(
             target_to_obj,
-            bounds=(0, self.TARGET_RADIUS),
+            bounds=(0.0, self.TARGET_RADIUS),
             margin=target_to_obj_init,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         object_grasped = self._gripper_caging_reward(action, obj, self.OBJ_RADIUS)
 

@@ -141,7 +141,7 @@ class SawyerPickOutOfHoleEnvV3(SawyerXYZEnv):
                 max(floor - gripper[2], 0.0),
                 bounds=(0.0, 0.01),
                 margin=0.02,
-                sigmoid="long_tail",
+                sigmoid=reward_utils.SigmoidType.long_tail,
             )
         )
         object_grasped = self._gripper_caging_reward(
@@ -155,7 +155,10 @@ class SawyerPickOutOfHoleEnvV3(SawyerXYZEnv):
             high_density=True,
         )
         in_place = reward_utils.tolerance(
-            obj_to_target, bounds=(0, 0.02), margin=in_place_margin, sigmoid="long_tail"
+            obj_to_target,
+            bounds=(0.0, 0.02),
+            margin=in_place_margin,
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         reward = reward_utils.hamacher_product(object_grasped, in_place)
 

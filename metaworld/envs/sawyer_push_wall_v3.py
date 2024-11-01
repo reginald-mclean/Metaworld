@@ -168,16 +168,16 @@ class SawyerPushWallEnvV3(SawyerXYZEnv):
 
         in_place_part1 = reward_utils.tolerance(
             obj_to_midpoint,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=obj_to_midpoint_init,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         in_place_part2 = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=obj_to_target_init,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         object_grasped = self._gripper_caging_reward(

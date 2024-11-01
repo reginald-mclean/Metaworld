@@ -131,9 +131,9 @@ class SawyerHammerEnvV3(SawyerXYZEnv):
         lifted = hammer_head[2] > 0.02
         in_place = a * float(lifted) + b * reward_utils.tolerance(
             np.linalg.norm(pos_error),
-            bounds=(0, 0.02),
+            bounds=(0.0, 0.02),
             margin=0.2,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         return in_place

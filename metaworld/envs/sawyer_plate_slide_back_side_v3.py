@@ -150,18 +150,18 @@ class SawyerPlateSlideBackSideEnvV3(SawyerXYZEnv):
         in_place_margin = float(np.linalg.norm(self.obj_init_pos - target))
         in_place = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=in_place_margin - _TARGET_RADIUS,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         tcp_to_obj = float(np.linalg.norm(tcp - obj))
         obj_grasped_margin = float(np.linalg.norm(self.init_tcp - self.obj_init_pos))
         object_grasped = reward_utils.tolerance(
             tcp_to_obj,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=obj_grasped_margin - _TARGET_RADIUS,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         reward = 1.5 * object_grasped

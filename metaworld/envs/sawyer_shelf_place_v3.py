@@ -148,9 +148,9 @@ class SawyerShelfPlaceEnvV3(SawyerXYZEnv):
 
         in_place = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         object_grasped = self._gripper_caging_reward(
