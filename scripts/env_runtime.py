@@ -8,8 +8,6 @@ import numpy as np
 
 import metaworld
 import metaworld.envs
-import metaworld.envs.mujoco
-import metaworld.envs.mujoco.sawyer_xyz
 
 SEED = 42
 BENCH_SECONDS = 20
@@ -33,7 +31,7 @@ class RandomTaskSelectWrapper(gymnasium.Wrapper):
 
     def __init__(
         self,
-        env: metaworld.envs.mujoco.sawyer_xyz.SawyerXYZEnv,
+        env: metaworld.SawyerXYZEnv,
         tasks: List[metaworld.Task],
         sample_tasks_on_reset: bool = True,
     ):
@@ -60,7 +58,7 @@ class RandomTaskSelectWrapper(gymnasium.Wrapper):
 
 def make_envs(benchmark: metaworld.Benchmark) -> gymnasium.vector.VectorEnv:
     def _make_env_internal(
-        env_cls: type[metaworld.envs.mujoco.sawyer_xyz.SawyerXYZEnv], env_cls_name: str
+        env_cls: type[metaworld.SawyerXYZEnv], env_cls_name: str
     ) -> gymnasium.Env:
         env = env_cls()
         tasks = [
