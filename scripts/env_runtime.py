@@ -69,7 +69,7 @@ def make_envs(benchmark: metaworld.Benchmark) -> gymnasium.vector.VectorEnv:
         env = RandomTaskSelectWrapper(env, tasks)  # type: ignore
         return env
 
-    return gymnasium.vector.SyncVectorEnv(
+    return gymnasium.vector.AsyncVectorEnv(
         [
             partial(_make_env_internal, env_cls, env_cls_name)
             for env_cls_name, env_cls in benchmark.train_classes.items()

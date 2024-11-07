@@ -5,7 +5,7 @@
     "distutils": {
         "depends": [],
         "include_dirs": [
-            "/private/var/folders/f6/pl2f90l97bl083zthbq7dpl40000gr/T/pip-build-env-w8hofi1z/overlay/lib/python3.10/site-packages/numpy/_core/include"
+            "/tmp/pip-build-env-hdy0cgni/overlay/lib/python3.10/site-packages/numpy/_core/include"
         ],
         "name": "metaworld.utils.reward_utils",
         "sources": [
@@ -1647,7 +1647,7 @@ typedef struct __pyx_ctuple_double__and_double __pyx_ctuple_double__and_double;
 struct __pyx_defaults;
 typedef struct __pyx_defaults __pyx_defaults;
 
-/* "metaworld/utils/reward_utils.pyx":8
+/* "metaworld/utils/reward_utils.pyx":7
  *
  *
  * cpdef enum SigmoidType:             # <<<<<<<<<<<<<<
@@ -1665,7 +1665,7 @@ enum __pyx_t_9metaworld_5utils_12reward_utils_SigmoidType {
   __pyx_e_9metaworld_5utils_12reward_utils_tanh_squared
 };
 
-/* "metaworld/utils/reward_utils.pyx":26
+/* "metaworld/utils/reward_utils.pyx":25
  * def tolerance(
  *     double x,
  *     (double, double) bounds = (0.0, 0.0),             # <<<<<<<<<<<<<<
@@ -2865,13 +2865,13 @@ static PyObject *__pyx_memoryviewslice_convert_item_to_object(struct __pyx_memor
 static PyObject *__pyx_memoryviewslice_assign_item_from_object(struct __pyx_memoryviewslice_obj *__pyx_v_self, char *__pyx_v_itemp, PyObject *__pyx_v_value); /* proto*/
 static PyObject *__pyx_memoryviewslice__get_base(struct __pyx_memoryviewslice_obj *__pyx_v_self); /* proto*/
 
-/* Module declarations from "libc.math" */
-
 /* Module declarations from "cython.view" */
 
 /* Module declarations from "cython.dataclasses" */
 
 /* Module declarations from "cython" */
+
+/* Module declarations from "libc.math" */
 
 /* Module declarations from "metaworld.utils.reward_utils" */
 static PyObject *__Pyx_OrderedDict = 0;
@@ -21023,7 +21023,7 @@ static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *__
   return __pyx_r;
 }
 
-/* "metaworld/utils/reward_utils.pyx":19
+/* "metaworld/utils/reward_utils.pyx":18
  *
  *
  * def sigmoids(double x, double value_at_1, SigmoidType sigmoid) -> double:             # <<<<<<<<<<<<<<
@@ -21090,7 +21090,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -21098,9 +21098,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("sigmoids", 1, 3, 3, 1); __PYX_ERR(0, 19, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("sigmoids", 1, 3, 3, 1); __PYX_ERR(0, 18, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -21108,14 +21108,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[2]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("sigmoids", 1, 3, 3, 2); __PYX_ERR(0, 19, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("sigmoids", 1, 3, 3, 2); __PYX_ERR(0, 18, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "sigmoids") < 0)) __PYX_ERR(0, 19, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "sigmoids") < 0)) __PYX_ERR(0, 18, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
@@ -21124,13 +21124,13 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       values[1] = __Pyx_Arg_FASTCALL(__pyx_args, 1);
       values[2] = __Pyx_Arg_FASTCALL(__pyx_args, 2);
     }
-    __pyx_v_x = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L3_error)
-    __pyx_v_value_at_1 = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_value_at_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L3_error)
-    __pyx_v_sigmoid = ((enum __pyx_t_9metaworld_5utils_12reward_utils_SigmoidType)__Pyx_PyInt_As_enum____pyx_t_9metaworld_5utils_12reward_utils_SigmoidType(values[2])); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L3_error)
+    __pyx_v_x = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L3_error)
+    __pyx_v_value_at_1 = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_value_at_1 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L3_error)
+    __pyx_v_sigmoid = ((enum __pyx_t_9metaworld_5utils_12reward_utils_SigmoidType)__Pyx_PyInt_As_enum____pyx_t_9metaworld_5utils_12reward_utils_SigmoidType(values[2])); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("sigmoids", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 19, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("sigmoids", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 18, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -21167,7 +21167,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_sigmoids(CYTHON_UNUSE
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("sigmoids", 1);
 
-  /* "metaworld/utils/reward_utils.pyx":20
+  /* "metaworld/utils/reward_utils.pyx":19
  *
  * def sigmoids(double x, double value_at_1, SigmoidType sigmoid) -> double:
  *     return _sigmoids(x, value_at_1, sigmoid)             # <<<<<<<<<<<<<<
@@ -21175,14 +21175,14 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_sigmoids(CYTHON_UNUSE
  *
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(__pyx_v_x, __pyx_v_value_at_1, __pyx_v_sigmoid); if (unlikely(__pyx_t_1 == ((double)-1) && PyErr_Occurred())) __PYX_ERR(0, 20, __pyx_L1_error)
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 20, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(__pyx_v_x, __pyx_v_value_at_1, __pyx_v_sigmoid); if (unlikely(__pyx_t_1 == ((double)-1) && PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 19, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "metaworld/utils/reward_utils.pyx":19
+  /* "metaworld/utils/reward_utils.pyx":18
  *
  *
  * def sigmoids(double x, double value_at_1, SigmoidType sigmoid) -> double:             # <<<<<<<<<<<<<<
@@ -21201,7 +21201,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_sigmoids(CYTHON_UNUSE
   return __pyx_r;
 }
 
-/* "metaworld/utils/reward_utils.pyx":23
+/* "metaworld/utils/reward_utils.pyx":22
  *
  *
  * @cython.cdivision(True)             # <<<<<<<<<<<<<<
@@ -21222,67 +21222,67 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_8__defaults__(CYTHON_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__defaults__", 1);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert__to_py___pyx_ctuple_double__and_double(__Pyx_CyFunction_Defaults(__pyx_defaults, __pyx_self)->__pyx_arg_bounds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert__to_py___pyx_ctuple_double__and_double(__Pyx_CyFunction_Defaults(__pyx_defaults, __pyx_self)->__pyx_arg_bounds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 22, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "metaworld/utils/reward_utils.pyx":27
+  /* "metaworld/utils/reward_utils.pyx":26
  *     double x,
  *     (double, double) bounds = (0.0, 0.0),
  *     double margin = 0.0,             # <<<<<<<<<<<<<<
  *     SigmoidType sigmoid = SigmoidType.gaussian,
  *     double value_at_margin = DEFAULT_VALUE_AT_MARGIN,
  */
-  __pyx_t_2 = PyFloat_FromDouble(((double)0.0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 27, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(((double)0.0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
 
-  /* "metaworld/utils/reward_utils.pyx":23
+  /* "metaworld/utils/reward_utils.pyx":22
  *
  *
  * @cython.cdivision(True)             # <<<<<<<<<<<<<<
  * def tolerance(
  *     double x,
  */
-  __pyx_t_3 = __Pyx_Enum_81551f__9metaworld_5utils_12reward_utils_enum__dunderp__etc_to_py(__Pyx_CyFunction_Defaults(__pyx_defaults, __pyx_self)->__pyx_arg_sigmoid); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_Enum_81551f__9metaworld_5utils_12reward_utils_enum__dunderp__etc_to_py(__Pyx_CyFunction_Defaults(__pyx_defaults, __pyx_self)->__pyx_arg_sigmoid); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 22, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
-  /* "metaworld/utils/reward_utils.pyx":29
+  /* "metaworld/utils/reward_utils.pyx":28
  *     double margin = 0.0,
  *     SigmoidType sigmoid = SigmoidType.gaussian,
  *     double value_at_margin = DEFAULT_VALUE_AT_MARGIN,             # <<<<<<<<<<<<<<
  * ) -> double:
  *     """Returns 1 when `x` falls inside the bounds, between 0 and 1 otherwise.
  */
-  __pyx_t_4 = PyFloat_FromDouble(((double)0.1)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 29, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(((double)0.1)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "metaworld/utils/reward_utils.pyx":23
+  /* "metaworld/utils/reward_utils.pyx":22
  *
  *
  * @cython.cdivision(True)             # <<<<<<<<<<<<<<
  * def tolerance(
  *     double x,
  */
-  __pyx_t_5 = PyTuple_New(4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 22, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_1)) __PYX_ERR(0, 22, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_2);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_t_2)) __PYX_ERR(0, 23, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_t_2)) __PYX_ERR(0, 22, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_3);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 2, __pyx_t_3)) __PYX_ERR(0, 23, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 2, __pyx_t_3)) __PYX_ERR(0, 22, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_4);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 3, __pyx_t_4)) __PYX_ERR(0, 23, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 3, __pyx_t_4)) __PYX_ERR(0, 22, __pyx_L1_error);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
   __pyx_t_3 = 0;
   __pyx_t_4 = 0;
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 22, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_5);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_5)) __PYX_ERR(0, 23, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_5)) __PYX_ERR(0, 22, __pyx_L1_error);
   __Pyx_INCREF(Py_None);
   __Pyx_GIVEREF(Py_None);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 1, Py_None)) __PYX_ERR(0, 23, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 1, Py_None)) __PYX_ERR(0, 22, __pyx_L1_error);
   __pyx_t_5 = 0;
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
@@ -21370,40 +21370,40 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 23, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 22, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
         if (kw_args > 0) {
           PyObject* value = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_bounds);
           if (value) { values[1] = __Pyx_Arg_NewRef_FASTCALL(value); kw_args--; }
-          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 23, __pyx_L3_error)
+          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 22, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (kw_args > 0) {
           PyObject* value = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_margin);
           if (value) { values[2] = __Pyx_Arg_NewRef_FASTCALL(value); kw_args--; }
-          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 23, __pyx_L3_error)
+          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 22, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (kw_args > 0) {
           PyObject* value = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_sigmoid);
           if (value) { values[3] = __Pyx_Arg_NewRef_FASTCALL(value); kw_args--; }
-          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 23, __pyx_L3_error)
+          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 22, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (kw_args > 0) {
           PyObject* value = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_value_at_margin);
           if (value) { values[4] = __Pyx_Arg_NewRef_FASTCALL(value); kw_args--; }
-          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 23, __pyx_L3_error)
+          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 22, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "tolerance") < 0)) __PYX_ERR(0, 23, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "tolerance") < 0)) __PYX_ERR(0, 22, __pyx_L3_error)
       }
     } else {
       switch (__pyx_nargs) {
@@ -21420,31 +21420,31 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    __pyx_v_x = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
+    __pyx_v_x = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_x == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 24, __pyx_L3_error)
     if (values[1]) {
-      __pyx_v_bounds = __pyx_convert__from_py___pyx_ctuple_double__and_double(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 26, __pyx_L3_error)
+      __pyx_v_bounds = __pyx_convert__from_py___pyx_ctuple_double__and_double(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
     } else {
       __pyx_v_bounds = __pyx_dynamic_args->__pyx_arg_bounds;
     }
     if (values[2]) {
-      __pyx_v_margin = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_margin == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 27, __pyx_L3_error)
+      __pyx_v_margin = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_margin == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 26, __pyx_L3_error)
     } else {
       __pyx_v_margin = ((double)((double)0.0));
     }
     if (values[3]) {
-      __pyx_v_sigmoid = ((enum __pyx_t_9metaworld_5utils_12reward_utils_SigmoidType)__Pyx_PyInt_As_enum____pyx_t_9metaworld_5utils_12reward_utils_SigmoidType(values[3])); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 28, __pyx_L3_error)
+      __pyx_v_sigmoid = ((enum __pyx_t_9metaworld_5utils_12reward_utils_SigmoidType)__Pyx_PyInt_As_enum____pyx_t_9metaworld_5utils_12reward_utils_SigmoidType(values[3])); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 27, __pyx_L3_error)
     } else {
       __pyx_v_sigmoid = __pyx_dynamic_args->__pyx_arg_sigmoid;
     }
     if (values[4]) {
-      __pyx_v_value_at_margin = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_value_at_margin == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L3_error)
+      __pyx_v_value_at_margin = __pyx_PyFloat_AsDouble(values[4]); if (unlikely((__pyx_v_value_at_margin == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 28, __pyx_L3_error)
     } else {
       __pyx_v_value_at_margin = ((double)((double)0.1));
     }
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("tolerance", 0, 1, 5, __pyx_nargs); __PYX_ERR(0, 23, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("tolerance", 0, 1, 5, __pyx_nargs); __PYX_ERR(0, 22, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -21487,7 +21487,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_2tolerance(CYTHON_UNU
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("tolerance", 1);
 
-  /* "metaworld/utils/reward_utils.pyx":60
+  /* "metaworld/utils/reward_utils.pyx":59
  *     cdef double value, d
  *
  *     if bounds[0] > bounds[1]:             # <<<<<<<<<<<<<<
@@ -21497,20 +21497,20 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_2tolerance(CYTHON_UNU
   __pyx_t_1 = (__pyx_v_bounds.f0 > __pyx_v_bounds.f1);
   if (unlikely(__pyx_t_1)) {
 
-    /* "metaworld/utils/reward_utils.pyx":61
+    /* "metaworld/utils/reward_utils.pyx":60
  *
  *     if bounds[0] > bounds[1]:
  *         raise ValueError("Lower bound must be <= upper bound.")             # <<<<<<<<<<<<<<
  *     if margin < 0:
  *         raise ValueError(f"`margin` must be non-negative. Current value: {margin}")
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 61, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 60, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 61, __pyx_L1_error)
+    __PYX_ERR(0, 60, __pyx_L1_error)
 
-    /* "metaworld/utils/reward_utils.pyx":60
+    /* "metaworld/utils/reward_utils.pyx":59
  *     cdef double value, d
  *
  *     if bounds[0] > bounds[1]:             # <<<<<<<<<<<<<<
@@ -21519,7 +21519,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_2tolerance(CYTHON_UNU
  */
   }
 
-  /* "metaworld/utils/reward_utils.pyx":62
+  /* "metaworld/utils/reward_utils.pyx":61
  *     if bounds[0] > bounds[1]:
  *         raise ValueError("Lower bound must be <= upper bound.")
  *     if margin < 0:             # <<<<<<<<<<<<<<
@@ -21529,29 +21529,29 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_2tolerance(CYTHON_UNU
   __pyx_t_1 = (__pyx_v_margin < 0.0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "metaworld/utils/reward_utils.pyx":63
+    /* "metaworld/utils/reward_utils.pyx":62
  *         raise ValueError("Lower bound must be <= upper bound.")
  *     if margin < 0:
  *         raise ValueError(f"`margin` must be non-negative. Current value: {margin}")             # <<<<<<<<<<<<<<
  *
  *     if margin == 0:
  */
-    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_margin); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_margin); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_FormatSimple(__pyx_t_2, __pyx_empty_unicode); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_FormatSimple(__pyx_t_2, __pyx_empty_unicode); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 62, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyUnicode_Concat(__pyx_kp_u_margin_must_be_non_negative_Cur, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyUnicode_Concat(__pyx_kp_u_margin_must_be_non_negative_Cur, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 62, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 63, __pyx_L1_error)
+    __PYX_ERR(0, 62, __pyx_L1_error)
 
-    /* "metaworld/utils/reward_utils.pyx":62
+    /* "metaworld/utils/reward_utils.pyx":61
  *     if bounds[0] > bounds[1]:
  *         raise ValueError("Lower bound must be <= upper bound.")
  *     if margin < 0:             # <<<<<<<<<<<<<<
@@ -21560,7 +21560,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_2tolerance(CYTHON_UNU
  */
   }
 
-  /* "metaworld/utils/reward_utils.pyx":65
+  /* "metaworld/utils/reward_utils.pyx":64
  *         raise ValueError(f"`margin` must be non-negative. Current value: {margin}")
  *
  *     if margin == 0:             # <<<<<<<<<<<<<<
@@ -21570,7 +21570,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_2tolerance(CYTHON_UNU
   __pyx_t_1 = (__pyx_v_margin == 0.0);
   if (__pyx_t_1) {
 
-    /* "metaworld/utils/reward_utils.pyx":66
+    /* "metaworld/utils/reward_utils.pyx":65
  *
  *     if margin == 0:
  *         value = 1.0 if bounds[0] <= x and x <= bounds[1] else 0.0             # <<<<<<<<<<<<<<
@@ -21593,7 +21593,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_2tolerance(CYTHON_UNU
     }
     __pyx_v_value = __pyx_t_4;
 
-    /* "metaworld/utils/reward_utils.pyx":65
+    /* "metaworld/utils/reward_utils.pyx":64
  *         raise ValueError(f"`margin` must be non-negative. Current value: {margin}")
  *
  *     if margin == 0:             # <<<<<<<<<<<<<<
@@ -21603,7 +21603,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_2tolerance(CYTHON_UNU
     goto __pyx_L5;
   }
 
-  /* "metaworld/utils/reward_utils.pyx":68
+  /* "metaworld/utils/reward_utils.pyx":67
  *         value = 1.0 if bounds[0] <= x and x <= bounds[1] else 0.0
  *     else:
  *         d = (bounds[0] - x if x < bounds[1] else x - bounds[1]) / margin             # <<<<<<<<<<<<<<
@@ -21619,7 +21619,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_2tolerance(CYTHON_UNU
     }
     __pyx_v_d = (__pyx_t_4 / __pyx_v_margin);
 
-    /* "metaworld/utils/reward_utils.pyx":69
+    /* "metaworld/utils/reward_utils.pyx":68
  *     else:
  *         d = (bounds[0] - x if x < bounds[1] else x - bounds[1]) / margin
  *         value = 1.0 if bounds[0] <= x and x <= bounds[1] else _sigmoids(d, value_at_margin, sigmoid)             # <<<<<<<<<<<<<<
@@ -21638,14 +21638,14 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_2tolerance(CYTHON_UNU
     if (__pyx_t_1) {
       __pyx_t_4 = 1.0;
     } else {
-      __pyx_t_6 = __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(__pyx_v_d, __pyx_v_value_at_margin, __pyx_v_sigmoid); if (unlikely(__pyx_t_6 == ((double)-1) && PyErr_Occurred())) __PYX_ERR(0, 69, __pyx_L1_error)
+      __pyx_t_6 = __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(__pyx_v_d, __pyx_v_value_at_margin, __pyx_v_sigmoid); if (unlikely(__pyx_t_6 == ((double)-1) && PyErr_Occurred())) __PYX_ERR(0, 68, __pyx_L1_error)
       __pyx_t_4 = __pyx_t_6;
     }
     __pyx_v_value = __pyx_t_4;
   }
   __pyx_L5:;
 
-  /* "metaworld/utils/reward_utils.pyx":71
+  /* "metaworld/utils/reward_utils.pyx":70
  *         value = 1.0 if bounds[0] <= x and x <= bounds[1] else _sigmoids(d, value_at_margin, sigmoid)
  *
  *     return value             # <<<<<<<<<<<<<<
@@ -21653,13 +21653,13 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_2tolerance(CYTHON_UNU
  * @cython.cdivision(True)
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_value); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_value); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "metaworld/utils/reward_utils.pyx":23
+  /* "metaworld/utils/reward_utils.pyx":22
  *
  *
  * @cython.cdivision(True)             # <<<<<<<<<<<<<<
@@ -21679,7 +21679,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_2tolerance(CYTHON_UNU
   return __pyx_r;
 }
 
-/* "metaworld/utils/reward_utils.pyx":73
+/* "metaworld/utils/reward_utils.pyx":72
  *     return value
  *
  * @cython.cdivision(True)             # <<<<<<<<<<<<<<
@@ -21744,7 +21744,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 73, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 72, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -21752,14 +21752,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 73, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 72, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("hamacher_product", 1, 2, 2, 1); __PYX_ERR(0, 73, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("hamacher_product", 1, 2, 2, 1); __PYX_ERR(0, 72, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "hamacher_product") < 0)) __PYX_ERR(0, 73, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "hamacher_product") < 0)) __PYX_ERR(0, 72, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -21767,12 +21767,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       values[0] = __Pyx_Arg_FASTCALL(__pyx_args, 0);
       values[1] = __Pyx_Arg_FASTCALL(__pyx_args, 1);
     }
-    __pyx_v_a = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_a == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 74, __pyx_L3_error)
-    __pyx_v_b = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_b == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 74, __pyx_L3_error)
+    __pyx_v_a = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_a == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 73, __pyx_L3_error)
+    __pyx_v_b = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_b == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 73, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("hamacher_product", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 73, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("hamacher_product", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 72, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -21813,7 +21813,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_4hamacher_product(CYT
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("hamacher_product", 1);
 
-  /* "metaworld/utils/reward_utils.pyx":89
+  /* "metaworld/utils/reward_utils.pyx":88
  *         ValueError: a and b must range between 0 and 1
  *     """
  *     if not ((0.0 <= a <= 1.0) and (0.0 <= b <= 1.0)):             # <<<<<<<<<<<<<<
@@ -21838,20 +21838,20 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_4hamacher_product(CYT
   __pyx_t_2 = (!__pyx_t_1);
   if (unlikely(__pyx_t_2)) {
 
-    /* "metaworld/utils/reward_utils.pyx":90
+    /* "metaworld/utils/reward_utils.pyx":89
  *     """
  *     if not ((0.0 <= a <= 1.0) and (0.0 <= b <= 1.0)):
  *         raise ValueError("a and b must range between 0 and 1")             # <<<<<<<<<<<<<<
  *
  *     cdef double denominator, h_prod
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 89, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 90, __pyx_L1_error)
+    __PYX_ERR(0, 89, __pyx_L1_error)
 
-    /* "metaworld/utils/reward_utils.pyx":89
+    /* "metaworld/utils/reward_utils.pyx":88
  *         ValueError: a and b must range between 0 and 1
  *     """
  *     if not ((0.0 <= a <= 1.0) and (0.0 <= b <= 1.0)):             # <<<<<<<<<<<<<<
@@ -21860,7 +21860,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_4hamacher_product(CYT
  */
   }
 
-  /* "metaworld/utils/reward_utils.pyx":94
+  /* "metaworld/utils/reward_utils.pyx":93
  *     cdef double denominator, h_prod
  *
  *     denominator = a + b - (a * b)             # <<<<<<<<<<<<<<
@@ -21869,7 +21869,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_4hamacher_product(CYT
  */
   __pyx_v_denominator = ((__pyx_v_a + __pyx_v_b) - (__pyx_v_a * __pyx_v_b));
 
-  /* "metaworld/utils/reward_utils.pyx":95
+  /* "metaworld/utils/reward_utils.pyx":94
  *
  *     denominator = a + b - (a * b)
  *     h_prod = 0.0             # <<<<<<<<<<<<<<
@@ -21878,7 +21878,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_4hamacher_product(CYT
  */
   __pyx_v_h_prod = 0.0;
 
-  /* "metaworld/utils/reward_utils.pyx":96
+  /* "metaworld/utils/reward_utils.pyx":95
  *     denominator = a + b - (a * b)
  *     h_prod = 0.0
  *     if denominator > 0:             # <<<<<<<<<<<<<<
@@ -21888,7 +21888,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_4hamacher_product(CYT
   __pyx_t_2 = (__pyx_v_denominator > 0.0);
   if (__pyx_t_2) {
 
-    /* "metaworld/utils/reward_utils.pyx":97
+    /* "metaworld/utils/reward_utils.pyx":96
  *     h_prod = 0.0
  *     if denominator > 0:
  *         h_prod = ((a * b) / denominator)             # <<<<<<<<<<<<<<
@@ -21897,7 +21897,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_4hamacher_product(CYT
  */
     __pyx_v_h_prod = ((__pyx_v_a * __pyx_v_b) / __pyx_v_denominator);
 
-    /* "metaworld/utils/reward_utils.pyx":96
+    /* "metaworld/utils/reward_utils.pyx":95
  *     denominator = a + b - (a * b)
  *     h_prod = 0.0
  *     if denominator > 0:             # <<<<<<<<<<<<<<
@@ -21906,7 +21906,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_4hamacher_product(CYT
  */
   }
 
-  /* "metaworld/utils/reward_utils.pyx":99
+  /* "metaworld/utils/reward_utils.pyx":98
  *         h_prod = ((a * b) / denominator)
  *
  *     if not 0.0 <= h_prod <= 1.0:             # <<<<<<<<<<<<<<
@@ -21920,29 +21920,29 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_4hamacher_product(CYT
   __pyx_t_1 = (!__pyx_t_2);
   if (unlikely(__pyx_t_1)) {
 
-    /* "metaworld/utils/reward_utils.pyx":100
+    /* "metaworld/utils/reward_utils.pyx":99
  *
  *     if not 0.0 <= h_prod <= 1.0:
  *         raise AssertionError(f"Invalid h_prod value produced: {h_prod!r}")             # <<<<<<<<<<<<<<
  *     return h_prod
  *
  */
-    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_h_prod); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 100, __pyx_L1_error)
+    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_h_prod); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 99, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyObject_FormatSimpleAndDecref(PyObject_Repr(__pyx_t_3), __pyx_empty_unicode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 100, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_FormatSimpleAndDecref(PyObject_Repr(__pyx_t_3), __pyx_empty_unicode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 99, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyUnicode_Concat(__pyx_kp_u_Invalid_h_prod_value_produced, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 100, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyUnicode_Concat(__pyx_kp_u_Invalid_h_prod_value_produced, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 99, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_builtin_AssertionError, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 100, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_builtin_AssertionError, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 99, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_Raise(__pyx_t_4, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __PYX_ERR(0, 100, __pyx_L1_error)
+    __PYX_ERR(0, 99, __pyx_L1_error)
 
-    /* "metaworld/utils/reward_utils.pyx":99
+    /* "metaworld/utils/reward_utils.pyx":98
  *         h_prod = ((a * b) / denominator)
  *
  *     if not 0.0 <= h_prod <= 1.0:             # <<<<<<<<<<<<<<
@@ -21951,7 +21951,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_4hamacher_product(CYT
  */
   }
 
-  /* "metaworld/utils/reward_utils.pyx":101
+  /* "metaworld/utils/reward_utils.pyx":100
  *     if not 0.0 <= h_prod <= 1.0:
  *         raise AssertionError(f"Invalid h_prod value produced: {h_prod!r}")
  *     return h_prod             # <<<<<<<<<<<<<<
@@ -21959,13 +21959,13 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_4hamacher_product(CYT
  * @cython.cdivision(True)
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_h_prod); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 101, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_h_prod); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 100, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "metaworld/utils/reward_utils.pyx":73
+  /* "metaworld/utils/reward_utils.pyx":72
  *     return value
  *
  * @cython.cdivision(True)             # <<<<<<<<<<<<<<
@@ -21985,7 +21985,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_4hamacher_product(CYT
   return __pyx_r;
 }
 
-/* "metaworld/utils/reward_utils.pyx":104
+/* "metaworld/utils/reward_utils.pyx":103
  *
  * @cython.cdivision(True)
  * cdef double _sigmoids(double x, double value_at_1, SigmoidType sigmoid):             # <<<<<<<<<<<<<<
@@ -22010,7 +22010,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_sigmoids", 1);
 
-  /* "metaworld/utils/reward_utils.pyx":105
+  /* "metaworld/utils/reward_utils.pyx":104
  * @cython.cdivision(True)
  * cdef double _sigmoids(double x, double value_at_1, SigmoidType sigmoid):
  *     if sigmoid == SigmoidType.cosine or sigmoid == SigmoidType.linear or sigmoid == SigmoidType.quadratic:             # <<<<<<<<<<<<<<
@@ -22022,7 +22022,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     case __pyx_e_9metaworld_5utils_12reward_utils_linear:
     case __pyx_e_9metaworld_5utils_12reward_utils_quadratic:
 
-    /* "metaworld/utils/reward_utils.pyx":106
+    /* "metaworld/utils/reward_utils.pyx":105
  * cdef double _sigmoids(double x, double value_at_1, SigmoidType sigmoid):
  *     if sigmoid == SigmoidType.cosine or sigmoid == SigmoidType.linear or sigmoid == SigmoidType.quadratic:
  *         if not 0 <= value_at_1 < 1:             # <<<<<<<<<<<<<<
@@ -22036,14 +22036,14 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     __pyx_t_2 = (!__pyx_t_1);
     if (unlikely(__pyx_t_2)) {
 
-      /* "metaworld/utils/reward_utils.pyx":108
+      /* "metaworld/utils/reward_utils.pyx":107
  *         if not 0 <= value_at_1 < 1:
  *             raise ValueError(
  *                 f"`value_at_1` must be nonnegative and smaller than 1, got {value_at_1}."             # <<<<<<<<<<<<<<
  *             )
  *     else:
  */
-      __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 108, __pyx_L1_error)
+      __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 107, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __pyx_t_4 = 0;
       __pyx_t_5 = 127;
@@ -22051,9 +22051,9 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
       __pyx_t_4 += 57;
       __Pyx_GIVEREF(__pyx_kp_u_value_at_1_must_be_nonnegative);
       PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_kp_u_value_at_1_must_be_nonnegative);
-      __pyx_t_6 = PyFloat_FromDouble(__pyx_v_value_at_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 108, __pyx_L1_error)
+      __pyx_t_6 = PyFloat_FromDouble(__pyx_v_value_at_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 107, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_7 = __Pyx_PyObject_FormatSimple(__pyx_t_6, __pyx_empty_unicode); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 108, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyObject_FormatSimple(__pyx_t_6, __pyx_empty_unicode); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 107, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __pyx_t_5 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_7) > __pyx_t_5) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_7) : __pyx_t_5;
@@ -22065,25 +22065,25 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
       __pyx_t_4 += 1;
       __Pyx_GIVEREF(__pyx_kp_u__3);
       PyTuple_SET_ITEM(__pyx_t_3, 2, __pyx_kp_u__3);
-      __pyx_t_7 = __Pyx_PyUnicode_Join(__pyx_t_3, 3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 108, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyUnicode_Join(__pyx_t_3, 3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 107, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-      /* "metaworld/utils/reward_utils.pyx":107
+      /* "metaworld/utils/reward_utils.pyx":106
  *     if sigmoid == SigmoidType.cosine or sigmoid == SigmoidType.linear or sigmoid == SigmoidType.quadratic:
  *         if not 0 <= value_at_1 < 1:
  *             raise ValueError(             # <<<<<<<<<<<<<<
  *                 f"`value_at_1` must be nonnegative and smaller than 1, got {value_at_1}."
  *             )
  */
-      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 107, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 106, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __PYX_ERR(0, 107, __pyx_L1_error)
+      __PYX_ERR(0, 106, __pyx_L1_error)
 
-      /* "metaworld/utils/reward_utils.pyx":106
+      /* "metaworld/utils/reward_utils.pyx":105
  * cdef double _sigmoids(double x, double value_at_1, SigmoidType sigmoid):
  *     if sigmoid == SigmoidType.cosine or sigmoid == SigmoidType.linear or sigmoid == SigmoidType.quadratic:
  *         if not 0 <= value_at_1 < 1:             # <<<<<<<<<<<<<<
@@ -22092,7 +22092,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     }
 
-    /* "metaworld/utils/reward_utils.pyx":105
+    /* "metaworld/utils/reward_utils.pyx":104
  * @cython.cdivision(True)
  * cdef double _sigmoids(double x, double value_at_1, SigmoidType sigmoid):
  *     if sigmoid == SigmoidType.cosine or sigmoid == SigmoidType.linear or sigmoid == SigmoidType.quadratic:             # <<<<<<<<<<<<<<
@@ -22102,7 +22102,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     break;
     default:
 
-    /* "metaworld/utils/reward_utils.pyx":111
+    /* "metaworld/utils/reward_utils.pyx":110
  *             )
  *     else:
  *         if not 0 < value_at_1 < 1:             # <<<<<<<<<<<<<<
@@ -22116,14 +22116,14 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     __pyx_t_1 = (!__pyx_t_2);
     if (unlikely(__pyx_t_1)) {
 
-      /* "metaworld/utils/reward_utils.pyx":113
+      /* "metaworld/utils/reward_utils.pyx":112
  *         if not 0 < value_at_1 < 1:
  *             raise ValueError(
  *                 f"`value_at_1` must be strictly between 0 and 1, got {value_at_1}."             # <<<<<<<<<<<<<<
  *             )
  *
  */
-      __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
+      __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __pyx_t_4 = 0;
       __pyx_t_5 = 127;
@@ -22131,9 +22131,9 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
       __pyx_t_4 += 51;
       __Pyx_GIVEREF(__pyx_kp_u_value_at_1_must_be_strictly_bet);
       PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_kp_u_value_at_1_must_be_strictly_bet);
-      __pyx_t_7 = PyFloat_FromDouble(__pyx_v_value_at_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 113, __pyx_L1_error)
+      __pyx_t_7 = PyFloat_FromDouble(__pyx_v_value_at_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 112, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_t_7, __pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 113, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_t_7, __pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 112, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __pyx_t_5 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_6) > __pyx_t_5) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_6) : __pyx_t_5;
@@ -22145,25 +22145,25 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
       __pyx_t_4 += 1;
       __Pyx_GIVEREF(__pyx_kp_u__3);
       PyTuple_SET_ITEM(__pyx_t_3, 2, __pyx_kp_u__3);
-      __pyx_t_6 = __Pyx_PyUnicode_Join(__pyx_t_3, 3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 113, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyUnicode_Join(__pyx_t_3, 3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 112, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-      /* "metaworld/utils/reward_utils.pyx":112
+      /* "metaworld/utils/reward_utils.pyx":111
  *     else:
  *         if not 0 < value_at_1 < 1:
  *             raise ValueError(             # <<<<<<<<<<<<<<
  *                 f"`value_at_1` must be strictly between 0 and 1, got {value_at_1}."
  *             )
  */
-      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 111, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __PYX_ERR(0, 112, __pyx_L1_error)
+      __PYX_ERR(0, 111, __pyx_L1_error)
 
-      /* "metaworld/utils/reward_utils.pyx":111
+      /* "metaworld/utils/reward_utils.pyx":110
  *             )
  *     else:
  *         if not 0 < value_at_1 < 1:             # <<<<<<<<<<<<<<
@@ -22174,7 +22174,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     break;
   }
 
-  /* "metaworld/utils/reward_utils.pyx":118
+  /* "metaworld/utils/reward_utils.pyx":117
  *     cdef double scale, scaled_x
  *
  *     if sigmoid == SigmoidType.gaussian:             # <<<<<<<<<<<<<<
@@ -22184,7 +22184,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
   switch (__pyx_v_sigmoid) {
     case __pyx_e_9metaworld_5utils_12reward_utils_gaussian:
 
-    /* "metaworld/utils/reward_utils.pyx":119
+    /* "metaworld/utils/reward_utils.pyx":118
  *
  *     if sigmoid == SigmoidType.gaussian:
  *         scale = sqrt(-2 * log(value_at_1))             # <<<<<<<<<<<<<<
@@ -22193,7 +22193,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     __pyx_v_scale = sqrt((-2.0 * log(__pyx_v_value_at_1)));
 
-    /* "metaworld/utils/reward_utils.pyx":120
+    /* "metaworld/utils/reward_utils.pyx":119
  *     if sigmoid == SigmoidType.gaussian:
  *         scale = sqrt(-2 * log(value_at_1))
  *         return exp(-0.5 * (x * scale) ** 2)             # <<<<<<<<<<<<<<
@@ -22203,7 +22203,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     __pyx_r = exp((-0.5 * pow((__pyx_v_x * __pyx_v_scale), 2.0)));
     goto __pyx_L0;
 
-    /* "metaworld/utils/reward_utils.pyx":118
+    /* "metaworld/utils/reward_utils.pyx":117
  *     cdef double scale, scaled_x
  *
  *     if sigmoid == SigmoidType.gaussian:             # <<<<<<<<<<<<<<
@@ -22213,7 +22213,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     break;
     case __pyx_e_9metaworld_5utils_12reward_utils_hyperbolic:
 
-    /* "metaworld/utils/reward_utils.pyx":123
+    /* "metaworld/utils/reward_utils.pyx":122
  *
  *     elif sigmoid == SigmoidType.hyperbolic:
  *         scale = acosh(1 / value_at_1)             # <<<<<<<<<<<<<<
@@ -22222,7 +22222,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     __pyx_v_scale = acosh((1.0 / __pyx_v_value_at_1));
 
-    /* "metaworld/utils/reward_utils.pyx":124
+    /* "metaworld/utils/reward_utils.pyx":123
  *     elif sigmoid == SigmoidType.hyperbolic:
  *         scale = acosh(1 / value_at_1)
  *         return 1 / cosh(x * scale)             # <<<<<<<<<<<<<<
@@ -22232,7 +22232,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     __pyx_r = (1.0 / cosh((__pyx_v_x * __pyx_v_scale)));
     goto __pyx_L0;
 
-    /* "metaworld/utils/reward_utils.pyx":122
+    /* "metaworld/utils/reward_utils.pyx":121
  *         return exp(-0.5 * (x * scale) ** 2)
  *
  *     elif sigmoid == SigmoidType.hyperbolic:             # <<<<<<<<<<<<<<
@@ -22242,7 +22242,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     break;
     case __pyx_e_9metaworld_5utils_12reward_utils_long_tail:
 
-    /* "metaworld/utils/reward_utils.pyx":127
+    /* "metaworld/utils/reward_utils.pyx":126
  *
  *     elif sigmoid == SigmoidType.long_tail:
  *         scale = sqrt(1 / value_at_1 - 1)             # <<<<<<<<<<<<<<
@@ -22251,7 +22251,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     __pyx_v_scale = sqrt(((1.0 / __pyx_v_value_at_1) - 1.0));
 
-    /* "metaworld/utils/reward_utils.pyx":128
+    /* "metaworld/utils/reward_utils.pyx":127
  *     elif sigmoid == SigmoidType.long_tail:
  *         scale = sqrt(1 / value_at_1 - 1)
  *         return 1 / ((x * scale) ** 2 + 1)             # <<<<<<<<<<<<<<
@@ -22261,7 +22261,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     __pyx_r = (1.0 / (pow((__pyx_v_x * __pyx_v_scale), 2.0) + 1.0));
     goto __pyx_L0;
 
-    /* "metaworld/utils/reward_utils.pyx":126
+    /* "metaworld/utils/reward_utils.pyx":125
  *         return 1 / cosh(x * scale)
  *
  *     elif sigmoid == SigmoidType.long_tail:             # <<<<<<<<<<<<<<
@@ -22271,7 +22271,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     break;
     case __pyx_e_9metaworld_5utils_12reward_utils_recriprocal:
 
-    /* "metaworld/utils/reward_utils.pyx":131
+    /* "metaworld/utils/reward_utils.pyx":130
  *
  *     elif sigmoid == SigmoidType.recriprocal:
  *         scale = 1 / value_at_1 - 1             # <<<<<<<<<<<<<<
@@ -22280,7 +22280,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     __pyx_v_scale = ((1.0 / __pyx_v_value_at_1) - 1.0);
 
-    /* "metaworld/utils/reward_utils.pyx":132
+    /* "metaworld/utils/reward_utils.pyx":131
  *     elif sigmoid == SigmoidType.recriprocal:
  *         scale = 1 / value_at_1 - 1
  *         return 1 / (abs(x) * scale + 1)             # <<<<<<<<<<<<<<
@@ -22290,7 +22290,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     __pyx_r = (1.0 / ((fabs(__pyx_v_x) * __pyx_v_scale) + 1.0));
     goto __pyx_L0;
 
-    /* "metaworld/utils/reward_utils.pyx":130
+    /* "metaworld/utils/reward_utils.pyx":129
  *         return 1 / ((x * scale) ** 2 + 1)
  *
  *     elif sigmoid == SigmoidType.recriprocal:             # <<<<<<<<<<<<<<
@@ -22300,7 +22300,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     break;
     case __pyx_e_9metaworld_5utils_12reward_utils_cosine:
 
-    /* "metaworld/utils/reward_utils.pyx":135
+    /* "metaworld/utils/reward_utils.pyx":134
  *
  *     elif sigmoid == SigmoidType.cosine:
  *         scale = acos(2 * value_at_1 - 1) / M_PI             # <<<<<<<<<<<<<<
@@ -22309,7 +22309,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     __pyx_v_scale = (acos(((2.0 * __pyx_v_value_at_1) - 1.0)) / ((double)M_PI));
 
-    /* "metaworld/utils/reward_utils.pyx":136
+    /* "metaworld/utils/reward_utils.pyx":135
  *     elif sigmoid == SigmoidType.cosine:
  *         scale = acos(2 * value_at_1 - 1) / M_PI
  *         scaled_x = x * scale             # <<<<<<<<<<<<<<
@@ -22318,7 +22318,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     __pyx_v_scaled_x = (__pyx_v_x * __pyx_v_scale);
 
-    /* "metaworld/utils/reward_utils.pyx":138
+    /* "metaworld/utils/reward_utils.pyx":137
  *         scaled_x = x * scale
  *
  *         if abs(scaled_x) < 1:             # <<<<<<<<<<<<<<
@@ -22328,7 +22328,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     __pyx_t_1 = (fabs(__pyx_v_scaled_x) < 1.0);
     if (__pyx_t_1) {
 
-      /* "metaworld/utils/reward_utils.pyx":139
+      /* "metaworld/utils/reward_utils.pyx":138
  *
  *         if abs(scaled_x) < 1:
  *             return (1 + cos(M_PI * scaled_x)) / 2             # <<<<<<<<<<<<<<
@@ -22338,7 +22338,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
       __pyx_r = ((1.0 + cos((M_PI * __pyx_v_scaled_x))) / 2.0);
       goto __pyx_L0;
 
-      /* "metaworld/utils/reward_utils.pyx":138
+      /* "metaworld/utils/reward_utils.pyx":137
  *         scaled_x = x * scale
  *
  *         if abs(scaled_x) < 1:             # <<<<<<<<<<<<<<
@@ -22347,7 +22347,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     }
 
-    /* "metaworld/utils/reward_utils.pyx":141
+    /* "metaworld/utils/reward_utils.pyx":140
  *             return (1 + cos(M_PI * scaled_x)) / 2
  *         else:
  *             return 0.0             # <<<<<<<<<<<<<<
@@ -22359,7 +22359,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
       goto __pyx_L0;
     }
 
-    /* "metaworld/utils/reward_utils.pyx":134
+    /* "metaworld/utils/reward_utils.pyx":133
  *         return 1 / (abs(x) * scale + 1)
  *
  *     elif sigmoid == SigmoidType.cosine:             # <<<<<<<<<<<<<<
@@ -22369,7 +22369,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     break;
     case __pyx_e_9metaworld_5utils_12reward_utils_linear:
 
-    /* "metaworld/utils/reward_utils.pyx":144
+    /* "metaworld/utils/reward_utils.pyx":143
  *
  *     elif sigmoid == SigmoidType.linear:
  *         scale = 1 - value_at_1             # <<<<<<<<<<<<<<
@@ -22378,7 +22378,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     __pyx_v_scale = (1.0 - __pyx_v_value_at_1);
 
-    /* "metaworld/utils/reward_utils.pyx":145
+    /* "metaworld/utils/reward_utils.pyx":144
  *     elif sigmoid == SigmoidType.linear:
  *         scale = 1 - value_at_1
  *         scaled_x = x * scale             # <<<<<<<<<<<<<<
@@ -22387,7 +22387,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     __pyx_v_scaled_x = (__pyx_v_x * __pyx_v_scale);
 
-    /* "metaworld/utils/reward_utils.pyx":146
+    /* "metaworld/utils/reward_utils.pyx":145
  *         scale = 1 - value_at_1
  *         scaled_x = x * scale
  *         if abs(scaled_x) < 1:             # <<<<<<<<<<<<<<
@@ -22397,7 +22397,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     __pyx_t_1 = (fabs(__pyx_v_scaled_x) < 1.0);
     if (__pyx_t_1) {
 
-      /* "metaworld/utils/reward_utils.pyx":147
+      /* "metaworld/utils/reward_utils.pyx":146
  *         scaled_x = x * scale
  *         if abs(scaled_x) < 1:
  *             return 1 - scaled_x             # <<<<<<<<<<<<<<
@@ -22407,7 +22407,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
       __pyx_r = (1.0 - __pyx_v_scaled_x);
       goto __pyx_L0;
 
-      /* "metaworld/utils/reward_utils.pyx":146
+      /* "metaworld/utils/reward_utils.pyx":145
  *         scale = 1 - value_at_1
  *         scaled_x = x * scale
  *         if abs(scaled_x) < 1:             # <<<<<<<<<<<<<<
@@ -22416,7 +22416,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     }
 
-    /* "metaworld/utils/reward_utils.pyx":149
+    /* "metaworld/utils/reward_utils.pyx":148
  *             return 1 - scaled_x
  *         else:
  *             return 0.0             # <<<<<<<<<<<<<<
@@ -22428,7 +22428,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
       goto __pyx_L0;
     }
 
-    /* "metaworld/utils/reward_utils.pyx":143
+    /* "metaworld/utils/reward_utils.pyx":142
  *             return 0.0
  *
  *     elif sigmoid == SigmoidType.linear:             # <<<<<<<<<<<<<<
@@ -22438,7 +22438,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     break;
     case __pyx_e_9metaworld_5utils_12reward_utils_quadratic:
 
-    /* "metaworld/utils/reward_utils.pyx":152
+    /* "metaworld/utils/reward_utils.pyx":151
  *
  *     elif sigmoid == SigmoidType.quadratic:
  *         scale = sqrt(1 - value_at_1)             # <<<<<<<<<<<<<<
@@ -22447,7 +22447,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     __pyx_v_scale = sqrt((1.0 - __pyx_v_value_at_1));
 
-    /* "metaworld/utils/reward_utils.pyx":153
+    /* "metaworld/utils/reward_utils.pyx":152
  *     elif sigmoid == SigmoidType.quadratic:
  *         scale = sqrt(1 - value_at_1)
  *         scaled_x = x * scale             # <<<<<<<<<<<<<<
@@ -22456,7 +22456,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     __pyx_v_scaled_x = (__pyx_v_x * __pyx_v_scale);
 
-    /* "metaworld/utils/reward_utils.pyx":154
+    /* "metaworld/utils/reward_utils.pyx":153
  *         scale = sqrt(1 - value_at_1)
  *         scaled_x = x * scale
  *         if abs(scaled_x) < 1:             # <<<<<<<<<<<<<<
@@ -22466,7 +22466,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     __pyx_t_1 = (fabs(__pyx_v_scaled_x) < 1.0);
     if (__pyx_t_1) {
 
-      /* "metaworld/utils/reward_utils.pyx":155
+      /* "metaworld/utils/reward_utils.pyx":154
  *         scaled_x = x * scale
  *         if abs(scaled_x) < 1:
  *             return 1 - scaled_x**2             # <<<<<<<<<<<<<<
@@ -22476,7 +22476,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
       __pyx_r = (1.0 - pow(__pyx_v_scaled_x, 2.0));
       goto __pyx_L0;
 
-      /* "metaworld/utils/reward_utils.pyx":154
+      /* "metaworld/utils/reward_utils.pyx":153
  *         scale = sqrt(1 - value_at_1)
  *         scaled_x = x * scale
  *         if abs(scaled_x) < 1:             # <<<<<<<<<<<<<<
@@ -22485,7 +22485,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     }
 
-    /* "metaworld/utils/reward_utils.pyx":157
+    /* "metaworld/utils/reward_utils.pyx":156
  *             return 1 - scaled_x**2
  *         else:
  *             return 0.0             # <<<<<<<<<<<<<<
@@ -22497,7 +22497,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
       goto __pyx_L0;
     }
 
-    /* "metaworld/utils/reward_utils.pyx":151
+    /* "metaworld/utils/reward_utils.pyx":150
  *             return 0.0
  *
  *     elif sigmoid == SigmoidType.quadratic:             # <<<<<<<<<<<<<<
@@ -22507,7 +22507,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     break;
     case __pyx_e_9metaworld_5utils_12reward_utils_tanh_squared:
 
-    /* "metaworld/utils/reward_utils.pyx":160
+    /* "metaworld/utils/reward_utils.pyx":159
  *
  *     elif sigmoid == SigmoidType.tanh_squared:
  *         scale = atanh(sqrt(1 - value_at_1))             # <<<<<<<<<<<<<<
@@ -22516,7 +22516,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
  */
     __pyx_v_scale = atanh(sqrt((1.0 - __pyx_v_value_at_1)));
 
-    /* "metaworld/utils/reward_utils.pyx":161
+    /* "metaworld/utils/reward_utils.pyx":160
  *     elif sigmoid == SigmoidType.tanh_squared:
  *         scale = atanh(sqrt(1 - value_at_1))
  *         return 1 - tanh(x * scale) ** 2             # <<<<<<<<<<<<<<
@@ -22526,7 +22526,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     __pyx_r = (1.0 - pow(tanh((__pyx_v_x * __pyx_v_scale)), 2.0));
     goto __pyx_L0;
 
-    /* "metaworld/utils/reward_utils.pyx":159
+    /* "metaworld/utils/reward_utils.pyx":158
  *             return 0.0
  *
  *     elif sigmoid == SigmoidType.tanh_squared:             # <<<<<<<<<<<<<<
@@ -22536,14 +22536,14 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     break;
     default:
 
-    /* "metaworld/utils/reward_utils.pyx":164
+    /* "metaworld/utils/reward_utils.pyx":163
  *
  *     else:
  *         raise ValueError(f"Invalid sigmoid type {sigmoid!r}.")             # <<<<<<<<<<<<<<
  *
  *
  */
-    __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = 0;
     __pyx_t_5 = 127;
@@ -22551,7 +22551,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     __pyx_t_4 += 21;
     __Pyx_GIVEREF(__pyx_kp_u_Invalid_sigmoid_type);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_kp_u_Invalid_sigmoid_type);
-    __pyx_t_6 = __Pyx_PyUnicode_From_enum____pyx_t_9metaworld_5utils_12reward_utils_SigmoidType(__pyx_v_sigmoid, 0, ' ', 'd'); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyUnicode_From_enum____pyx_t_9metaworld_5utils_12reward_utils_SigmoidType(__pyx_v_sigmoid, 0, ' ', 'd'); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __pyx_t_5 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_6) > __pyx_t_5) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_6) : __pyx_t_5;
     __pyx_t_4 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_6);
@@ -22562,19 +22562,19 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
     __pyx_t_4 += 1;
     __Pyx_GIVEREF(__pyx_kp_u__3);
     PyTuple_SET_ITEM(__pyx_t_3, 2, __pyx_kp_u__3);
-    __pyx_t_6 = __Pyx_PyUnicode_Join(__pyx_t_3, 3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyUnicode_Join(__pyx_t_3, 3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 164, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 164, __pyx_L1_error)
+    __PYX_ERR(0, 163, __pyx_L1_error)
     break;
   }
 
-  /* "metaworld/utils/reward_utils.pyx":104
+  /* "metaworld/utils/reward_utils.pyx":103
  *
  * @cython.cdivision(True)
  * cdef double _sigmoids(double x, double value_at_1, SigmoidType sigmoid):             # <<<<<<<<<<<<<<
@@ -22594,7 +22594,7 @@ static double __pyx_f_9metaworld_5utils_12reward_utils__sigmoids(double __pyx_v_
   return __pyx_r;
 }
 
-/* "metaworld/utils/reward_utils.pyx":167
+/* "metaworld/utils/reward_utils.pyx":166
  *
  *
  * cdef bint _in_range(double a, double b, double c):             # <<<<<<<<<<<<<<
@@ -22608,7 +22608,7 @@ static int __pyx_f_9metaworld_5utils_12reward_utils__in_range(double __pyx_v_a, 
   int __pyx_t_2;
   int __pyx_t_3;
 
-  /* "metaworld/utils/reward_utils.pyx":168
+  /* "metaworld/utils/reward_utils.pyx":167
  *
  * cdef bint _in_range(double a, double b, double c):
  *     return b <= a <= c if c >= b else c <= a <= b             # <<<<<<<<<<<<<<
@@ -22632,7 +22632,7 @@ static int __pyx_f_9metaworld_5utils_12reward_utils__in_range(double __pyx_v_a, 
   __pyx_r = __pyx_t_1;
   goto __pyx_L0;
 
-  /* "metaworld/utils/reward_utils.pyx":167
+  /* "metaworld/utils/reward_utils.pyx":166
  *
  *
  * cdef bint _in_range(double a, double b, double c):             # <<<<<<<<<<<<<<
@@ -22645,7 +22645,7 @@ static int __pyx_f_9metaworld_5utils_12reward_utils__in_range(double __pyx_v_a, 
   return __pyx_r;
 }
 
-/* "metaworld/utils/reward_utils.pyx":170
+/* "metaworld/utils/reward_utils.pyx":169
  *     return b <= a <= c if c >= b else c <= a <= b
  *
  * def rect_prism_tolerance(             # <<<<<<<<<<<<<<
@@ -22713,7 +22713,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 170, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 169, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -22721,9 +22721,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 170, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 169, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("rect_prism_tolerance", 1, 3, 3, 1); __PYX_ERR(0, 170, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("rect_prism_tolerance", 1, 3, 3, 1); __PYX_ERR(0, 169, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -22731,14 +22731,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[2]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 170, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 169, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("rect_prism_tolerance", 1, 3, 3, 2); __PYX_ERR(0, 170, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("rect_prism_tolerance", 1, 3, 3, 2); __PYX_ERR(0, 169, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "rect_prism_tolerance") < 0)) __PYX_ERR(0, 170, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "rect_prism_tolerance") < 0)) __PYX_ERR(0, 169, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
@@ -22747,13 +22747,13 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       values[1] = __Pyx_Arg_FASTCALL(__pyx_args, 1);
       values[2] = __Pyx_Arg_FASTCALL(__pyx_args, 2);
     }
-    __pyx_v_curr = __Pyx_PyObject_to_MemoryviewSlice_ds_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_curr.memview)) __PYX_ERR(0, 171, __pyx_L3_error)
-    __pyx_v_zero = __Pyx_PyObject_to_MemoryviewSlice_ds_double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_zero.memview)) __PYX_ERR(0, 172, __pyx_L3_error)
-    __pyx_v_one = __Pyx_PyObject_to_MemoryviewSlice_ds_double(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_one.memview)) __PYX_ERR(0, 173, __pyx_L3_error)
+    __pyx_v_curr = __Pyx_PyObject_to_MemoryviewSlice_ds_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_curr.memview)) __PYX_ERR(0, 170, __pyx_L3_error)
+    __pyx_v_zero = __Pyx_PyObject_to_MemoryviewSlice_ds_double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_zero.memview)) __PYX_ERR(0, 171, __pyx_L3_error)
+    __pyx_v_one = __Pyx_PyObject_to_MemoryviewSlice_ds_double(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_one.memview)) __PYX_ERR(0, 172, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("rect_prism_tolerance", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 170, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("rect_prism_tolerance", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 169, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -22808,7 +22808,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("rect_prism_tolerance", 1);
 
-  /* "metaworld/utils/reward_utils.pyx":191
+  /* "metaworld/utils/reward_utils.pyx":190
  *     cdef double[3] diff
  *
  *     if _in_range(curr[0], zero[0], one[0]) and _in_range(curr[1], zero[1], one[1]) and _in_range(curr[2], zero[2], one[2]):             # <<<<<<<<<<<<<<
@@ -22823,7 +22823,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
   } else if (unlikely(__pyx_t_2 >= __pyx_v_curr.shape[0])) __pyx_t_3 = 0;
   if (unlikely(__pyx_t_3 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_3);
-    __PYX_ERR(0, 191, __pyx_L1_error)
+    __PYX_ERR(0, 190, __pyx_L1_error)
   }
   __pyx_t_4 = 0;
   __pyx_t_3 = -1;
@@ -22833,7 +22833,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
   } else if (unlikely(__pyx_t_4 >= __pyx_v_zero.shape[0])) __pyx_t_3 = 0;
   if (unlikely(__pyx_t_3 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_3);
-    __PYX_ERR(0, 191, __pyx_L1_error)
+    __PYX_ERR(0, 190, __pyx_L1_error)
   }
   __pyx_t_5 = 0;
   __pyx_t_3 = -1;
@@ -22843,9 +22843,9 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
   } else if (unlikely(__pyx_t_5 >= __pyx_v_one.shape[0])) __pyx_t_3 = 0;
   if (unlikely(__pyx_t_3 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_3);
-    __PYX_ERR(0, 191, __pyx_L1_error)
+    __PYX_ERR(0, 190, __pyx_L1_error)
   }
-  __pyx_t_6 = __pyx_f_9metaworld_5utils_12reward_utils__in_range((*((double *) ( /* dim=0 */ (__pyx_v_curr.data + __pyx_t_2 * __pyx_v_curr.strides[0]) ))), (*((double *) ( /* dim=0 */ (__pyx_v_zero.data + __pyx_t_4 * __pyx_v_zero.strides[0]) ))), (*((double *) ( /* dim=0 */ (__pyx_v_one.data + __pyx_t_5 * __pyx_v_one.strides[0]) )))); if (unlikely(__pyx_t_6 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_t_6 = __pyx_f_9metaworld_5utils_12reward_utils__in_range((*((double *) ( /* dim=0 */ (__pyx_v_curr.data + __pyx_t_2 * __pyx_v_curr.strides[0]) ))), (*((double *) ( /* dim=0 */ (__pyx_v_zero.data + __pyx_t_4 * __pyx_v_zero.strides[0]) ))), (*((double *) ( /* dim=0 */ (__pyx_v_one.data + __pyx_t_5 * __pyx_v_one.strides[0]) )))); if (unlikely(__pyx_t_6 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 190, __pyx_L1_error)
   if (__pyx_t_6) {
   } else {
     __pyx_t_1 = __pyx_t_6;
@@ -22859,7 +22859,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
   } else if (unlikely(__pyx_t_5 >= __pyx_v_curr.shape[0])) __pyx_t_3 = 0;
   if (unlikely(__pyx_t_3 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_3);
-    __PYX_ERR(0, 191, __pyx_L1_error)
+    __PYX_ERR(0, 190, __pyx_L1_error)
   }
   __pyx_t_4 = 1;
   __pyx_t_3 = -1;
@@ -22869,7 +22869,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
   } else if (unlikely(__pyx_t_4 >= __pyx_v_zero.shape[0])) __pyx_t_3 = 0;
   if (unlikely(__pyx_t_3 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_3);
-    __PYX_ERR(0, 191, __pyx_L1_error)
+    __PYX_ERR(0, 190, __pyx_L1_error)
   }
   __pyx_t_2 = 1;
   __pyx_t_3 = -1;
@@ -22879,9 +22879,9 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
   } else if (unlikely(__pyx_t_2 >= __pyx_v_one.shape[0])) __pyx_t_3 = 0;
   if (unlikely(__pyx_t_3 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_3);
-    __PYX_ERR(0, 191, __pyx_L1_error)
+    __PYX_ERR(0, 190, __pyx_L1_error)
   }
-  __pyx_t_6 = __pyx_f_9metaworld_5utils_12reward_utils__in_range((*((double *) ( /* dim=0 */ (__pyx_v_curr.data + __pyx_t_5 * __pyx_v_curr.strides[0]) ))), (*((double *) ( /* dim=0 */ (__pyx_v_zero.data + __pyx_t_4 * __pyx_v_zero.strides[0]) ))), (*((double *) ( /* dim=0 */ (__pyx_v_one.data + __pyx_t_2 * __pyx_v_one.strides[0]) )))); if (unlikely(__pyx_t_6 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_t_6 = __pyx_f_9metaworld_5utils_12reward_utils__in_range((*((double *) ( /* dim=0 */ (__pyx_v_curr.data + __pyx_t_5 * __pyx_v_curr.strides[0]) ))), (*((double *) ( /* dim=0 */ (__pyx_v_zero.data + __pyx_t_4 * __pyx_v_zero.strides[0]) ))), (*((double *) ( /* dim=0 */ (__pyx_v_one.data + __pyx_t_2 * __pyx_v_one.strides[0]) )))); if (unlikely(__pyx_t_6 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 190, __pyx_L1_error)
   if (__pyx_t_6) {
   } else {
     __pyx_t_1 = __pyx_t_6;
@@ -22895,7 +22895,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
   } else if (unlikely(__pyx_t_2 >= __pyx_v_curr.shape[0])) __pyx_t_3 = 0;
   if (unlikely(__pyx_t_3 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_3);
-    __PYX_ERR(0, 191, __pyx_L1_error)
+    __PYX_ERR(0, 190, __pyx_L1_error)
   }
   __pyx_t_4 = 2;
   __pyx_t_3 = -1;
@@ -22905,7 +22905,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
   } else if (unlikely(__pyx_t_4 >= __pyx_v_zero.shape[0])) __pyx_t_3 = 0;
   if (unlikely(__pyx_t_3 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_3);
-    __PYX_ERR(0, 191, __pyx_L1_error)
+    __PYX_ERR(0, 190, __pyx_L1_error)
   }
   __pyx_t_5 = 2;
   __pyx_t_3 = -1;
@@ -22915,14 +22915,14 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
   } else if (unlikely(__pyx_t_5 >= __pyx_v_one.shape[0])) __pyx_t_3 = 0;
   if (unlikely(__pyx_t_3 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_3);
-    __PYX_ERR(0, 191, __pyx_L1_error)
+    __PYX_ERR(0, 190, __pyx_L1_error)
   }
-  __pyx_t_6 = __pyx_f_9metaworld_5utils_12reward_utils__in_range((*((double *) ( /* dim=0 */ (__pyx_v_curr.data + __pyx_t_2 * __pyx_v_curr.strides[0]) ))), (*((double *) ( /* dim=0 */ (__pyx_v_zero.data + __pyx_t_4 * __pyx_v_zero.strides[0]) ))), (*((double *) ( /* dim=0 */ (__pyx_v_one.data + __pyx_t_5 * __pyx_v_one.strides[0]) )))); if (unlikely(__pyx_t_6 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_t_6 = __pyx_f_9metaworld_5utils_12reward_utils__in_range((*((double *) ( /* dim=0 */ (__pyx_v_curr.data + __pyx_t_2 * __pyx_v_curr.strides[0]) ))), (*((double *) ( /* dim=0 */ (__pyx_v_zero.data + __pyx_t_4 * __pyx_v_zero.strides[0]) ))), (*((double *) ( /* dim=0 */ (__pyx_v_one.data + __pyx_t_5 * __pyx_v_one.strides[0]) )))); if (unlikely(__pyx_t_6 == ((int)-1) && PyErr_Occurred())) __PYX_ERR(0, 190, __pyx_L1_error)
   __pyx_t_1 = __pyx_t_6;
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_1) {
 
-    /* "metaworld/utils/reward_utils.pyx":192
+    /* "metaworld/utils/reward_utils.pyx":191
  *
  *     if _in_range(curr[0], zero[0], one[0]) and _in_range(curr[1], zero[1], one[1]) and _in_range(curr[2], zero[2], one[2]):
  *         for i in range(3):             # <<<<<<<<<<<<<<
@@ -22932,7 +22932,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
     for (__pyx_t_7 = 0; __pyx_t_7 < 3; __pyx_t_7+=1) {
       __pyx_v_i = __pyx_t_7;
 
-      /* "metaworld/utils/reward_utils.pyx":193
+      /* "metaworld/utils/reward_utils.pyx":192
  *     if _in_range(curr[0], zero[0], one[0]) and _in_range(curr[1], zero[1], one[1]) and _in_range(curr[2], zero[2], one[2]):
  *         for i in range(3):
  *             diff[i] = one[i] - zero[i]             # <<<<<<<<<<<<<<
@@ -22947,7 +22947,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
       } else if (unlikely(__pyx_t_5 >= __pyx_v_one.shape[0])) __pyx_t_3 = 0;
       if (unlikely(__pyx_t_3 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_3);
-        __PYX_ERR(0, 193, __pyx_L1_error)
+        __PYX_ERR(0, 192, __pyx_L1_error)
       }
       __pyx_t_4 = __pyx_v_i;
       __pyx_t_3 = -1;
@@ -22957,12 +22957,12 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
       } else if (unlikely(__pyx_t_4 >= __pyx_v_zero.shape[0])) __pyx_t_3 = 0;
       if (unlikely(__pyx_t_3 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_3);
-        __PYX_ERR(0, 193, __pyx_L1_error)
+        __PYX_ERR(0, 192, __pyx_L1_error)
       }
       (__pyx_v_diff[__pyx_v_i]) = ((*((double *) ( /* dim=0 */ (__pyx_v_one.data + __pyx_t_5 * __pyx_v_one.strides[0]) ))) - (*((double *) ( /* dim=0 */ (__pyx_v_zero.data + __pyx_t_4 * __pyx_v_zero.strides[0]) ))));
     }
 
-    /* "metaworld/utils/reward_utils.pyx":194
+    /* "metaworld/utils/reward_utils.pyx":193
  *         for i in range(3):
  *             diff[i] = one[i] - zero[i]
  *         x_scale = (curr[0] - zero[0]) / diff[0]             # <<<<<<<<<<<<<<
@@ -22977,7 +22977,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
     } else if (unlikely(__pyx_t_4 >= __pyx_v_curr.shape[0])) __pyx_t_3 = 0;
     if (unlikely(__pyx_t_3 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_3);
-      __PYX_ERR(0, 194, __pyx_L1_error)
+      __PYX_ERR(0, 193, __pyx_L1_error)
     }
     __pyx_t_5 = 0;
     __pyx_t_3 = -1;
@@ -22987,16 +22987,16 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
     } else if (unlikely(__pyx_t_5 >= __pyx_v_zero.shape[0])) __pyx_t_3 = 0;
     if (unlikely(__pyx_t_3 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_3);
-      __PYX_ERR(0, 194, __pyx_L1_error)
+      __PYX_ERR(0, 193, __pyx_L1_error)
     }
     __pyx_t_8 = ((*((double *) ( /* dim=0 */ (__pyx_v_curr.data + __pyx_t_4 * __pyx_v_curr.strides[0]) ))) - (*((double *) ( /* dim=0 */ (__pyx_v_zero.data + __pyx_t_5 * __pyx_v_zero.strides[0]) ))));
     if (unlikely((__pyx_v_diff[0]) == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 194, __pyx_L1_error)
+      __PYX_ERR(0, 193, __pyx_L1_error)
     }
     __pyx_v_x_scale = (__pyx_t_8 / (__pyx_v_diff[0]));
 
-    /* "metaworld/utils/reward_utils.pyx":195
+    /* "metaworld/utils/reward_utils.pyx":194
  *             diff[i] = one[i] - zero[i]
  *         x_scale = (curr[0] - zero[0]) / diff[0]
  *         y_scale = (curr[1] - zero[1]) / diff[1]             # <<<<<<<<<<<<<<
@@ -23011,7 +23011,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
     } else if (unlikely(__pyx_t_5 >= __pyx_v_curr.shape[0])) __pyx_t_3 = 0;
     if (unlikely(__pyx_t_3 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_3);
-      __PYX_ERR(0, 195, __pyx_L1_error)
+      __PYX_ERR(0, 194, __pyx_L1_error)
     }
     __pyx_t_4 = 1;
     __pyx_t_3 = -1;
@@ -23021,16 +23021,16 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
     } else if (unlikely(__pyx_t_4 >= __pyx_v_zero.shape[0])) __pyx_t_3 = 0;
     if (unlikely(__pyx_t_3 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_3);
-      __PYX_ERR(0, 195, __pyx_L1_error)
+      __PYX_ERR(0, 194, __pyx_L1_error)
     }
     __pyx_t_8 = ((*((double *) ( /* dim=0 */ (__pyx_v_curr.data + __pyx_t_5 * __pyx_v_curr.strides[0]) ))) - (*((double *) ( /* dim=0 */ (__pyx_v_zero.data + __pyx_t_4 * __pyx_v_zero.strides[0]) ))));
     if (unlikely((__pyx_v_diff[1]) == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 195, __pyx_L1_error)
+      __PYX_ERR(0, 194, __pyx_L1_error)
     }
     __pyx_v_y_scale = (__pyx_t_8 / (__pyx_v_diff[1]));
 
-    /* "metaworld/utils/reward_utils.pyx":196
+    /* "metaworld/utils/reward_utils.pyx":195
  *         x_scale = (curr[0] - zero[0]) / diff[0]
  *         y_scale = (curr[1] - zero[1]) / diff[1]
  *         z_scale = (curr[2] - zero[2]) / diff[2]             # <<<<<<<<<<<<<<
@@ -23045,7 +23045,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
     } else if (unlikely(__pyx_t_4 >= __pyx_v_curr.shape[0])) __pyx_t_3 = 0;
     if (unlikely(__pyx_t_3 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_3);
-      __PYX_ERR(0, 196, __pyx_L1_error)
+      __PYX_ERR(0, 195, __pyx_L1_error)
     }
     __pyx_t_5 = 2;
     __pyx_t_3 = -1;
@@ -23055,16 +23055,16 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
     } else if (unlikely(__pyx_t_5 >= __pyx_v_zero.shape[0])) __pyx_t_3 = 0;
     if (unlikely(__pyx_t_3 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_3);
-      __PYX_ERR(0, 196, __pyx_L1_error)
+      __PYX_ERR(0, 195, __pyx_L1_error)
     }
     __pyx_t_8 = ((*((double *) ( /* dim=0 */ (__pyx_v_curr.data + __pyx_t_4 * __pyx_v_curr.strides[0]) ))) - (*((double *) ( /* dim=0 */ (__pyx_v_zero.data + __pyx_t_5 * __pyx_v_zero.strides[0]) ))));
     if (unlikely((__pyx_v_diff[2]) == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 196, __pyx_L1_error)
+      __PYX_ERR(0, 195, __pyx_L1_error)
     }
     __pyx_v_z_scale = (__pyx_t_8 / (__pyx_v_diff[2]));
 
-    /* "metaworld/utils/reward_utils.pyx":197
+    /* "metaworld/utils/reward_utils.pyx":196
  *         y_scale = (curr[1] - zero[1]) / diff[1]
  *         z_scale = (curr[2] - zero[2]) / diff[2]
  *         return x_scale * y_scale * z_scale             # <<<<<<<<<<<<<<
@@ -23072,13 +23072,13 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
  *         return 1.0
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_9 = PyFloat_FromDouble(((__pyx_v_x_scale * __pyx_v_y_scale) * __pyx_v_z_scale)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 197, __pyx_L1_error)
+    __pyx_t_9 = PyFloat_FromDouble(((__pyx_v_x_scale * __pyx_v_y_scale) * __pyx_v_z_scale)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 196, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     __pyx_r = __pyx_t_9;
     __pyx_t_9 = 0;
     goto __pyx_L0;
 
-    /* "metaworld/utils/reward_utils.pyx":191
+    /* "metaworld/utils/reward_utils.pyx":190
  *     cdef double[3] diff
  *
  *     if _in_range(curr[0], zero[0], one[0]) and _in_range(curr[1], zero[1], one[1]) and _in_range(curr[2], zero[2], one[2]):             # <<<<<<<<<<<<<<
@@ -23087,7 +23087,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
  */
   }
 
-  /* "metaworld/utils/reward_utils.pyx":199
+  /* "metaworld/utils/reward_utils.pyx":198
  *         return x_scale * y_scale * z_scale
  *     else:
  *         return 1.0             # <<<<<<<<<<<<<<
@@ -23099,7 +23099,7 @@ static PyObject *__pyx_pf_9metaworld_5utils_12reward_utils_6rect_prism_tolerance
     goto __pyx_L0;
   }
 
-  /* "metaworld/utils/reward_utils.pyx":170
+  /* "metaworld/utils/reward_utils.pyx":169
  *     return b <= a <= c if c >= b else c <= a <= b
  *
  * def rect_prism_tolerance(             # <<<<<<<<<<<<<<
@@ -24454,9 +24454,9 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
 }
 /* #### Code section: cached_builtins ### */
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 61, __pyx_L1_error)
-  __pyx_builtin_AssertionError = __Pyx_GetBuiltinName(__pyx_n_s_AssertionError); if (!__pyx_builtin_AssertionError) __PYX_ERR(0, 100, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 192, __pyx_L1_error)
+  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_builtin_AssertionError = __Pyx_GetBuiltinName(__pyx_n_s_AssertionError); if (!__pyx_builtin_AssertionError) __PYX_ERR(0, 99, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 191, __pyx_L1_error)
   __pyx_builtin___import__ = __Pyx_GetBuiltinName(__pyx_n_s_import); if (!__pyx_builtin___import__) __PYX_ERR(1, 100, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 156, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(1, 159, __pyx_L1_error)
@@ -24521,25 +24521,25 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__10);
   __Pyx_GIVEREF(__pyx_tuple__10);
 
-  /* "metaworld/utils/reward_utils.pyx":61
+  /* "metaworld/utils/reward_utils.pyx":60
  *
  *     if bounds[0] > bounds[1]:
  *         raise ValueError("Lower bound must be <= upper bound.")             # <<<<<<<<<<<<<<
  *     if margin < 0:
  *         raise ValueError(f"`margin` must be non-negative. Current value: {margin}")
  */
-  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_u_Lower_bound_must_be_upper_bound); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_u_Lower_bound_must_be_upper_bound); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(0, 60, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__11);
   __Pyx_GIVEREF(__pyx_tuple__11);
 
-  /* "metaworld/utils/reward_utils.pyx":90
+  /* "metaworld/utils/reward_utils.pyx":89
  *     """
  *     if not ((0.0 <= a <= 1.0) and (0.0 <= b <= 1.0)):
  *         raise ValueError("a and b must range between 0 and 1")             # <<<<<<<<<<<<<<
  *
  *     cdef double denominator, h_prod
  */
-  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_u_a_and_b_must_range_between_0_and); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_u_a_and_b_must_range_between_0_and); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__12);
   __Pyx_GIVEREF(__pyx_tuple__12);
 
@@ -24735,53 +24735,53 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  */
   __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__26, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_pyx_unpickle_Enum, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(1, 1, __pyx_L1_error)
 
-  /* "metaworld/utils/reward_utils.pyx":19
+  /* "metaworld/utils/reward_utils.pyx":18
  *
  *
  * def sigmoids(double x, double value_at_1, SigmoidType sigmoid) -> double:             # <<<<<<<<<<<<<<
  *     return _sigmoids(x, value_at_1, sigmoid)
  *
  */
-  __pyx_tuple__38 = PyTuple_Pack(3, __pyx_n_s_x, __pyx_n_s_value_at_1, __pyx_n_s_sigmoid); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_tuple__38 = PyTuple_Pack(3, __pyx_n_s_x, __pyx_n_s_value_at_1, __pyx_n_s_sigmoid); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__38);
   __Pyx_GIVEREF(__pyx_tuple__38);
-  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_metaworld_utils_reward_utils_pyx, __pyx_n_s_sigmoids, 19, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_metaworld_utils_reward_utils_pyx, __pyx_n_s_sigmoids, 18, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(0, 18, __pyx_L1_error)
 
-  /* "metaworld/utils/reward_utils.pyx":23
+  /* "metaworld/utils/reward_utils.pyx":22
  *
  *
  * @cython.cdivision(True)             # <<<<<<<<<<<<<<
  * def tolerance(
  *     double x,
  */
-  __pyx_tuple__40 = PyTuple_Pack(7, __pyx_n_s_x, __pyx_n_s_bounds, __pyx_n_s_margin, __pyx_n_s_sigmoid, __pyx_n_s_value_at_margin, __pyx_n_s_value, __pyx_n_s_d); if (unlikely(!__pyx_tuple__40)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_tuple__40 = PyTuple_Pack(7, __pyx_n_s_x, __pyx_n_s_bounds, __pyx_n_s_margin, __pyx_n_s_sigmoid, __pyx_n_s_value_at_margin, __pyx_n_s_value, __pyx_n_s_d); if (unlikely(!__pyx_tuple__40)) __PYX_ERR(0, 22, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__40);
   __Pyx_GIVEREF(__pyx_tuple__40);
-  __pyx_codeobj__41 = (PyObject*)__Pyx_PyCode_New(5, 0, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__40, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_metaworld_utils_reward_utils_pyx, __pyx_n_s_tolerance, 23, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__41)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_codeobj__41 = (PyObject*)__Pyx_PyCode_New(5, 0, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__40, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_metaworld_utils_reward_utils_pyx, __pyx_n_s_tolerance, 22, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__41)) __PYX_ERR(0, 22, __pyx_L1_error)
 
-  /* "metaworld/utils/reward_utils.pyx":73
+  /* "metaworld/utils/reward_utils.pyx":72
  *     return value
  *
  * @cython.cdivision(True)             # <<<<<<<<<<<<<<
  * def hamacher_product(double a, double b) -> double:
  *     """Returns the hamacher (t-norm) product of a and b.
  */
-  __pyx_tuple__42 = PyTuple_Pack(4, __pyx_n_s_a, __pyx_n_s_b, __pyx_n_s_denominator, __pyx_n_s_h_prod); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_tuple__42 = PyTuple_Pack(4, __pyx_n_s_a, __pyx_n_s_b, __pyx_n_s_denominator, __pyx_n_s_h_prod); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__42);
   __Pyx_GIVEREF(__pyx_tuple__42);
-  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_metaworld_utils_reward_utils_pyx, __pyx_n_s_hamacher_product, 73, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_metaworld_utils_reward_utils_pyx, __pyx_n_s_hamacher_product, 72, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 72, __pyx_L1_error)
 
-  /* "metaworld/utils/reward_utils.pyx":170
+  /* "metaworld/utils/reward_utils.pyx":169
  *     return b <= a <= c if c >= b else c <= a <= b
  *
  * def rect_prism_tolerance(             # <<<<<<<<<<<<<<
  *     double[:] curr,
  *     double[:] zero,
  */
-  __pyx_tuple__44 = PyTuple_Pack(8, __pyx_n_s_curr, __pyx_n_s_zero, __pyx_n_s_one, __pyx_n_s_x_scale, __pyx_n_s_y_scale, __pyx_n_s_z_scale, __pyx_n_s_diff, __pyx_n_s_i); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(0, 170, __pyx_L1_error)
+  __pyx_tuple__44 = PyTuple_Pack(8, __pyx_n_s_curr, __pyx_n_s_zero, __pyx_n_s_one, __pyx_n_s_x_scale, __pyx_n_s_y_scale, __pyx_n_s_z_scale, __pyx_n_s_diff, __pyx_n_s_i); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__44);
   __Pyx_GIVEREF(__pyx_tuple__44);
-  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_metaworld_utils_reward_utils_pyx, __pyx_n_s_rect_prism_tolerance, 170, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 170, __pyx_L1_error)
+  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_metaworld_utils_reward_utils_pyx, __pyx_n_s_rect_prism_tolerance, 169, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -26931,38 +26931,38 @@ if (!__Pyx_RefNanny) {
   }
   __pyx_L33:;
 
-  /* "metaworld/utils/reward_utils.pyx":19
+  /* "metaworld/utils/reward_utils.pyx":18
  *
  *
  * def sigmoids(double x, double value_at_1, SigmoidType sigmoid) -> double:             # <<<<<<<<<<<<<<
  *     return _sigmoids(x, value_at_1, sigmoid)
  *
  */
-  __pyx_t_12 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
-  if (PyDict_SetItem(__pyx_t_12, __pyx_n_s_return, __pyx_n_s_double) < 0) __PYX_ERR(0, 19, __pyx_L1_error)
-  __pyx_t_13 = __Pyx_CyFunction_New(&__pyx_mdef_9metaworld_5utils_12reward_utils_1sigmoids, 0, __pyx_n_s_sigmoids, NULL, __pyx_kp_s_metaworld_utils_reward_utils, __pyx_d, ((PyObject *)__pyx_codeobj__39)); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 19, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_12, __pyx_n_s_return, __pyx_n_s_double) < 0) __PYX_ERR(0, 18, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_CyFunction_New(&__pyx_mdef_9metaworld_5utils_12reward_utils_1sigmoids, 0, __pyx_n_s_sigmoids, NULL, __pyx_kp_s_metaworld_utils_reward_utils, __pyx_d, ((PyObject *)__pyx_codeobj__39)); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_13, __pyx_t_12);
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_sigmoids, __pyx_t_13) < 0) __PYX_ERR(0, 19, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_sigmoids, __pyx_t_13) < 0) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-  /* "metaworld/utils/reward_utils.pyx":23
+  /* "metaworld/utils/reward_utils.pyx":22
  *
  *
  * @cython.cdivision(True)             # <<<<<<<<<<<<<<
  * def tolerance(
  *     double x,
  */
-  __pyx_t_13 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 22, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
-  if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_return, __pyx_n_s_double) < 0) __PYX_ERR(0, 23, __pyx_L1_error)
-  __pyx_t_12 = __Pyx_CyFunction_New(&__pyx_mdef_9metaworld_5utils_12reward_utils_3tolerance, 0, __pyx_n_s_tolerance, NULL, __pyx_kp_s_metaworld_utils_reward_utils, __pyx_d, ((PyObject *)__pyx_codeobj__41)); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 23, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_return, __pyx_n_s_double) < 0) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_CyFunction_New(&__pyx_mdef_9metaworld_5utils_12reward_utils_3tolerance, 0, __pyx_n_s_tolerance, NULL, __pyx_kp_s_metaworld_utils_reward_utils, __pyx_d, ((PyObject *)__pyx_codeobj__41)); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 22, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
-  if (!__Pyx_CyFunction_InitDefaults(__pyx_t_12, sizeof(__pyx_defaults), 0)) __PYX_ERR(0, 23, __pyx_L1_error)
+  if (!__Pyx_CyFunction_InitDefaults(__pyx_t_12, sizeof(__pyx_defaults), 0)) __PYX_ERR(0, 22, __pyx_L1_error)
 
-  /* "metaworld/utils/reward_utils.pyx":26
+  /* "metaworld/utils/reward_utils.pyx":25
  * def tolerance(
  *     double x,
  *     (double, double) bounds = (0.0, 0.0),             # <<<<<<<<<<<<<<
@@ -26973,7 +26973,7 @@ if (!__Pyx_RefNanny) {
   __pyx_t_15.f1 = 0.0;
   __Pyx_CyFunction_Defaults(__pyx_defaults, __pyx_t_12)->__pyx_arg_bounds = __pyx_t_15;
 
-  /* "metaworld/utils/reward_utils.pyx":28
+  /* "metaworld/utils/reward_utils.pyx":27
  *     (double, double) bounds = (0.0, 0.0),
  *     double margin = 0.0,
  *     SigmoidType sigmoid = SigmoidType.gaussian,             # <<<<<<<<<<<<<<
@@ -26984,46 +26984,46 @@ if (!__Pyx_RefNanny) {
   __Pyx_CyFunction_SetDefaultsGetter(__pyx_t_12, __pyx_pf_9metaworld_5utils_12reward_utils_8__defaults__);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_12, __pyx_t_13);
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_tolerance, __pyx_t_12) < 0) __PYX_ERR(0, 23, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_tolerance, __pyx_t_12) < 0) __PYX_ERR(0, 22, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
-  /* "metaworld/utils/reward_utils.pyx":73
+  /* "metaworld/utils/reward_utils.pyx":72
  *     return value
  *
  * @cython.cdivision(True)             # <<<<<<<<<<<<<<
  * def hamacher_product(double a, double b) -> double:
  *     """Returns the hamacher (t-norm) product of a and b.
  */
-  __pyx_t_12 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
-  if (PyDict_SetItem(__pyx_t_12, __pyx_n_s_return, __pyx_n_s_double) < 0) __PYX_ERR(0, 73, __pyx_L1_error)
-  __pyx_t_13 = __Pyx_CyFunction_New(&__pyx_mdef_9metaworld_5utils_12reward_utils_5hamacher_product, 0, __pyx_n_s_hamacher_product, NULL, __pyx_kp_s_metaworld_utils_reward_utils, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 73, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_12, __pyx_n_s_return, __pyx_n_s_double) < 0) __PYX_ERR(0, 72, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_CyFunction_New(&__pyx_mdef_9metaworld_5utils_12reward_utils_5hamacher_product, 0, __pyx_n_s_hamacher_product, NULL, __pyx_kp_s_metaworld_utils_reward_utils, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_13, __pyx_t_12);
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_hamacher_product, __pyx_t_13) < 0) __PYX_ERR(0, 73, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_hamacher_product, __pyx_t_13) < 0) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-  /* "metaworld/utils/reward_utils.pyx":170
+  /* "metaworld/utils/reward_utils.pyx":169
  *     return b <= a <= c if c >= b else c <= a <= b
  *
  * def rect_prism_tolerance(             # <<<<<<<<<<<<<<
  *     double[:] curr,
  *     double[:] zero,
  */
-  __pyx_t_13 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 170, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
-  if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_return, __pyx_n_s_double) < 0) __PYX_ERR(0, 170, __pyx_L1_error)
-  __pyx_t_12 = __Pyx_CyFunction_New(&__pyx_mdef_9metaworld_5utils_12reward_utils_7rect_prism_tolerance, 0, __pyx_n_s_rect_prism_tolerance, NULL, __pyx_kp_s_metaworld_utils_reward_utils, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 170, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_return, __pyx_n_s_double) < 0) __PYX_ERR(0, 169, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_CyFunction_New(&__pyx_mdef_9metaworld_5utils_12reward_utils_7rect_prism_tolerance, 0, __pyx_n_s_rect_prism_tolerance, NULL, __pyx_kp_s_metaworld_utils_reward_utils, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_12, __pyx_t_13);
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_rect_prism_tolerance, __pyx_t_12) < 0) __PYX_ERR(0, 170, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_rect_prism_tolerance, __pyx_t_12) < 0) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
   /* "metaworld/utils/reward_utils.pyx":1
- * from libc.math cimport sqrt, log, exp, M_PI, tanh, cos, cosh, acos, acosh, atanh             # <<<<<<<<<<<<<<
- * cimport cython
+ * cimport cython             # <<<<<<<<<<<<<<
+ * from libc.math cimport M_PI, acos, acosh, atanh, cos, cosh, exp, log, sqrt, tanh
  *
  */
   __pyx_t_12 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 1, __pyx_L1_error)
