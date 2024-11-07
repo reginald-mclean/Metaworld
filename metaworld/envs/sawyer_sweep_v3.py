@@ -136,26 +136,26 @@ class SawyerSweepEnvV3(SawyerXYZEnv):
             delta_object_y_right_pad,
             bounds=(obj_radius, pad_success_margin),
             margin=right_caging_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         left_caging = reward_utils.tolerance(
             delta_object_y_left_pad,
             bounds=(obj_radius, pad_success_margin),
             margin=left_caging_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         right_gripping = reward_utils.tolerance(
             delta_object_y_right_pad,
             bounds=(obj_radius, grip_success_margin),
             margin=right_caging_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         left_gripping = reward_utils.tolerance(
             delta_object_y_left_pad,
             bounds=(obj_radius, grip_success_margin),
             margin=left_caging_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         assert right_caging >= 0 and right_caging <= 1
@@ -173,14 +173,14 @@ class SawyerSweepEnvV3(SawyerXYZEnv):
         init_obj_x_z = self.obj_init_pos + np.array([0.0, -self.obj_init_pos[1], 0.0])
         init_tcp_x_z = self.init_tcp + np.array([0.0, -self.init_tcp[1], 0.0])
 
-        tcp_obj_x_z_margin = (
+        tcp_obj_x_z_margin = float(
             np.linalg.norm(init_obj_x_z - init_tcp_x_z, ord=2) - x_z_success_margin
         )
         x_z_caging = reward_utils.tolerance(
             float(tcp_obj_norm_x_z),
-            bounds=(0, x_z_success_margin),
+            bounds=(0.0, x_z_success_margin),
             margin=tcp_obj_x_z_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         assert right_caging >= 0 and right_caging <= 1
@@ -212,13 +212,13 @@ class SawyerSweepEnvV3(SawyerXYZEnv):
 
         obj_to_target = float(np.linalg.norm(obj - target))
         tcp_to_obj = float(np.linalg.norm(obj - tcp))
-        in_place_margin = np.linalg.norm(self.obj_init_pos - target)
+        in_place_margin = float(np.linalg.norm(self.obj_init_pos - target))
 
         in_place = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         object_grasped = self._gripper_caging_reward(action, obj, self.OBJ_RADIUS)

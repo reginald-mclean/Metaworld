@@ -208,7 +208,7 @@ class SawyerStickPushEnvV3(SawyerXYZEnv):
                 pad_to_obj_lr[i],  # "x" in the description above
                 bounds=(obj_radius, pad_success_thresh),
                 margin=caging_lr_margin[i],  # "margin" in the description above
-                sigmoid="long_tail",
+                sigmoid=reward_utils.SigmoidType.long_tail,
             )
             for i in range(2)
         ]
@@ -218,15 +218,17 @@ class SawyerStickPushEnvV3(SawyerXYZEnv):
         tcp = self.tcp_center
         xz = [0, 2]
 
-        caging_xz_margin = np.linalg.norm(self.stick_init_pos[xz] - self.init_tcp[xz])
+        caging_xz_margin = float(
+            np.linalg.norm(self.stick_init_pos[xz] - self.init_tcp[xz])
+        )
         caging_xz_margin -= xz_thresh
         caging_xz = reward_utils.tolerance(
             float(
                 np.linalg.norm(tcp[xz] - obj_pos[xz])
             ),  # "x" in the description above
-            bounds=(0, xz_thresh),
+            bounds=(0.0, float(xz_thresh)),
             margin=caging_xz_margin,  # "margin" in the description above
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         # MARK: Closed-extent gripper information for caging reward-------------
@@ -243,14 +245,14 @@ class SawyerStickPushEnvV3(SawyerXYZEnv):
             caging_and_gripping = (caging_and_gripping + caging) / 2
         if medium_density:
             tcp = self.tcp_center
-            tcp_to_obj = np.linalg.norm(obj_pos - tcp)
-            tcp_to_obj_init = np.linalg.norm(self.stick_init_pos - self.init_tcp)
+            tcp_to_obj = float(np.linalg.norm(obj_pos - tcp))
+            tcp_to_obj_init = float(np.linalg.norm(self.stick_init_pos - self.init_tcp))
             reach_margin = abs(tcp_to_obj_init - object_reach_radius)
             reach = reward_utils.tolerance(
                 float(tcp_to_obj),
-                bounds=(0, object_reach_radius),
+                bounds=(0.0, object_reach_radius),
                 margin=reach_margin,
-                sigmoid="long_tail",
+                sigmoid=reward_utils.SigmoidType.long_tail,
             )
             caging_and_gripping = (caging_and_gripping + reach) / 2
 
@@ -274,9 +276,9 @@ class SawyerStickPushEnvV3(SawyerXYZEnv):
         )
         stick_in_place = reward_utils.tolerance(
             stick_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=stick_in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         container_to_target = float(np.linalg.norm(container - target))
@@ -285,9 +287,9 @@ class SawyerStickPushEnvV3(SawyerXYZEnv):
         )
         container_in_place = reward_utils.tolerance(
             container_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=container_in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         object_grasped = self._gripper_caging_reward(

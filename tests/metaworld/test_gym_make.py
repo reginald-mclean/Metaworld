@@ -42,7 +42,8 @@ def test_mt_benchmarks(benchmark: str, env_dict: EnvDict, vector_strategy: str):
     max_episode_steps = 10
 
     envs = gym.make_vec(
-        f"Meta-World/{benchmark}-{vector_strategy}",
+        "Meta-World/{benchmark}",
+        vector_strategy=vector_strategy,
         seed=SEED,
         use_one_hot=True,
         max_episode_steps=max_episode_steps,
@@ -71,6 +72,7 @@ def test_mt_benchmarks(benchmark: str, env_dict: EnvDict, vector_strategy: str):
     has_truncated = False
     for _ in range(max_episode_steps + 1):
         obs, _, _, truncated, _ = envs.step(envs.action_space.sample())
+        print(obs)
         env_one_hots = obs[:, -envs.num_envs :]
         env_ids = np.argmax(env_one_hots, axis=1)
         assert set(env_ids) == set(range(envs.num_envs))
@@ -94,7 +96,7 @@ def test_mt_benchmarks(benchmark: str, env_dict: EnvDict, vector_strategy: str):
 @pytest.mark.parametrize("env_name", ALL_V3_ENVIRONMENTS.keys())
 def test_mt1(env_name: str):
     metaworld_cls_to_task_name = {v.__name__: k for k, v in ALL_V3_ENVIRONMENTS.items()}
-    env = gym.make(f"Meta-World/{env_name}")
+    env = gym.make("Meta-World/MT1", env_name=env_name)
     assert isinstance(env.unwrapped, SawyerXYZEnv)
     assert len(env.get_wrapper_attr("tasks")) == _N_GOALS
     assert metaworld_cls_to_task_name[env.unwrapped.task_name] == env_name
@@ -105,7 +107,7 @@ def test_mt1(env_name: str):
 
 @pytest.mark.parametrize("env_name", ALL_V3_ENVIRONMENTS_GOAL_HIDDEN.keys())
 def test_goal_hidden(env_name: str):
-    env = gym.make(f"Meta-World/{env_name}", seed=None)
+    env = gym.make("Meta-World/goal_hidden", env_name=env_name, seed=None)
     assert isinstance(env.unwrapped, SawyerXYZEnv)
 
     env.reset()
@@ -114,7 +116,7 @@ def test_goal_hidden(env_name: str):
 
 @pytest.mark.parametrize("env_name", ALL_V3_ENVIRONMENTS_GOAL_OBSERVABLE.keys())
 def test_goal_observable(env_name: str):
-    env = gym.make(f"Meta-World/{env_name}", seed=None)
+    env = gym.make("Meta-World/goal_observable", env_name=env_name, seed=None)
     assert isinstance(env.unwrapped, SawyerXYZEnv)
 
     env.reset()
@@ -129,7 +131,9 @@ def test_ml1(env_name, split, vector_strategy):
     max_episode_steps = 10
 
     envs = gym.make_vec(
-        f"Meta-World/ML1-{split}-{env_name}-{vector_strategy}",
+        "Meta-World/ML1-{split}",
+        env_name=env_name,
+        vector_strategy=vector_strategy,
         meta_batch_size=meta_batch_size,
         max_episode_steps=max_episode_steps,
     )
@@ -169,7 +173,8 @@ def test_ml_benchmarks(
     max_episode_steps = 10
 
     envs = gym.make_vec(
-        f"Meta-World/{benchmark}-{split}-{vector_strategy}",
+        "Meta-World/{benchmark}-{split}",
+        vector_strategy=vector_strategy,
         meta_batch_size=meta_batch_size,
         max_episode_steps=max_episode_steps,
         total_tasks_per_cls=total_tasks_per_cls,

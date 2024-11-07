@@ -9,7 +9,7 @@ from gymnasium.spaces import Box
 from metaworld.asset_path_utils import full_V3_path_for
 from metaworld.sawyer_xyz_env import RenderMode, SawyerXYZEnv
 from metaworld.types import InitConfigDict, ObservationDict
-from metaworld.utils.reward_utils import tolerance
+from metaworld.utils.reward_utils import SigmoidType, tolerance
 
 
 class SawyerNutAssemblyEnvV3(SawyerXYZEnv):
@@ -154,9 +154,9 @@ class SawyerNutAssemblyEnvV3(SawyerXYZEnv):
         lifted = wrench_center[2] > 0.02 or radius < threshold
         in_place = a * float(lifted) + b * tolerance(
             float(np.linalg.norm(pos_error * scale)),
-            bounds=(0, 0.02),
+            bounds=(0.0, 0.02),
             margin=0.4,
-            sigmoid="long_tail",
+            sigmoid=SigmoidType.long_tail,
         )
 
         return in_place, success

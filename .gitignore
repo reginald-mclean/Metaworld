@@ -9,6 +9,11 @@ __pycache__/
 
 # C extensions
 *.so
+*.c
+*.pyi
+*.pyx
+
+reward_utils.c
 
 # Distribution / packaging
 .Python
@@ -123,6 +128,8 @@ dmypy.json
 
 # metaworld-specific stuff below this line
 MUJOCO_LOG.TXT
+metaworld/envs/mujoco/utils/*.c
+metaworld/envs/mujoco/utils/*.html
 
 # Other IDEs and editors
 *.sublime-project

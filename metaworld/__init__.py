@@ -410,6 +410,7 @@ def make_mt_envs(
             gym.vector, f"{vector_strategy.capitalize()}VectorEnv"
         )
         default_num_tasks = 10 if name == "MT10" else 50
+        print(use_one_hot)
         return vectorizer(  # type: ignore
             [
                 partial(
@@ -587,7 +588,7 @@ def register_mw_envs() -> None:
     register(
         id=f"Meta-World/goal_hidden",
         entry_point=lambda env_name, seed: ALL_V3_ENVIRONMENTS_GOAL_HIDDEN[env_name + '-goal-hidden' if '-goal-hidden' not in env_name else ''](  # type: ignore
-            seed=seed
+            seed=seed,
         ),
         kwargs={},
     )

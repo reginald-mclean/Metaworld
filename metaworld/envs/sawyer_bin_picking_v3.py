@@ -152,9 +152,9 @@ class SawyerBinPickingEnvV3(SawyerXYZEnv):
 
         in_place = reward_utils.tolerance(
             target_to_obj,
-            bounds=(0, self.TARGET_RADIUS),
+            bounds=(0.0, self.TARGET_RADIUS),
             margin=self._target_to_obj_init,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         threshold = 0.03
@@ -179,7 +179,7 @@ class SawyerBinPickingEnvV3(SawyerXYZEnv):
                 max(floor - hand[2], 0.0),
                 bounds=(0.0, 0.01),
                 margin=0.05,
-                sigmoid="long_tail",
+                sigmoid=reward_utils.SigmoidType.long_tail,
             )
         )
 

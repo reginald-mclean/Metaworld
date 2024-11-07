@@ -12,6 +12,7 @@ repos:
       - id: check-toml
       - id: check-ast
       - id: check-added-large-files
+        exclude: ^.*\.c$
       - id: check-merge-conflict
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
@@ -21,7 +22,7 @@ repos:
     rev: v2.2.4
     hooks:
       - id: codespell
-        exclude: metaworld/envs/assets_updated/sawyer_xyz/dm_control_pick_place.ipynb
+        exclude: ^(metaworld/envs/assets_updated/sawyer_xyz/dm_control_pick_place.ipynb|.*\.c)$
 #        args:
 #          - --ignore-words-list==
   - repo: https://github.com/PyCQA/flake8
@@ -52,7 +53,7 @@ repos:
     rev: "v1.6.1"
     hooks:
       - id: mypy
-        exclude: docs/
+        exclude: (docs/|metaworld/utils/(reward_utils\.py|reward_utils\.pyx))
         args: [--ignore-missing-imports]
         additional_dependencies: [numpy==1.26.1]
 #  - repo: https://github.com/pycqa/pydocstyle

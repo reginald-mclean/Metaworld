@@ -1,7 +1,7 @@
 """A set of reward utilities written by the authors of dm_control."""
 from __future__ import annotations
 
-from typing import Any, Literal, TypeVar
+from typing import Any, Literal, TypeVar, overload
 
 import numpy as np
 import numpy.typing as npt
@@ -22,6 +22,7 @@ SIGMOID_TYPE = Literal[
 ]
 
 X = TypeVar("X", float, npt.NDArray, np.floating)
+Y = TypeVar("Y", float, np.floating[Any])
 
 
 def _sigmoids(x: X, value_at_1: float, sigmoid: SIGMOID_TYPE) -> X:
@@ -94,13 +95,35 @@ def _sigmoids(x: X, value_at_1: float, sigmoid: SIGMOID_TYPE) -> X:
         raise ValueError(f"Unknown sigmoid type {sigmoid!r}.")
 
 
+@overload
 def tolerance(
-    x: X,
+    x: float | np.floating[Any],
+    bounds: tuple[float, float] = ...,
+    margin: float | np.floating[Any] = ...,
+    sigmoid: SIGMOID_TYPE = ...,
+    value_at_margin: float | np.floating[Any] = ...,
+) -> float:
+    ...
+
+
+@overload
+def tolerance(
+    x: np.floating[Any],
+    bounds: tuple[float, float] = ...,
+    margin: np.floating[Any] = ...,
+    sigmoid: SIGMOID_TYPE = ...,
+    value_at_margin: np.floating[Any] = ...,
+) -> np.floating[Any]:
+    ...
+
+
+def tolerance(
+    x: float | np.floating[Any],
     bounds: tuple[float, float] = (0.0, 0.0),
     margin: float | np.floating[Any] = 0.0,
     sigmoid: SIGMOID_TYPE = "gaussian",
-    value_at_margin: float = _DEFAULT_VALUE_AT_MARGIN,
-) -> X:
+    value_at_margin: float | np.floating[Any] = _DEFAULT_VALUE_AT_MARGIN,
+) -> float | np.floating[Any]:
     """Returns 1 when `x` falls inside the bounds, between 0 and 1 otherwise.
 
     Args:

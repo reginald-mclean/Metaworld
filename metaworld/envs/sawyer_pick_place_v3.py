@@ -184,13 +184,13 @@ class SawyerPickPlaceEnvV3(SawyerXYZEnv):
             delta_object_y_right_pad,
             bounds=(obj_radius, pad_success_margin),
             margin=right_caging_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         left_caging = reward_utils.tolerance(
             delta_object_y_left_pad,
             bounds=(obj_radius, pad_success_margin),
             margin=left_caging_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         y_caging = reward_utils.hamacher_product(left_caging, right_caging)
@@ -204,21 +204,21 @@ class SawyerPickPlaceEnvV3(SawyerXYZEnv):
         assert self.obj_init_pos is not None
         init_obj_x_z = self.obj_init_pos + np.array([0.0, -self.obj_init_pos[1], 0.0])
         init_tcp_x_z = self.init_tcp + np.array([0.0, -self.init_tcp[1], 0.0])
-        tcp_obj_x_z_margin = (
+        tcp_obj_x_z_margin = float(
             np.linalg.norm(init_obj_x_z - init_tcp_x_z, ord=2) - x_z_success_margin
         )
 
         x_z_caging = reward_utils.tolerance(
             tcp_obj_norm_x_z,
-            bounds=(0, x_z_success_margin),
+            bounds=(0.0, x_z_success_margin),
             margin=tcp_obj_x_z_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         gripper_closed = min(max(0, action[-1]), 1)
         caging = reward_utils.hamacher_product(y_caging, x_z_caging)
 
-        gripping = gripper_closed if caging > 0.97 else 0.0
+        gripping = gripper_closed if caging > float(0.97) else float(0.0)
         caging_and_gripping = reward_utils.hamacher_product(caging, gripping)
         caging_and_gripping = (caging_and_gripping + caging) / 2
         return caging_and_gripping
@@ -235,13 +235,13 @@ class SawyerPickPlaceEnvV3(SawyerXYZEnv):
 
         obj_to_target = float(np.linalg.norm(obj - target))
         tcp_to_obj = float(np.linalg.norm(obj - tcp))
-        in_place_margin = np.linalg.norm(self.obj_init_pos - target)
+        in_place_margin = float(np.linalg.norm(self.obj_init_pos - target))
 
         in_place = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, _TARGET_RADIUS),
+            bounds=(0.0, _TARGET_RADIUS),
             margin=in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
 
         object_grasped = self._gripper_caging_reward(action, obj)
