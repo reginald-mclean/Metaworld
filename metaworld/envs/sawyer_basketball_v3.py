@@ -133,13 +133,13 @@ class SawyerBasketballEnvV3(SawyerXYZEnv):
         target_to_obj = (obj - target) * scale
         target_to_obj = float(np.linalg.norm(target_to_obj))
         target_to_obj_init = (self.obj_init_pos - target) * scale
-        target_to_obj_init = np.linalg.norm(target_to_obj_init)
+        target_to_obj_init = float(np.linalg.norm(target_to_obj_init))
 
         in_place = reward_utils.tolerance(
             target_to_obj,
-            bounds=(0, self.TARGET_RADIUS),
+            bounds=(0.0, self.TARGET_RADIUS),
             margin=target_to_obj_init,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         tcp_opened = float(obs[3])
         tcp_to_obj = float(np.linalg.norm(obj - self.tcp_center))

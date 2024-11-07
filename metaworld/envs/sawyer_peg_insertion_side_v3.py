@@ -158,9 +158,9 @@ class SawyerPegInsertionSideEnvV3(SawyerXYZEnv):
         )
         in_place = reward_utils.tolerance(
             obj_to_target,
-            bounds=(0, self.TARGET_RADIUS),
+            bounds=(0.0, self.TARGET_RADIUS),
             margin=in_place_margin,
-            sigmoid="long_tail",
+            sigmoid=reward_utils.SigmoidType.long_tail,
         )
         ip_orig = in_place
         brc_col_box_1 = self._get_site_pos("bottom_right_corner_collision_box_1")
