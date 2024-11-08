@@ -90,7 +90,6 @@ class SawyerReachEnvV3(SawyerXYZEnv):
             "obj_to_target": reach_dist,
             "unscaled_reward": reward,
         }
-        print(self.task_name, info["success"])
         return reward, info
 
     def _get_pos_objects(self) -> npt.NDArray[Any]:

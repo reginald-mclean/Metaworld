@@ -80,7 +80,6 @@ class SawyerDrawerOpenEnvV3(SawyerXYZEnv):
             "obj_to_target": handle_error,
             "unscaled_reward": reward,
         }
-        print(self.task_name, info["success"])
 
         return reward, info
 

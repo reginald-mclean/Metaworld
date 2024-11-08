@@ -77,7 +77,6 @@ class SawyerButtonPressTopdownWallEnvV3(SawyerXYZEnv):
             "obj_to_target": obj_to_target,
             "unscaled_reward": reward,
         }
-        print(self.task_name, info["success"])
 
         return reward, info
 

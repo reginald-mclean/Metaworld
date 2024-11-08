@@ -68,7 +68,6 @@ class RandomTaskSelectWrapper(gym.Wrapper):
     def get_checkpoint(self) -> dict:
         return {
             "tasks": self.tasks,
-            "current_task_idx": self.current_task_idx,
             "sample_tasks_on_reset": self.sample_tasks_on_reset,
             "env_rng_state": get_env_rng_checkpoint(self.unwrapped),
         }
@@ -80,7 +79,6 @@ class RandomTaskSelectWrapper(gym.Wrapper):
         assert "env_rng_state" in ckpt
 
         self.tasks = ckpt["tasks"]
-        self.current_task_idx = ckpt["current_task_idx"]
         self.sample_tasks_on_reset = ckpt["sample_tasks_on_reset"]
         set_env_rng(self.unwrapped, ckpt["env_rng_state"])
 

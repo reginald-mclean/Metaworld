@@ -81,7 +81,6 @@ class SawyerNutAssemblyEnvV3(SawyerXYZEnv):
             "obj_to_target": 0,
             "unscaled_reward": reward,
         }
-        print(self.task_name, info["success"])
 
         return reward, info
 
