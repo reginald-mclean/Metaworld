@@ -25,6 +25,7 @@ from metaworld.sawyer_xyz_env import SawyerXYZEnv  # type: ignore
 from metaworld.types import Task  # type: ignore
 from metaworld.wrappers import (
     AutoTerminateOnSuccessWrapper,
+    CheckpointWrapper,
     OneHotWrapper,
     PseudoRandomTaskSelectWrapper,
     RandomTaskSelectWrapper,
@@ -361,6 +362,7 @@ def _init_each_env(
     num_tasks: int | None = None,
     task_select: Literal["random", "pseudorandom"] = "random",
     reward_function_version: str = "v2",
+    name: str | None = None,
 ) -> gym.Env:
     env: gym.Env = env_cls(reward_function_version=reward_function_version)
     if seed is not None:
@@ -368,6 +370,7 @@ def _init_each_env(
     env = gym.wrappers.TimeLimit(env, max_episode_steps or env.max_path_length)  # type: ignore
     env = AutoTerminateOnSuccessWrapper(env)
     env.toggle_terminate_on_success(terminate_on_success)
+
     env = gym.wrappers.RecordEpisodeStatistics(env)
     if use_one_hot:
         assert env_id is not None, "Need to pass env_id through constructor"
@@ -377,6 +380,7 @@ def _init_each_env(
         env = PseudoRandomTaskSelectWrapper(env, tasks)
     else:
         env = RandomTaskSelectWrapper(env, tasks)
+    env = CheckpointWrapper(env, f"{name}_{env_id}")
     return env
 
 
@@ -429,6 +433,7 @@ def make_mt_envs(
                     terminate_on_success=terminate_on_success,
                     task_select=task_select,
                     reward_function_version=reward_function_version,
+                    name=name,
                 )
                 for env_id, (name, env_cls) in enumerate(
                     benchmark.train_classes.items()
