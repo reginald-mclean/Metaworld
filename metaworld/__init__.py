@@ -360,8 +360,9 @@ def _init_each_env(
     env_id: int | None = None,
     num_tasks: int | None = None,
     task_select: Literal["random", "pseudorandom"] = "random",
+    reward_function_version: str = "v2",
 ) -> gym.Env:
-    env: gym.Env = env_cls()
+    env: gym.Env = env_cls(reward_function_version=reward_function_version)
     if seed is not None:
         env.seed(seed)  # type: ignore
     env = gym.wrappers.TimeLimit(env, max_episode_steps or env.max_path_length)  # type: ignore
@@ -389,6 +390,7 @@ def make_mt_envs(
     terminate_on_success: bool = False,
     vector_strategy: Literal["sync", "async"] = "sync",
     task_select: Literal["random", "pseudorandom"] = "random",
+    reward_function_version: str = "v2",
 ) -> gym.Env | gym.vector.VectorEnv:
     benchmark: Benchmark
     if name in ALL_V3_ENVIRONMENTS.keys():
@@ -403,6 +405,7 @@ def make_mt_envs(
             env_id=env_id,
             num_tasks=num_tasks or 1,
             terminate_on_success=terminate_on_success,
+            reward_function_version=reward_function_version,
         )
     elif name == "MT10" or name == "MT50":
         benchmark = globals()[name](seed=seed)
@@ -425,6 +428,7 @@ def make_mt_envs(
                     num_tasks=num_tasks or default_num_tasks,
                     terminate_on_success=terminate_on_success,
                     task_select=task_select,
+                    reward_function_version=reward_function_version,
                 )
                 for env_id, (name, env_cls) in enumerate(
                     benchmark.train_classes.items()
@@ -447,6 +451,7 @@ def _make_ml_envs_inner(
     terminate_on_success: bool = False,
     task_select: Literal["random", "pseudorandom"] = "pseudorandom",
     vector_strategy: Literal["sync", "async"] = "sync",
+    reward_function_version: Literal["v2", "v1"] = "v2",
 ):
     all_classes = (
         benchmark.train_classes if split == "train" else benchmark.test_classes
@@ -482,6 +487,7 @@ def _make_ml_envs_inner(
                 max_episode_steps=max_episode_steps,
                 terminate_on_success=terminate_on_success,
                 task_select=task_select,
+                reward_function_version=reward_function_version,
             )
             for env_cls, tasks in env_tuples
         ]
@@ -498,6 +504,7 @@ def make_ml_envs(
     terminate_on_success: bool = False,
     task_select: Literal["random", "pseudorandom"] = "pseudorandom",
     vector_strategy: Literal["sync", "async"] = "sync",
+    reward_function_version: Literal["v1", "v2"] = "v2",
 ) -> gym.vector.VectorEnv:
     benchmark: Benchmark
     if name in ALL_V3_ENVIRONMENTS.keys():
@@ -518,6 +525,7 @@ def make_ml_envs(
         terminate_on_success=terminate_on_success,
         task_select=task_select,
         vector_strategy=vector_strategy,
+        reward_function_version=reward_function_version,
     )
 
 

@@ -19,6 +19,7 @@ class SawyerButtonPressTopdownEnvV3(SawyerXYZEnv):
         render_mode: RenderMode | None = None,
         camera_name: str | None = None,
         camera_id: int | None = None,
+        reward_function_version: str = "v2",
     ) -> None:
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
@@ -47,6 +48,8 @@ class SawyerButtonPressTopdownEnvV3(SawyerXYZEnv):
             np.array(obj_low), np.array(obj_high), dtype=np.float64
         )
         self.goal_space = Box(np.array(goal_low), np.array(goal_high), dtype=np.float64)
+        self.reward_function_version = reward_function_version
+        self.maxDist = None
 
     @property
     def model_name(self) -> str:
@@ -73,6 +76,7 @@ class SawyerButtonPressTopdownEnvV3(SawyerXYZEnv):
             "obj_to_target": obj_to_target,
             "unscaled_reward": reward,
         }
+        print(self.task_name, info["success"])
 
         return reward, info
 
@@ -107,6 +111,11 @@ class SawyerButtonPressTopdownEnvV3(SawyerXYZEnv):
         self._obj_to_target_init = abs(
             self._target_pos[2] - self._get_site_pos("buttonStart")[2]
         )
+
+        self.maxDist = np.abs(
+            self._get_site_pos("buttonStart")[1] - self._target_pos[1]
+        )
+
         return self._get_obs()
 
     def compute_reward(
@@ -115,30 +124,63 @@ class SawyerButtonPressTopdownEnvV3(SawyerXYZEnv):
         assert (
             self._target_pos is not None
         ), "`reset_model()` must be called before `compute_reward()`."
-        del action
-        obj = obs[4:7]
-        tcp = self.tcp_center
+        if self.reward_function_version == "v2":
+            del action
+            obj = obs[4:7]
+            tcp = self.tcp_center
 
-        tcp_to_obj = float(np.linalg.norm(obj - tcp))
-        tcp_to_obj_init = float(np.linalg.norm(obj - self.init_tcp))
-        obj_to_target = float(abs(self._target_pos[2] - obj[2]))
+            tcp_to_obj = float(np.linalg.norm(obj - tcp))
+            tcp_to_obj_init = float(np.linalg.norm(obj - self.init_tcp))
+            obj_to_target = float(abs(self._target_pos[2] - obj[2]))
 
-        tcp_closed = 1 - obs[3]
-        near_button = reward_utils.tolerance(
-            tcp_to_obj,
-            bounds=(0.0, 0.01),
-            margin=tcp_to_obj_init,
-            sigmoid=reward_utils.SigmoidType.long_tail,
-        )
-        button_pressed = reward_utils.tolerance(
-            obj_to_target,
-            bounds=(0.0, 0.005),
-            margin=self._obj_to_target_init,
-            sigmoid=reward_utils.SigmoidType.long_tail,
-        )
+            tcp_closed = 1 - obs[3]
+            near_button = reward_utils.tolerance(
+                tcp_to_obj,
+                bounds=(0.0, 0.01),
+                margin=tcp_to_obj_init,
+                sigmoid=reward_utils.SigmoidType.long_tail,
+            )
+            button_pressed = reward_utils.tolerance(
+                obj_to_target,
+                bounds=(0.0, 0.005),
+                margin=self._obj_to_target_init,
+                sigmoid=reward_utils.SigmoidType.long_tail,
+            )
 
-        reward = 5 * reward_utils.hamacher_product(tcp_closed, near_button)
-        if tcp_to_obj <= 0.03:
-            reward += 5 * button_pressed
+            reward = 5 * reward_utils.hamacher_product(tcp_closed, near_button)
+            if tcp_to_obj <= 0.03:
+                reward += 5 * button_pressed
 
-        return (reward, tcp_to_obj, obs[3], obj_to_target, near_button, button_pressed)
+            return (
+                reward,
+                tcp_to_obj,
+                obs[3],
+                obj_to_target,
+                near_button,
+                button_pressed,
+            )
+        else:
+            del action
+            objPos = obs[4:7]
+
+            leftFinger = self._get_site_pos("leftEndEffector")
+            fingerCOM = leftFinger
+
+            pressGoal = self._target_pos[1]
+
+            pressDist = np.abs(objPos[1] - pressGoal)
+            reachDist = np.linalg.norm(objPos - fingerCOM)
+
+            c1 = 1000
+            c2 = 0.01
+            c3 = 0.001
+            if reachDist < 0.05:
+                pressRew = 1000 * (self.maxDist - pressDist) + c1 * (
+                    np.exp(-(pressDist**2) / c2) + np.exp(-(pressDist**2) / c3)
+                )
+            else:
+                pressRew = 0
+            pressRew = max(pressRew, 0)
+            reward = -reachDist + pressRew
+
+            return reward, 0.0, 0.0, float(abs(self._target_pos[2] - obs[7])), 0.0, 0.0

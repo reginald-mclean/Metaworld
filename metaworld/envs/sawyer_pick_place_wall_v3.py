@@ -34,6 +34,7 @@ class SawyerPickPlaceWallEnvV3(SawyerXYZEnv):
         render_mode: RenderMode | None = None,
         camera_name: str | None = None,
         camera_id: int | None = None,
+        reward_function_version: str = "v2",
     ) -> None:
         goal_low = (-0.05, 0.85, 0.05)
         goal_high = (0.05, 0.9, 0.3)
@@ -68,6 +69,7 @@ class SawyerPickPlaceWallEnvV3(SawyerXYZEnv):
             dtype=np.float64,
         )
         self.goal_space = Box(np.array(goal_low), np.array(goal_high), dtype=np.float64)
+        self.reward_function_version = reward_function_version
 
         self.num_resets = 0
 

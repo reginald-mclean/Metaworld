@@ -20,6 +20,7 @@ class SawyerPickOutOfHoleEnvV3(SawyerXYZEnv):
         render_mode: RenderMode | None = None,
         camera_name: str | None = None,
         camera_id: int | None = None,
+        reward_function_version: str = "v2",
     ) -> None:
         hand_low = (-0.5, 0.40, -0.05)
         hand_high = (0.5, 1, 0.5)
@@ -52,6 +53,7 @@ class SawyerPickOutOfHoleEnvV3(SawyerXYZEnv):
             dtype=np.float64,
         )
         self.goal_space = Box(np.array(goal_low), np.array(goal_high), dtype=np.float64)
+        self.reward_function_version = reward_function_version
 
     @property
     def model_name(self) -> str:

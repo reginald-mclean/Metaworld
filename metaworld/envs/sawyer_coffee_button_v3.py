@@ -18,6 +18,7 @@ class SawyerCoffeeButtonEnvV3(SawyerXYZEnv):
         render_mode: RenderMode | None = None,
         camera_name: str | None = None,
         camera_id: int | None = None,
+        reward_function_version: str = "v2",
     ) -> None:
         self.max_dist = 0.03
 
@@ -52,6 +53,7 @@ class SawyerCoffeeButtonEnvV3(SawyerXYZEnv):
             np.array(obj_low), np.array(obj_high), dtype=np.float64
         )
         self.goal_space = Box(np.array(goal_low), np.array(goal_high), dtype=np.float64)
+        self.reward_function_version = reward_function_version
 
     @property
     def model_name(self) -> str:

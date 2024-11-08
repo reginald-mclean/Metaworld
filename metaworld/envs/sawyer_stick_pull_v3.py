@@ -19,6 +19,7 @@ class SawyerStickPullEnvV3(SawyerXYZEnv):
         render_mode: RenderMode | None = None,
         camera_name: str | None = None,
         camera_id: int | None = None,
+        reward_function_version: str = "v2",
     ) -> None:
         hand_low = (-0.5, 0.35, 0.05)
         hand_high = (0.5, 1, 0.5)
@@ -48,6 +49,7 @@ class SawyerStickPullEnvV3(SawyerXYZEnv):
         self.obj_init_qpos = np.array([0.0, 0.09])
         self.obj_space = Box(np.array(obj_low), np.array(obj_high), dtype=np.float64)
         self.goal_space = Box(np.array(goal_low), np.array(goal_high), dtype=np.float64)
+        self.reward_function_version = reward_function_version
         self._random_reset_space = Box(
             np.hstack((obj_low, goal_low)),
             np.hstack((obj_high, goal_high)),

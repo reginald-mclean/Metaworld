@@ -33,6 +33,7 @@ class SawyerReachEnvV3(SawyerXYZEnv):
         render_mode: RenderMode | None = None,
         camera_name: str | None = None,
         camera_id: int | None = None,
+        reward_function_version: str = "v2",
     ) -> None:
         goal_low = (-0.1, 0.8, 0.05)
         goal_high = (0.1, 0.9, 0.3)
@@ -67,6 +68,7 @@ class SawyerReachEnvV3(SawyerXYZEnv):
             dtype=np.float64,
         )
         self.goal_space = Box(np.array(goal_low), np.array(goal_high), dtype=np.float64)
+        self.reward_function_version = reward_function_version
 
     @property
     def model_name(self) -> str:
@@ -88,7 +90,7 @@ class SawyerReachEnvV3(SawyerXYZEnv):
             "obj_to_target": reach_dist,
             "unscaled_reward": reward,
         }
-
+        print(self.task_name, info["success"])
         return reward, info
 
     def _get_pos_objects(self) -> npt.NDArray[Any]:
@@ -112,7 +114,6 @@ class SawyerReachEnvV3(SawyerXYZEnv):
 
     def reset_model(self) -> npt.NDArray[np.float64]:
         self._reset_hand()
-        self._target_pos = self.goal.copy()
         self.obj_init_pos = self.fix_extreme_obj_pos(self.init_config["obj_init_pos"])
         self.obj_init_angle = self.init_config["obj_init_angle"]
 
@@ -121,33 +122,55 @@ class SawyerReachEnvV3(SawyerXYZEnv):
         while np.linalg.norm(goal_pos[:2] - self._target_pos[:2]) < 0.15:
             goal_pos = self._get_state_rand_vec()
             self._target_pos = goal_pos[3:]
-        self._target_pos = goal_pos[-3:]
         self.obj_init_pos = goal_pos[:3]
         self._set_obj_xyz(self.obj_init_pos)
 
         self.model.site("goal").pos = self._target_pos
+
+        self.maxReachDist = np.linalg.norm(self.init_tcp - np.array(self._target_pos))
 
         return self._get_obs()
 
     def compute_reward(
         self, actions: npt.NDArray[Any], obs: npt.NDArray[np.float64]
     ) -> tuple[float, float, float]:
-        assert self._target_pos is not None
-        _TARGET_RADIUS: float = 0.05
-        tcp = self.tcp_center
-        # obj = obs[4:7]
-        # tcp_opened = obs[3]
-        target = self._target_pos
+        if self.reward_function_version == "v2":
+            assert self._target_pos is not None
+            _TARGET_RADIUS: float = 0.05
+            tcp = self.tcp_center
+            target = self._target_pos
 
-        tcp_to_target = float(np.linalg.norm(tcp - target))
-        # obj_to_target = float(np.linalg.norm(obj - target))
+            tcp_to_target = float(np.linalg.norm(tcp - target))
 
-        in_place_margin = float(np.linalg.norm(self.hand_init_pos - target))
-        in_place = reward_utils.tolerance(
-            tcp_to_target,
-            bounds=(0.0, _TARGET_RADIUS),
-            margin=in_place_margin,
-            sigmoid=reward_utils.SigmoidType.long_tail,
-        )
+            in_place_margin = float(np.linalg.norm(self.hand_init_pos - target))
+            in_place = reward_utils.tolerance(
+                tcp_to_target,
+                bounds=(0.0, _TARGET_RADIUS),
+                margin=in_place_margin,
+                sigmoid=reward_utils.SigmoidType.long_tail,
+            )
 
-        return (10 * in_place, tcp_to_target, in_place)
+            return 10 * in_place, tcp_to_target, in_place
+        else:
+            assert self._target_pos is not None
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+            goal = self._target_pos
+
+            del actions
+            del obs
+
+            c1 = 1000
+            c2 = 0.01
+            c3 = 0.001
+            reachDist = np.linalg.norm(fingerCOM - goal)
+            reachRew = c1 * (self.maxReachDist - reachDist) + c1 * (
+                np.exp(-(reachDist**2) / c2) + np.exp(-(reachDist**2) / c3)
+            )
+            return (
+                float(reachRew),
+                float(reachDist),
+                0.0,
+            )  # the last value is just for compliance, not sure if that's correct

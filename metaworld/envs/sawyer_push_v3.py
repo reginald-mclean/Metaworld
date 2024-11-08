@@ -35,6 +35,7 @@ class SawyerPushEnvV3(SawyerXYZEnv):
         render_mode: RenderMode | None = None,
         camera_name: str | None = None,
         camera_id: int | None = None,
+        reward_function_version: str = "v2",
     ) -> None:
         hand_low = (-0.5, 0.40, 0.05)
         hand_high = (0.5, 1, 0.5)
@@ -69,6 +70,7 @@ class SawyerPushEnvV3(SawyerXYZEnv):
             dtype=np.float64,
         )
         self.goal_space = Box(np.array(goal_low), np.array(goal_high), dtype=np.float64)
+        self.reward_function_version = reward_function_version
         self.num_resets = 0
 
     @property
@@ -104,6 +106,7 @@ class SawyerPushEnvV3(SawyerXYZEnv):
             "obj_to_target": target_to_obj,
             "unscaled_reward": reward,
         }
+        print(self.task_name, info["success"])
 
         return reward, info
 
@@ -144,38 +147,100 @@ class SawyerPushEnvV3(SawyerXYZEnv):
 
         self._set_obj_xyz(self.obj_init_pos)
         self.model.site("goal").pos = self._target_pos
+
+        self.objHeight = self.data.geom("objGeom").xpos[2]
+        self.heightTarget = self.objHeight + 0.04
+        self.maxPushDist = np.linalg.norm(
+            self.obj_init_pos[:2] - np.array(self._target_pos)[:2]
+        )
+        self.maxPlacingDist = (
+            np.linalg.norm(
+                np.array(
+                    [self.obj_init_pos[0], self.obj_init_pos[1], self.heightTarget]
+                )
+                - np.array(self._target_pos)
+            )
+            + self.heightTarget
+        )
+
         return self._get_obs()
 
     def compute_reward(
         self, action: npt.NDArray[Any], obs: npt.NDArray[np.float64]
     ) -> tuple[float, float, float, float, float, float]:
         assert self._target_pos is not None and self.obj_init_pos is not None
-        obj = obs[4:7]
-        tcp_opened = obs[3]
-        tcp_to_obj = float(np.linalg.norm(obj - self.tcp_center))
-        target_to_obj = float(np.linalg.norm(obj - self._target_pos))
-        target_to_obj_init = float(np.linalg.norm(self.obj_init_pos - self._target_pos))
+        if self.reward_function_version == "v2":
+            obj = obs[4:7]
+            tcp_opened = obs[3]
+            tcp_to_obj = float(np.linalg.norm(obj - self.tcp_center))
+            target_to_obj = float(np.linalg.norm(obj - self._target_pos))
+            target_to_obj_init = float(
+                np.linalg.norm(self.obj_init_pos - self._target_pos)
+            )
 
-        in_place = reward_utils.tolerance(
-            target_to_obj,
-            bounds=(0.0, self.TARGET_RADIUS),
-            margin=target_to_obj_init,
-            sigmoid=reward_utils.SigmoidType.long_tail,
-        )
+            in_place = reward_utils.tolerance(
+                target_to_obj,
+                bounds=(0.0, self.TARGET_RADIUS),
+                margin=target_to_obj_init,
+                sigmoid=reward_utils.SigmoidType.long_tail,
+            )
 
-        object_grasped = self._gripper_caging_reward(
-            action,
-            obj,
-            object_reach_radius=0.01,
-            obj_radius=0.015,
-            pad_success_thresh=0.05,
-            xz_thresh=0.005,
-            high_density=True,
-        )
-        reward = 2 * object_grasped
+            object_grasped = self._gripper_caging_reward(
+                action,
+                obj,
+                object_reach_radius=0.01,
+                obj_radius=0.015,
+                pad_success_thresh=0.05,
+                xz_thresh=0.005,
+                high_density=True,
+            )
+            reward = 2 * object_grasped
 
-        if tcp_to_obj < 0.02 and tcp_opened > 0:
-            reward += 1.0 + reward + 5.0 * in_place
-        if target_to_obj < self.TARGET_RADIUS:
-            reward = 10.0
-        return (reward, tcp_to_obj, tcp_opened, target_to_obj, object_grasped, in_place)
+            if tcp_to_obj < 0.02 and tcp_opened > 0:
+                reward += 1.0 + reward + 5.0 * in_place
+            if target_to_obj < self.TARGET_RADIUS:
+                reward = 10.0
+            return (
+                reward,
+                tcp_to_obj,
+                tcp_opened,
+                target_to_obj,
+                object_grasped,
+                in_place,
+            )
+        else:
+            objPos = obs[4:7]
+
+            rightFinger, leftFinger = self._get_site_pos(
+                "rightEndEffector"
+            ), self._get_site_pos("leftEndEffector")
+            fingerCOM = (rightFinger + leftFinger) / 2
+
+            goal = self._target_pos
+
+            c1 = 1000
+            c2 = 0.01
+            c3 = 0.001
+            del action
+            del obs
+
+            assert np.all(goal == self._get_site_pos("goal"))
+            reachDist = np.linalg.norm(fingerCOM - objPos)
+            pushDist = np.linalg.norm(objPos[:2] - goal[:2])
+            reachRew = -reachDist
+            if reachDist < 0.05:
+                pushRew = 1000 * (self.maxPushDist - pushDist) + c1 * (
+                    np.exp(-(pushDist**2) / c2) + np.exp(-(pushDist**2) / c3)
+                )
+                pushRew = max(pushRew, 0)
+            else:
+                pushRew = 0
+            reward = float(reachRew + pushRew)
+            return (
+                reward,
+                0.0,
+                0.0,
+                float(pushDist),
+                0.0,
+                0.0,
+            )
