@@ -13,9 +13,9 @@
 
     <link rel="shortcut icon" href="../../_static/favicon.svg"/><!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
         <title>Basic Usage - Metaworld Documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=3e7f4c72" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=49cbaffd" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=82c8b628" />
     
     
 
@@ -215,7 +215,16 @@
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Basic Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation/installation/">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../rendering/rendering/">Rendering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage/basic_usage/">Generate data with expert policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Benchmark Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmark/action_space/">Action Space</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmark/state_space/">State Space</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmark/benchmark_descriptions/">Benchmark Descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmark/task_descriptions/">Task Descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmark/reward_functions/">Reward Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmark/expert_trajectories/">Expert Trajectories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmark/resetting/">Resetting to a Specific State</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -298,8 +307,8 @@ The ML1 benchmark tests for few-shot adaptation to goal variations within a sing
 <h2>Creating Multi-Task Benchmarks<a class="headerlink" href="#creating-multi-task-benchmarks" title="Link to this heading">¶</a></h2>
 <section id="mt1">
 <h3>MT1<a class="headerlink" href="#mt1" title="Link to this heading">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">import</span> <span class="nn">metaworld</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">metaworld</span>
 
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span> <span class="c1"># for reproducibility</span>
 
@@ -316,8 +325,8 @@ The ML1 benchmark tests for few-shot adaptation to goal variations within a sing
 <h3>MT10<a class="headerlink" href="#mt10" title="Link to this heading">¶</a></h3>
 <p>MT10 has two different versions that can be returned by gym.make. The first version is the synchronous version of the benchmark where all environments are contained within the same process.
 For users with limited compute resources, the synchronous option needs the least resources.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">import</span> <span class="nn">metaworld</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">metaworld</span>
 
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
 
@@ -338,8 +347,8 @@ For users with limited compute resources, the synchronous option needs the least
 <section id="mt50">
 <h3>MT50<a class="headerlink" href="#mt50" title="Link to this heading">¶</a></h3>
 <p>MT50 also contains two different versions, a synchronous and an asynchronous version, of the environments.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">import</span> <span class="nn">metaworld</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">metaworld</span>
 
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
 
@@ -362,8 +371,8 @@ For users with limited compute resources, the synchronous option needs the least
 <p>Each Meta-reinforcement learning benchmark has training and testing environments. These environments must be created separately as follows.</p>
 <section id="ml1">
 <h3>ML1<a class="headerlink" href="#ml1" title="Link to this heading">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">import</span> <span class="nn">metaworld</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">metaworld</span>
 
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
 
@@ -379,8 +388,8 @@ For users with limited compute resources, the synchronous option needs the least
 <section id="ml10">
 <h3>ML10<a class="headerlink" href="#ml10" title="Link to this heading">¶</a></h3>
 <p>Similar to the Multi-Task benchmarks, the ML10 and ML45 environments can be run in synchronous or asynchronous modes.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">import</span> <span class="nn">metaworld</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">metaworld</span>
 
 <span class="n">train_envs</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/ML10-train-sync&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> <span class="c1"># or ML10-train-async</span>
 <span class="n">test_envs</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/ML10-test-sync&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> <span class="c1"># or ML10-test-async</span>
@@ -389,8 +398,8 @@ For users with limited compute resources, the synchronous option needs the least
 </section>
 <section id="ml45">
 <h3>ML45<a class="headerlink" href="#ml45" title="Link to this heading">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">import</span> <span class="nn">metaworld</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">metaworld</span>
 
 <span class="n">train_envs</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/ML45-train-sync&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> <span class="c1"># or ML45-train-async</span>
 <span class="n">test_envs</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/ML45-test-sync&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> <span class="c1"># or ML45-test-async</span>
@@ -404,12 +413,15 @@ For users with limited compute resources, the synchronous option needs the least
 <p>The prefix ‘mt’ will return environments that are goal observable for Multi-Task reinforcement learning, while the prefix ‘ml’ will return environments that are partially observable for Meta-reinforcement learning.
 Like the included MT and ML benchmarks, these environments can also be run in synchronous or asynchronous mode.
 In order to create a custom benchmark, the user must provide a list of environment names with the suffix ‘-V3’.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gymnasium</span> <span class="k">as</span> <span class="nn">gym</span>
-<span class="kn">import</span> <span class="nn">metaworld</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">metaworld</span>
 
 <span class="n">envs</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/mt-custom-sync&#39;</span><span class="p">,</span> <span class="n">envs_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;env_name_1-V3&#39;</span><span class="p">,</span> <span class="s1">&#39;env_name_2-V3&#39;</span><span class="p">,</span> <span class="s1">&#39;env_name_3-V3&#39;</span><span class="p">],</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
 </pre></div>
 </div>
+</section>
+<section id="arguments">
+<h2>Arguments<a class="headerlink" href="#arguments" title="Link to this heading">¶</a></h2>
 </section>
 </section>
 
@@ -489,6 +501,7 @@ In order to create a custom benchmark, the user must provide a list of environme
 </ul>
 </li>
 <li><a class="reference internal" href="#custom-benchmarks">Custom Benchmarks</a></li>
+<li><a class="reference internal" href="#arguments">Arguments</a></li>
 </ul>
 </li>
 </ul>
