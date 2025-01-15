@@ -8,7 +8,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:description" content="Collections of robotics environments geared towards benchmarking multi-task and meta reinforcement learning" />
     <meta property="og:url" content="https://metaworld.farama.org/introduction/basic_usage.html" /><meta property="og:image" content="https://metaworld.farama.org/_static/img/metaworld_black-github.png" /><meta name="twitter:card" content="summary_large_image"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Installation" href="../../installation/installation/" /><link rel="prev" title="&lt;no title&gt;" href="../../" />
+<link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Evaluation" href="../../evaluation/evaluation/" /><link rel="prev" title="&lt;no title&gt;" href="../../" />
         <link rel="canonical" href="https://metaworld.farama.org/introduction/basic_usage.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.svg"/><!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
@@ -213,6 +213,7 @@
   <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
 <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Basic Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../evaluation/evaluation/">Evaluation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation/installation/">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../rendering/rendering/">Rendering</a></li>
 </ul>
@@ -302,18 +303,13 @@ In the MT10 and MT50 benchmarks, the observations returned by the benchmark will
 <p>The ML1, ML10, and ML45 benchmarks are 3 meta-reinforcement learning benchmarks available in Meta-World. The ML1 benchmark can be used with any of the 50 tasks available in Meta-World.
 The ML1 benchmark tests for few-shot adaptation to goal variations within a single task. The ML10 and ML45 both test few-shot adaptation to new tasks. ML10 comprises 10 train tasks with 5 test tasks, while ML45 comprises of 45 training tasks with 5 test tasks.</p>
 </section>
-</section>
-<section id="creating-multi-task-benchmarks">
-<h2>Creating Multi-Task Benchmarks<a class="headerlink" href="#creating-multi-task-benchmarks" title="Link to this heading">¶</a></h2>
 <section id="mt1">
 <h3>MT1<a class="headerlink" href="#mt1" title="Link to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">metaworld</span>
 
-<span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span> <span class="c1"># for reproducibility</span>
-
-<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/reach-V3&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> <span class="c1"># MT1 with the reach environment</span>
-
+<span class="n">SEED</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># some seed number here</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/MT1-reach&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
 <span class="n">obs</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
 <span class="n">a</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span> <span class="c1"># randomly sample an action</span>
@@ -390,7 +386,6 @@ For users with limited compute resources, the synchronous option needs the least
 <p>Similar to the Multi-Task benchmarks, the ML10 and ML45 environments can be run in synchronous or asynchronous modes.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">metaworld</span>
-
 <span class="n">train_envs</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/ML10-train-sync&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> <span class="c1"># or ML10-train-async</span>
 <span class="n">test_envs</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/ML10-test-sync&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span> <span class="c1"># or ML10-test-async</span>
 </pre></div>
@@ -430,12 +425,12 @@ In order to create a custom benchmark, the user must provide a list of environme
         <footer>
           
           <div class="related-pages">
-            <a class="next-page" href="../../installation/installation/">
+            <a class="next-page" href="../../evaluation/evaluation/">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Installation</div>
+                <div class="title">Evaluation</div>
               </div>
               <svg class="furo-related-icon">
                 <use href="#svg-arrow-right"></use>
@@ -486,9 +481,6 @@ In order to create a custom benchmark, the user must provide a list of environme
 <li><a class="reference internal" href="#using-the-benchmark">Using the benchmark</a><ul>
 <li><a class="reference internal" href="#multi-task-benchmarks">Multi-Task Benchmarks</a></li>
 <li><a class="reference internal" href="#meta-learning-benchmarks">Meta-Learning Benchmarks</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#creating-multi-task-benchmarks">Creating Multi-Task Benchmarks</a><ul>
 <li><a class="reference internal" href="#mt1">MT1</a></li>
 <li><a class="reference internal" href="#mt10">MT10</a></li>
 <li><a class="reference internal" href="#mt50">MT50</a></li>
