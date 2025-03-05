@@ -225,7 +225,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../task_descriptions/">Task Descriptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reward_functions/">Reward Functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../expert_trajectories/">Expert Trajectories</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../resetting/">Resetting to a Specific State</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -290,12 +289,40 @@
             
             <section class="tex2jax_ignore mathjax_ignore" id="state-space">
 <h1>State Space<a class="headerlink" href="#state-space" title="Link to this heading">¶</a></h1>
-<p>Likewise the <a class="reference internal" href="../action_space/"><span class="doc std std-doc">action space</span></a>, the state space among the tasks requires maintaining the same structure that allows current approaches to employ a single policy/model.
-Meta-World contains tasks that either require manipulation of a single object with a potentially variable goal position (e.g., <code class="docutils literal notranslate"><span class="pre">reach</span></code>, <code class="docutils literal notranslate"><span class="pre">push</span></code>, <code class="docutils literal notranslate"><span class="pre">pick</span> <span class="pre">place</span></code>) or two objects with a fixed goal position (e.g., <code class="docutils literal notranslate"><span class="pre">hammer</span></code>, <code class="docutils literal notranslate"><span class="pre">soccer</span></code>, <code class="docutils literal notranslate"><span class="pre">shelf</span> <span class="pre">place</span></code>).
+<p>Like the <a class="reference internal" href="../action_space/"><span class="doc std std-doc">action space</span></a>, the state space among the tasks is maintains the same structure such that a single policy/model can be shared between tasks.
+Meta-World contains tasks that either manipulate a single object with a potentially variable goal position (e.g., reach, push, pick place) or to manipulate two objects with a fixed goal position (e.g., hammer, soccer, shelf place).
 To account for such variability, large parts of the observation space are kept as placeholders, e.g., for the second object, if only one object is available.</p>
 <p>The observation array consists of the end-effector’s 3D Cartesian position and the composition of a single object with its goal coordinates or the positions of the first and second object.
 This always results in a 9D state vector.</p>
-<p>TODO: Provide table</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Indices</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0:2</p></td>
+<td><p>the XYZ coordinates of the end-effector</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>a scalar value that represents how open/closed the gripper is</p></td>
+</tr>
+<tr class="row-even"><td><p>4:6</p></td>
+<td><p>the XYZ coordinates of the first object</p></td>
+</tr>
+<tr class="row-odd"><td><p>7:10</p></td>
+<td><p>the quaternion describing the spatial orientations and rotations of object #1</p></td>
+</tr>
+<tr class="row-even"><td><p>11:13</p></td>
+<td><p>the XYZ coordinates of the second object</p></td>
+</tr>
+<tr class="row-odd"><td><p>14:17</p></td>
+<td><p>the quaternion describing the spatial orientations and rotations of object #2</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </section>
 
           </article>

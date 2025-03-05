@@ -225,7 +225,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../task_descriptions/">Task Descriptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reward_functions/">Reward Functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../expert_trajectories/">Expert Trajectories</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../resetting/">Resetting to a Specific State</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -293,15 +292,6 @@
 <p>The benchmark provides a selection of tasks used to study generalization in reinforcement learning (RL).
 Different combinations of tasks provide benchmark scenarios suitable for multi-task RL and meta-RL.
 Unlike usual RL benchmarks, the training of the agent is strictly split into training and testing phases.</p>
-<section id="task-configuration">
-<h2>Task Configuration<a class="headerlink" href="#task-configuration" title="Link to this heading">¶</a></h2>
-<p>Meta-World distinguishes between parametric and non-parametric variations.
-Parametric variations concern the configuration of the goal or object position, such as changing the location of the puck in the <code class="docutils literal notranslate"><span class="pre">push</span></code> task.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TODO</span><span class="p">:</span> <span class="n">Add</span> <span class="n">code</span> <span class="n">snippets</span>
-</pre></div>
-</div>
-<p>Non-parametric variations are implemented by the settings containing multiple tasks, where the agent is faced with challenges like <code class="docutils literal notranslate"><span class="pre">push</span></code> and <code class="docutils literal notranslate"><span class="pre">open</span> <span class="pre">window</span></code> that necessitate a different set of skills.</p>
-</section>
 <section id="multi-task-problems">
 <h2>Multi-Task Problems<a class="headerlink" href="#multi-task-problems" title="Link to this heading">¶</a></h2>
 <p>The multi-task setting challenges the agent to learn a predefined set of skills simultaneously.
@@ -375,7 +365,6 @@ Similar to ML10, we hold out 5 tasks for testing and meta-train policies on 45
 tasks. Object and goal positions are randomized, and training tasks are
 selected for structural similarity to test tasks. As with ML10, task IDs are
 not provided, requiring the meta-RL algorithm to identify tasks from experience.</p>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
 <figure class="align-default">
 <a class="reference internal image-reference" href="../../_images/ml45.gif"><img alt="Meta-RL 10" src="../../_images/ml45.gif" style="width: 500px;" />
 </a>
@@ -442,7 +431,6 @@ not provided, requiring the meta-RL algorithm to identify tasks from experience.
             <div class="toc-tree">
               <ul>
 <li><a class="reference internal" href="#">Benchmark Descriptions</a><ul>
-<li><a class="reference internal" href="#task-configuration">Task Configuration</a></li>
 <li><a class="reference internal" href="#multi-task-problems">Multi-Task Problems</a><ul>
 <li><a class="reference internal" href="#multi-task-mt1">Multi-Task (MT1)</a></li>
 <li><a class="reference internal" href="#multi-task-mt10">Multi-Task (MT10)</a></li>

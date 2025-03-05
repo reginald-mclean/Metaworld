@@ -225,7 +225,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../task_descriptions/">Task Descriptions</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Reward Functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../expert_trajectories/">Expert Trajectories</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../resetting/">Resetting to a Specific State</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -299,13 +298,14 @@ To assure equivalent learning in the settings with multiple tasks, all task rewa
 by passing the <code class="docutils literal notranslate"><span class="pre">reward_func_version</span></code> keyword argument to <code class="docutils literal notranslate"><span class="pre">gym.make(...)</span></code>.</p>
 <section id="version-1">
 <h3>Version 1<a class="headerlink" href="#version-1" title="Link to this heading">¶</a></h3>
-<p>Passing <code class="docutils literal notranslate"><span class="pre">reward_func_version=v1</span></code> configures the benchmark with the primary
+<p>Passing <code class="docutils literal notranslate"><span class="pre">reward_func_version=v1</span></code> configures the benchmark with the original
 reward function of Meta-World, which is actually a version of the
-<code class="docutils literal notranslate"><span class="pre">pick-place-wall</span></code> task that is modified to also work for the other tasks.</p>
+<code class="docutils literal notranslate"><span class="pre">pick-place-wall</span></code> task that is modified to also work for the other tasks. Any paper that reports results on the ‘env-name-v1’ environments, uses this reward function.</p>
 </section>
 <section id="version-2">
 <h3>Version 2<a class="headerlink" href="#version-2" title="Link to this heading">¶</a></h3>
-<p>TBA</p>
+<p>Passing <code class="docutils literal notranslate"><span class="pre">reward_func_version=v2</span></code> configures the benchmark with the updated
+reward functions of Meta-World. Any paper that reports results on the ‘env-name-v2’ environments, uses this reward function.</p>
 </section>
 </section>
 </section>

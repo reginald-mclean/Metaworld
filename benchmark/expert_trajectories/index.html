@@ -8,7 +8,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:description" content="Collections of robotics environments geared towards benchmarking multi-task and meta reinforcement learning" />
     <meta property="og:url" content="https://metaworld.farama.org/benchmark/expert_trajectories.html" /><meta property="og:image" content="https://metaworld.farama.org/_static/img/metaworld_black-github.png" /><meta name="twitter:card" content="summary_large_image"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Resetting to a Specific State" href="../resetting/" /><link rel="prev" title="Reward Functions" href="../reward_functions/" />
+<link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Citation" href="../../citation/" /><link rel="prev" title="Reward Functions" href="../reward_functions/" />
         <link rel="canonical" href="https://metaworld.farama.org/benchmark/expert_trajectories.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.svg"/><!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
@@ -225,7 +225,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../task_descriptions/">Task Descriptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reward_functions/">Reward Functions</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Expert Trajectories</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../resetting/">Resetting to a Specific State</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
@@ -292,20 +291,20 @@
 <h1>Expert Trajectories<a class="headerlink" href="#expert-trajectories" title="Link to this heading">¶</a></h1>
 <section id="expert-policies">
 <h2>Expert Policies<a class="headerlink" href="#expert-policies" title="Link to this heading">¶</a></h2>
-<p>For each individual environment in Meta-World (i.e. reach, basketball, sweep) there are expert policies that solve the task. These policies can be used to generate expert data for imitation learning tasks.</p>
+<p>For each individual environment in Meta-World (i.e. <code class="docutils literal notranslate"><span class="pre">reach-v3</span></code>, <code class="docutils literal notranslate"><span class="pre">basketball-v3</span></code>, <code class="docutils literal notranslate"><span class="pre">sweep-v3</span></code>) there are expert policies that solve the task. These policies can be used to generate expert data for imitation learning tasks.</p>
 </section>
 <section id="using-expert-policies">
 <h2>Using Expert Policies<a class="headerlink" href="#using-expert-policies" title="Link to this heading">¶</a></h2>
 <p>The below example provides sample code for the reach environment. This code can be extended to the ML10/ML45/MT10/MT50 sets if a list of policies is maintained.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gym</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">metaworld</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">metaworld.policies.sawyer_reach_v3_policy</span><span class="w"> </span><span class="kn">import</span> <span class="n">SawyerReachV3Policy</span> <span class="k">as</span> <span class="n">p</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">metaworld.policies.sawyer_reach_v3_policy</span><span class="w"> </span><span class="kn">import</span> <span class="n">SawyerReachV3Policy</span>
 
-<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;MetaWorld/reach-v3&#39;</span><span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Meta-World/MT1&#39;</span><span class="p">,</span> <span class="n">env_name</span><span class="o">=</span><span class="s1">&#39;reach-v3&#39;</span><span class="p">)</span>
 
 <span class="n">obs</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
-<span class="n">policy</span> <span class="o">=</span> <span class="n">p</span><span class="p">()</span>
+<span class="n">policy</span> <span class="o">=</span> <span class="n">SawyerReachV3Policy</span><span class="p">()</span>
 
 <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -313,8 +312,6 @@
     <span class="n">a</span> <span class="o">=</span> <span class="n">policy</span><span class="o">.</span><span class="n">get_action</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
     <span class="n">obs</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
     <span class="n">done</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;success&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
-
-
 </pre></div>
 </div>
 </section>
@@ -325,12 +322,12 @@
         <footer>
           
           <div class="related-pages">
-            <a class="next-page" href="../resetting/">
+            <a class="next-page" href="../../citation/">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Resetting to a Specific State</div>
+                <div class="title">Citation</div>
               </div>
               <svg class="furo-related-icon">
                 <use href="#svg-arrow-right"></use>
