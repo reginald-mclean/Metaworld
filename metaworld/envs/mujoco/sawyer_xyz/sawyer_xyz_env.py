@@ -437,8 +437,16 @@ class SawyerXYZEnv(SawyerMocapBase, metaclass=abc.ABCMeta):
             # this does
             return self._last_stable_obs
 
+        self._last_stable_obs = np.clip(
+            self._last_stable_obs,
+            a_max=self.observation_space.high,
+            a_min=self.observation_space.low,
+            dtype=np.float64,
+        )
+
         reward, info = self.evaluate_state(self._last_stable_obs, action)
-        return self._last_stable_obs, reward, False, info
+
+        return self._last_stable_obs, reward, False, self.curr_path_length==499, info
 
     def evaluate_state(self, obs, action):
         """Does the heavy-lifting for `step()` -- namely, calculating reward
@@ -455,9 +463,9 @@ class SawyerXYZEnv(SawyerMocapBase, metaclass=abc.ABCMeta):
         # V1 environments don't have to implement it
         raise NotImplementedError
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
         self.curr_path_length = 0
-        return super().reset()
+        return super().reset(), {}
 
     def _reset_hand(self, steps=50):
         for _ in range(steps):
