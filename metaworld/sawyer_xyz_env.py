@@ -230,6 +230,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
             np.array([+1, +1, +1, +1]),
             dtype=np.float32,
         )
+
         self._obs_obj_max_len: int = 14
         self._set_task_called: bool = False
         self.hand_init_pos: npt.NDArray[Any] | None = None  # OVERRIDE ME
@@ -677,10 +678,14 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
             steps: The number of steps to take to reset the hand.
         """
         mocap_id = self.model.body_mocapid[self.data.body("mocap").id]
-        for _ in range(steps):
-            self.data.mocap_pos[mocap_id][:] = self.hand_init_pos
-            self.data.mocap_quat[mocap_id][:] = np.array([1, 0, 1, 0])
-            self.do_simulation([-1, 1], self.frame_skip)
+        self.data.joint('joint2').qpos = -0.45
+        self.data.joint('joint4').qpos = -2.73
+        self.data.joint('joint6').qpos = 2.6
+        #for _ in range(steps):
+        #    self.data.mocap_pos[mocap_id][:] = self.hand_init_pos
+        #    self.data.mocap_quat[mocap_id][:] = np.array([1, 0, 1, 0])
+        #    self.do_simulation([-1, 1], self.frame_skip)
+        mujoco.mj_forward(self.model, self.data)
         self.init_tcp = self.tcp_center
 
     def _get_state_rand_vec(self) -> npt.NDArray[np.float64]:

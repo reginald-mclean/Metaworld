@@ -10,7 +10,7 @@
           <joint type="free"/>
           <include file="../objects/assets/mug.xml"/>
         </body>
-        <include file="../objects/assets/xyz_base.xml"/>
+        <include file="../objects/assets/model_xml.xml"/>
 
         <body name="coffee_machine" pos="0 .9 0">
           <include file="../objects/assets/coffeemachine.xml"/>

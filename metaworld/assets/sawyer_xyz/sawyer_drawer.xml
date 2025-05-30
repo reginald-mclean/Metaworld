@@ -3,7 +3,7 @@
     <include file="../objects/assets/drawer_dependencies.xml"/>
     <include file="../objects/assets/xyz_base_dependencies.xml"/>
     <worldbody>
-        <include file="../objects/assets/xyz_base.xml"/>
+        <include file="../objects/assets/model_xml.xml"/>
 
         <body name="drawer" pos="0. 0.9 0">
             <include file="../objects/assets/drawer.xml"/>

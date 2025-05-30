@@ -5,7 +5,7 @@
   <include file="../objects/assets/wall_dependencies.xml"/>
 
     <worldbody>
-      <include file="../objects/assets/xyz_base.xml"/>
+      <include file="../objects/assets/model_xml.xml"/>
 
 
 

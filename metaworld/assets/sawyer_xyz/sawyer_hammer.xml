@@ -4,7 +4,7 @@
     <include file="../objects/assets/xyz_base_dependencies.xml"/>
 
     <worldbody>
-        <include file="../objects/assets/xyz_base.xml"/>
+        <include file="../objects/assets/model_xml.xml"/>
         <body name="hammerbody" pos="0 0.6 0.02">
           <freejoint/>
           <include file="../objects/assets/hammer.xml"/>

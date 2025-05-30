@@ -9,7 +9,7 @@
     <include file="../objects/assets/xyz_base_dependencies.xml"/>
 
     <worldbody>
-      <include file="../objects/assets/xyz_base.xml"/>
+      <include file="../objects/assets/model_xml.xml"/>
 
 
       <site name="goal" pos="0. 0.84 -0.02" size="0.02"

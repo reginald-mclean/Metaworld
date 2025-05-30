@@ -9,7 +9,7 @@
         <freejoint/>
         <include file="../objects/assets/basketball.xml"/>
       </body> -->
-      <include file="../objects/assets/xyz_base.xml"/>
+      <include file="../objects/assets/model_xml.xml"/>
       <body name="bsktball" pos="0 0.6 0.03">
         <freejoint/>
         <include file="../objects/assets/basketball.xml"/>

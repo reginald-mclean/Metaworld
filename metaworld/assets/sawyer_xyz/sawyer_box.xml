@@ -3,7 +3,7 @@
     <include file="../objects/assets/box_dependencies.xml"/>
     <include file="../objects/assets/xyz_base_dependencies.xml"/>
     <worldbody>
-        <include file="../objects/assets/xyz_base.xml"/>
+        <include file="../objects/assets/model_xml.xml"/>
 
         <body name="boxbody" pos="0. 0.8 0">
             <include file="../objects/assets/box.xml"/>

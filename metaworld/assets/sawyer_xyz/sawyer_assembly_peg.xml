@@ -6,7 +6,7 @@
 
     <worldbody>
 
-        <include file="../objects/assets/xyz_base.xml"/>
+        <include file="../objects/assets/model_xml.xml"/>
         <body name="RoundNut" pos="0.1 0.6 0.02" quat="1 0 0 1">
             <freejoint/>
             <include file="../objects/assets/assembly_peg.xml"/>
