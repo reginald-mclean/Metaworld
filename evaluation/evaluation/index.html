@@ -325,43 +325,47 @@
 </section>
 <section id="meta-reinforcement-learning-ml1-ml10-ml45">
 <h3>Meta-Reinforcement Learning (ML1, ML10, ML45)<a class="headerlink" href="#meta-reinforcement-learning-ml1-ml10-ml45" title="Link to this heading">¶</a></h3>
-<p>The agent, trained on the set of training tasks and training goal positions from the benchmark, is evaluated for one episode per <em>testing goal position</em>, <em>per testing task</em>. In ML1, the task is the same between training and testing, but the set of goal positions is different and not seen during training. For ML10 and ML45, there are 5 held out testing tasks which are different from the training tasks, and each of them also has 50 goal positions never seen during training.</p>
-<p>However, since meta-RL is all about adaptation, additionally the evaluation procedure also allows the agent to adapt. Specifically, one would collect <code class="docutils literal notranslate"><span class="pre">adaptation_steps</span> <span class="pre">*</span> <span class="pre">adaptation_episodes</span></code> number of episodes per testing task, per testing goal, and give them back to the network to adapt from, before computing the final post-adaptation evaluation metric (in a single episode) for that testing goal / task, in a similar fashion to the multi-task reinforcement learning setting. In practice, for each adaptation step, <code class="docutils literal notranslate"><span class="pre">adaptation_episodes</span></code> number of episodes is collected per testing task and given back to the network to adapt from as a batch of rollouts, so the agent can iteratively adapt.</p>
-<p>Success is measured during each episode for each tasks the same way as it is in the multi-task setting: the agent is considered to have succeeded if the success flag is <code class="docutils literal notranslate"><span class="pre">1</span></code> at any point during the episode. And the final metric is likewise still the average success rate across all testing tasks and episodes.</p>
+<p>The agent, trained on the set of training tasks and training goal positions from the benchmark, is evaluated for three episodes per <em>testing goal position</em>, <em>per testing task</em>. In ML1, the task is the same between training and testing, but the set of goal positions is different and not seen during training. For ML10 and ML45, there are 5 held out testing tasks which are different from the training tasks, and each of them also has 40 goal positions never seen during training.</p>
+<p>However, since meta-RL is all about adaptation, additionally the evaluation procedure also allows the agent to adapt. Specifically, one would collect <code class="docutils literal notranslate"><span class="pre">adaptation_steps</span> <span class="pre">*</span> <span class="pre">adaptation_episodes</span></code> number of episodes per testing task, per testing goal, and give them back to the network to adapt from, before computing the final post-adaptation evaluation metric (in three episodes) for that testing goal / task, in a similar fashion to the multi-task reinforcement learning setting. In practice, for each adaptation step, <code class="docutils literal notranslate"><span class="pre">adaptation_episodes</span></code> number of episodes is collected per testing goal and given back to the network to adapt from as a batch of rollouts, so the agent can iteratively adapt.</p>
+<p>The agent can either adapt continuously each timestep (e.g. sequence-model based metalearners), or each adaptation step (e.g. gradient-based metalearners), or both.</p>
+<p>Success is measured during each episode for each goal the same way as it in the multi-task setting: the agent is considered to have succeeded if the success flag is <code class="docutils literal notranslate"><span class="pre">1</span></code> at any point during the episode. And the final metric is likewise still the average success rate across all testing tasks and episodes.</p>
 <p>Here is python pseudocode for this procedure:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">metalearning_eval</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">eval_envs</span><span class="p">,</span> <span class="n">adaptation_steps</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">adaptation_episodes</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">num_evaluation_episodes</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">episode_horizon</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">metalearning_eval</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">eval_envs</span><span class="p">,</span> <span class="n">adaptation_steps</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">adaptation_episodes</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">num_evals</span> <span class="o">=</span> <span class="mi">40</span><span class="p">,</span> <span class="n">episode_horizon</span><span class="p">):</span>
    <span class="n">success_rate</span> <span class="o">=</span> <span class="mf">0.0</span>
    <span class="n">initial_obs</span> <span class="o">=</span> <span class="n">eval_envs</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
-   <span class="k">for</span> <span class="n">episode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_evaluation_episodes</span><span class="p">):</span>
+   <span class="k">for</span> <span class="n">goal</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_evals</span><span class="p">):</span>
       <span class="n">eval_envs</span><span class="o">.</span><span class="n">iterate_goal_position</span><span class="p">()</span>
+      <span class="n">agent</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 
       <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">adaptation_steps</span><span class="p">):</span>
-         <span class="n">rollout_buffer</span> <span class="o">=</span> <span class="p">[]</span>
          <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">adaptation_episodes</span><span class="p">):</span>
             <span class="n">obs</span> <span class="o">=</span> <span class="n">eval_envs</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-            <span class="n">buffer</span> <span class="o">=</span> <span class="p">[</span><span class="n">obs</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">episode_horizon</span><span class="p">):</span>
                <span class="n">action</span><span class="p">,</span> <span class="n">misc_outs</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">adapt_action</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
                <span class="n">next_obs</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">eval_envs</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
-               <span class="n">buffer</span> <span class="o">+=</span> <span class="p">[</span><span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_obs</span><span class="p">]</span>
-               <span class="k">if</span> <span class="p">(</span><span class="n">log_probs</span> <span class="o">:=</span> <span class="n">misc_outs</span><span class="p">[</span><span class="s2">&quot;log_probs&quot;</span><span class="p">]):</span>
-                  <span class="n">buffer</span> <span class="o">+=</span> <span class="p">[</span><span class="n">log_probs</span><span class="p">]</span>
-               <span class="k">if</span> <span class="p">(</span><span class="n">means</span> <span class="o">:=</span> <span class="n">misc_outs</span><span class="p">[</span><span class="s2">&quot;means&quot;</span><span class="p">]):</span>
-                  <span class="n">buffer</span> <span class="o">+=</span> <span class="p">[</span><span class="n">means</span><span class="p">]</span>
-               <span class="k">if</span> <span class="p">(</span><span class="n">stds</span> <span class="o">:=</span> <span class="n">misc_outs</span><span class="p">[</span><span class="s2">&quot;stds&quot;</span><span class="p">]):</span>
-                  <span class="n">buffer</span> <span class="o">+=</span> <span class="p">[</span><span class="n">stds</span><span class="p">]</span>
-            <span class="n">rollout_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+               <span class="n">agent</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">next_obs</span><span class="p">,</span> <span class="n">misc_outs</span><span class="p">)</span>
 
-         <span class="n">agent</span><span class="o">.</span><span class="n">adapt</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+         <span class="n">agent</span><span class="o">.</span><span class="n">adapt</span><span class="p">()</span>
 
-      <span class="n">success_rate</span> <span class="o">+=</span> <span class="n">multi_task_eval</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">eval_envs</span><span class="p">,</span> <span class="n">num_evaluation_episodes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+      <span class="n">success_rate</span> <span class="o">+=</span> <span class="n">multi_task_eval</span><span class="p">(</span><span class="n">adaptive_agent</span><span class="p">,</span> <span class="n">eval_envs</span><span class="p">,</span> <span class="n">num_evaluation_episodes</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
-   <span class="n">success_rate</span> <span class="o">/=</span> <span class="n">num_evaluation_episodes</span>
+   <span class="n">success_rate</span> <span class="o">/=</span> <span class="n">num_evals</span>
 
    <span class="k">return</span> <span class="n">success_rate</span>
 </pre></div>
 </div>
+<section id="the-num-evals-parameter-and-meta-batch-size-in-metaworld">
+<h4>The <code class="docutils literal notranslate"><span class="pre">num_evals</span></code> parameter, and meta batch size in Metaworld<a class="headerlink" href="#the-num-evals-parameter-and-meta-batch-size-in-metaworld" title="Link to this heading">¶</a></h4>
+<p>The pseudocode assumes a meta batch size of 1 and 40 total tasks to go through (<code class="docutils literal notranslate"><span class="pre">num_evals</span></code>). For example this could work for ML1 with 40 test goals. In practice, meta batch size would be higher, e.g. 20, and the value of <code class="docutils literal notranslate"><span class="pre">num_evals</span></code> becomes a bit less intuitive.</p>
+<p>In meta-reinforcement learning, we typically use a vectorised environment where each environment instance is assigned to a given task. The number of tasks we are processing in parallel at a given iteration is known as the <strong>meta batch size</strong>. In typical meta-reinforcement learning where we just have parametric task variations, the vector that specifies the variation is the task. In Metaworld, things are a little more complicated. We have both distinct tasks (e.g. <code class="docutils literal notranslate"><span class="pre">reach-v3</span></code> or <code class="docutils literal notranslate"><span class="pre">sweep-into-v3</span></code>) and different goal positions within each task. The task space in Metaworld is considered to be the combinatorial space of tasks and goal positions.</p>
+<p>For ML10 and ML45, we have 5 test tasks, each of which has 40 test goal positions. We can therefore use a meta batch size of 20, and create 4 instances of each task within the vectorised environment for this meta batch, each of which will have 10 distinct goal positions. Therefore, to iterate over all <code class="docutils literal notranslate"><span class="pre">(task,goal)</span></code> combinations during evaluation, we would need <code class="docutils literal notranslate"><span class="pre">num_evals=10</span></code>.</p>
+<p>For ML1, <code class="docutils literal notranslate"><span class="pre">num_evals</span></code> would depend on the meta batch size. We can either have a meta batch size of 1 (in which case <code class="docutils literal notranslate"><span class="pre">num_evals</span></code> would be 40), or a meta batch size of 20 (in which case <code class="docutils literal notranslate"><span class="pre">num_evals</span></code> would be 2).</p>
+<blockquote>
+<div><p>[!NOTE]
+The meta batch sizes and num evals values are suggestions and can be thought of as worked out examples to explain the evaluation logic. Feel free to use different values, as long as all <code class="docutils literal notranslate"><span class="pre">(task,goal)</span></code> combinations are covered during evaluation.</p>
+</div></blockquote>
+</section>
 </section>
 </section>
 <section id="utility-functions">
@@ -376,34 +380,37 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span> <span class="o">...</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_mask</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
 
 <span class="k">class</span><span class="w"> </span><span class="nc">MetaLearningAgent</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">adapt_action</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">]]:</span> <span class="o">...</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">adapt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rollouts</span><span class="p">:</span> <span class="n">Rollout</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestep</span><span class="p">:</span> <span class="n">Timestep</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">adapt</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
 </pre></div>
 </div>
-<p>For both multi-task and meta-reinforcement learning evaluations, the agent object should have a <code class="docutils literal notranslate"><span class="pre">eval_action</span></code> method that takes in a numpy array of some observations and outputs actions. One should think of this as the action the agent takes when it is being evaluated and therefore this should probably be deterministic.</p>
-<p>For meta-reinforcement learning, the agent should also have an <code class="docutils literal notranslate"><span class="pre">adapt_action</span></code> method that takes in a numpy array of some observations and outputs a tuple of actions and miscellaneous policy outputs that might be needed during adaptation. This latter part should be a python dictionary with string keys and numpy array values. Currently supported miscellaneous policy outputs include:</p>
+<p>For both multi-task and meta-reinforcement learning evaluations, the <code class="docutils literal notranslate"><span class="pre">Agent</span></code> object should have a <code class="docutils literal notranslate"><span class="pre">eval_action</span></code> method that takes in a numpy array of some observations and outputs actions. One should think of this as the action the agent takes when it is being evaluated and therefore this should probably be deterministic. It should also have a <code class="docutils literal notranslate"><span class="pre">reset</span></code> method that resets the agent state for individual envs that have terminated. The method can be empty if the agent is stateless, but it should still be present on the <code class="docutils literal notranslate"><span class="pre">Agent</span></code> object.</p>
+<p>For meta-reinforcement learning, an agent should have the following additional methods implemented:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;log_probs&quot;</span></code>: log probabilities of the actions taken</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;means&quot;</span></code>: the modes of the distributions generated for each observation</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;stds&quot;</span></code>: the standard deviations of the distributions generated for each observation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">init()</span></code>: re-initialises the agent for adaptation. This method resets the agent back to the pre-adaptation state.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">adapt_action(observations:</span> <span class="pre">npt.NDArray[np.float64])</span> <span class="pre">-&gt;</span> <span class="pre">tuple[npt.NDArray[np.float64],</span> <span class="pre">dict[str,</span> <span class="pre">npt.NDArray]]</span></code>: takes in observations from the vectorised evaluation environment and outputs a tuple of actions and miscellaneous policy outputs that might be needed during adaptation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step(timestep:</span> <span class="pre">Timestep)</span></code>: takes in a <code class="docutils literal notranslate"><span class="pre">Timestep</span></code>, which contains data from the current transitions, and handles any logic that ingests this data for adaptation (e.g. storing in a buffer, advancing RNN state, etc.)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">adapt()</span></code>: a method called at the end of each adaptation step. The agent can use this as a signal to process the experience ingested through <code class="docutils literal notranslate"><span class="pre">step()</span></code>, (e.g. gradient update from stored experience in MAML).</p></li>
 </ul>
-<p>Additionally, the agent should also have an <code class="docutils literal notranslate"><span class="pre">adapt</span></code> method for meta-reinforcement learning that takes in a <code class="docutils literal notranslate"><span class="pre">Rollout</span></code> named tuple with numpy arrays containing batches of rollouts for a given data modality. This is to let the agent ingest the generated adaptation data and adapt to the new task.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">Rollout</span></code> named tuple that the agent will be given at the end of each adaptation step looks like so:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Rollout</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
-    <span class="n">observations</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span>
-    <span class="n">actions</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span>
-    <span class="n">rewards</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span>
-    <span class="n">dones</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span>
-
-    <span class="c1"># Auxiliary policy outputs</span>
-    <span class="n">log_probs</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">means</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">stds</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<p>The <code class="docutils literal notranslate"><span class="pre">Timestep</span></code> named tuple that the agent will be given at each adaptation timestep looks like so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Timestep</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="n">observation</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span>
+    <span class="n">reward</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span>
+    <span class="n">terminated</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span>
+    <span class="n">truncated</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span>
+    <span class="n">aux_policy_outputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">]</span>
 </pre></div>
 </div>
 </section>
@@ -414,6 +421,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">mean_success_rate</span></code>: the aforementioned success rate. This is a float scalar.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">mean_returns</span></code>: the returns achieved during evaluation averaged across all goal positions / tasks. This is a float scalar.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">success_rate_per_task</span></code>: the success rate achieved for each task evaluated. This is a dictionary keyed by the task name as a string and a float scalar as a value. This scalar is the success rate averaged across goal positions for the given task.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">returns_per_task</span></code>: the returns achieved for each task evaluated. This is a dictionary keyed by the task name as a string and a float scalar as a value. This scalar is the returns averaged across goal positions for the given task.</p></li>
 </ul>
 </section>
 <section id="other-assumptions">
@@ -492,7 +500,10 @@
 <li><a class="reference internal" href="#">Evaluation</a><ul>
 <li><a class="reference internal" href="#methodology">Methodology</a><ul>
 <li><a class="reference internal" href="#multi-task-reinforcement-learning-mt1-mt10-mt50">Multi-Task Reinforcement Learning (MT1, MT10, MT50)</a></li>
-<li><a class="reference internal" href="#meta-reinforcement-learning-ml1-ml10-ml45">Meta-Reinforcement Learning (ML1, ML10, ML45)</a></li>
+<li><a class="reference internal" href="#meta-reinforcement-learning-ml1-ml10-ml45">Meta-Reinforcement Learning (ML1, ML10, ML45)</a><ul>
+<li><a class="reference internal" href="#the-num-evals-parameter-and-meta-batch-size-in-metaworld">The <code class="docutils literal notranslate"><span class="pre">num_evals</span></code> parameter, and meta batch size in Metaworld</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#utility-functions">Utility functions</a><ul>
