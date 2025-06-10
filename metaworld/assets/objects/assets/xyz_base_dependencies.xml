@@ -15,6 +15,16 @@
       <mesh file="../objects/meshes/xyz_base/l5.stl" name="l5"/>
       <mesh file="../objects/meshes/xyz_base/l6.stl" name="l6"/>
       <mesh file="../objects/meshes/xyz_base/pedestal.stl" name="pedestal"/>
+        <mesh name="base_link" file="base_link.stl"/>
+    <mesh name="shoulder_link" file="shoulder_link.stl"/>
+    <mesh name="half_arm_1_link" file="half_arm_1_link.stl"/>
+    <mesh name="half_arm_2_link" file="half_arm_2_link.stl"/>
+    <mesh name="forearm_link" file="forearm_link.stl"/>
+    <mesh name="spherical_wrist_1_link" file="spherical_wrist_1_link.stl"/>
+    <mesh name="spherical_wrist_2_link" file="spherical_wrist_2_link.stl"/>
+    <mesh name="bracelet_with_vision_link" file="bracelet_with_vision_link.stl"/>
+
+
     </asset>
 
     <default>
@@ -30,6 +40,19 @@
               <geom conaffinity="1" condim="4" contype="1" group="4" margin="0.001" material="xyz_col" solimp=".8 .9 .01" solref=".02 1"/>
           </default>
       </default>
+        <default class="visual">
+      <geom type="mesh" contype="0" conaffinity="0" group="2" rgba="0.75294 0.75294 0.75294 1"/>
+    </default>
+    <default class="collision">
+      <geom type="mesh" group="3"/>
+    </default>
+    <default class="large_actuator">
+      <position kp="2000" kv="100" forcerange="-105 105"/>
+    </default>
+    <default class="small_actuator">
+      <position kp="500" kv="50" forcerange="-52 52"/>
+    </default>
+    <site size="0.001" rgba="0.5 0.5 0.5 0.3" group="4"/>
     </default>
 
 </mujocoinclude>

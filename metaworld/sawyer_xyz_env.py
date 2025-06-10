@@ -670,7 +670,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         obs = obs.astype(np.float64)
         return obs, info
 
-    def _reset_hand(self, steps: int = 50) -> None:
+    def _reset_hand(self, steps: int = 1) -> None:
         """Resets the hand position.
 
         Args:
