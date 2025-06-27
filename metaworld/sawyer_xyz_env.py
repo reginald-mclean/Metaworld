@@ -71,6 +71,7 @@ class SawyerMocapBase(mjenv_gym):
         Returns:
             3-element position.
         """
+
         right_finger_pos = self.data.site("rightEndEffector")
         left_finger_pos = self.data.site("leftEndEffector")
         tcp_center = (right_finger_pos.xpos + left_finger_pos.xpos) / 2.0
@@ -146,7 +147,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
     )
     """Bounds for hand position."""
 
-    max_path_length: int = 500
+    max_path_length: int = 50000000
     """The maximum path length for the environment (the task horizon)."""
 
     TARGET_RADIUS: float = 0.05
@@ -248,7 +249,8 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         self._prev_obs = self._get_curr_obs_combined_no_goal()
 
         self.task_name = self.__class__.__name__
-
+        # mujoco.mj_saveModel(self.model, filename='ufact_xarm7.mjb')
+        # exit(0)
         EzPickle.__init__(
             self,
             self.model_name,
@@ -396,7 +398,6 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         Returns:
             Whether the gripper is touching the object
         """
-
         leftpad_geom_id = self.data.geom("leftpad_geom").id
         rightpad_geom_id = self.data.geom("rightpad_geom").id
 
@@ -404,8 +405,8 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
             x
             for x in self.data.contact
             if (
-                leftpad_geom_id in (x.geom1, x.geom2)
-                and object_geom_id in (x.geom1, x.geom2)
+                    leftpad_geom_id in (x.geom1, x.geom2)
+                    and object_geom_id in (x.geom1, x.geom2)
             )
         ]
 
@@ -413,8 +414,8 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
             x
             for x in self.data.contact
             if (
-                rightpad_geom_id in (x.geom1, x.geom2)
-                and object_geom_id in (x.geom1, x.geom2)
+                    rightpad_geom_id in (x.geom1, x.geom2)
+                    and object_geom_id in (x.geom1, x.geom2)
             )
         ]
 
@@ -427,6 +428,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         )
 
         return 0 < leftpad_object_contact_force and 0 < rightpad_object_contact_force
+
 
     def _get_id_main_object(self) -> int:
         return self.data.geom("objGeom").id
@@ -469,7 +471,6 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         Returns:
             The flat observation array (18 elements)
         """
-
         pos_hand = self.get_endeff_pos()
 
         finger_right, finger_left = (
@@ -497,6 +498,8 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         obs_obj_padded[: len(obj_pos) + len(obj_quat)] = np.hstack(
             [np.hstack((pos, quat)) for pos, quat in zip(obj_pos_split, obj_quat_split)]
         )
+
+
         return np.hstack((pos_hand, gripper_distance_apart, obs_obj_padded))
 
     def _get_obs(self) -> npt.NDArray[np.float64]:
@@ -581,7 +584,7 @@ class SawyerXYZEnv(SawyerMocapBase, EzPickle):
         self.set_xyz_action(action[:3])
         if self.curr_path_length >= self.max_path_length:
             raise ValueError("You must reset the env manually once truncate==True")
-        self.do_simulation([action[-1], -action[-1]], n_frames=self.frame_skip)
+        self.do_simulation([action[-1]], n_frames=self.frame_skip)
         self.curr_path_length += 1
 
         # Running the simulator can sometimes mess up site positions, so

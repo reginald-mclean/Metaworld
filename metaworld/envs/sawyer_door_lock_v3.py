@@ -125,7 +125,7 @@ class SawyerDoorLockEnvV3(SawyerXYZEnv):
         if self.reward_function_version == "v2":
             del action
             obj = obs[4:7]
-            tcp = self.get_body_com("leftpad")
+            tcp = self.get_body_com("left_inner_knuckle")
 
             scale = np.array([0.25, 1.0, 0.5])
             tcp_to_obj = float(np.linalg.norm((obj - tcp) * scale))

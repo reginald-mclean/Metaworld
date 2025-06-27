@@ -11,8 +11,7 @@
         <freejoint/>
         <include file="../objects/assets/block_cyl.xml"/>
       </body> -->
-
-      <body name="obj" pos="0 0.6 0.02">
+    <body name="obj" pos="0 0.6 0.02">
 
           <joint name="objjoint" type="free" limited='false' damping="0." armature="0."/>
 
@@ -23,11 +22,15 @@
           />
       </body>
 
+
+
       <!-- place goal -->
       <site name="goal" pos="0.1 0.8 0.2" size="0.02"
             rgba="0 0 0.8 1"/>
-    </worldbody>
 
+
+
+     </worldbody>
     <actuator>
         <position ctrllimited="true" ctrlrange="-1 1" joint="r_close" kp="400"  user="1"/>
         <position ctrllimited="true" ctrlrange="-1 1" joint="l_close" kp="400"  user="1"/>
@@ -35,4 +38,5 @@
     <equality>
         <weld body1="mocap" body2="hand" solref="0.02 1"></weld>
     </equality>
+
 </mujoco>
