@@ -168,11 +168,3 @@ envs = gym.make_vec('Meta-World/custom-mt-envs',vector_strategy='sync', envs_lis
 envs = gym.make_vec('Meta-World/custom-ml-envs',vector_strategy='sync', envs_list=['env_name_1-v3', 'env_name_2-v3', 'env_name_3-v3'], seed=seed) # or vector_strategy='async'
 ```
 
-## Development Roadmap
-
-We have a roadmap for future development work for Gymnasium available here: https://github.com/Farama-Foundation/Metaworld/issues/500
-
-## Benchmark Code
-
-Code for producing results found in the paper can be found at: https://github.com/rainx0r/metaworld-algorithms
-
