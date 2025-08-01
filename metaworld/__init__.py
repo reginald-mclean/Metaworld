@@ -395,6 +395,76 @@ class CustomML(Benchmark):
         )
 
 
+class ContinualLearningEnv(gym.Env):
+    def __init__(self, env_name, steps_per_env=int(1_000_000), reward_function_version=None, *args, **kwargs) -> None:
+        assert reward_function_version is not None, "Please pass a reward function version to gym.make"
+
+        cw10_tasks = ["hammer-v3", "push-wall-v3", "faucet-close-v3", "push-back-v3", "stick-pull-v3",
+        "handle-press-side-v3", "push-v3", "shelf-place-v3", "window-close-v3", "peg-unplug-side-v3"]
+        envs_list = []
+        self.action_space = None
+        self.observation_space = None
+        if env_name == 'CW10':
+            for idx, name in enumerate(cw10_tasks):
+                env = make_mt_envs(*args, name, use_one_hot=True, vector_strategy='async', env_id=idx, \
+                    num_tasks=10, reward_function_version=reward_function_version, **kwargs)
+                envs_list.append(env)
+        elif env_name == 'CW20':
+            cw10_tasks = cw10_tasks + cw10_tasks
+            for idx, name in enumerate(cw10_tasks):
+                env = make_mt_envs(*args, name, use_one_hot=True, vector_strategy='async', env_id=idx, \
+                    num_tasks=20, reward_function_version=reward_function_version, **kwargs)
+                envs_list.append(env)
+
+        print(env_name)
+        print(envs_list)
+        self.action_space = envs_list[0].action_space
+        self.observation_space = envs_list[0].observation_space
+
+        self.envs = envs_list
+        self.num_envs = len(envs_list)
+        self.steps_per_env = steps_per_env
+        self.steps_limit = self.num_envs * self.steps_per_env
+        self.cur_step = 0
+        self.cur_seq_idx = 0
+
+    def _check_steps_bound(self) -> None:
+        if self.cur_step >= self.steps_limit:
+            raise RuntimeError("Steps limit exceeded for ContinualLearningEnv!")
+
+    def pop_successes(self) -> List[bool]:
+        all_successes = []
+        self.avg_env_success = {}
+        for env in self.envs:
+            successes = env.pop_successes()
+            all_successes += successes
+            if len(successes) > 0:
+                self.avg_env_success[env.name] = np.mean(successes)
+        return all_successes
+
+    def step(self, action: Any) -> Tuple[np.ndarray, float, bool, bool, Dict]:
+        self._check_steps_bound()
+        obs, reward, truncate, terminate, info = self.envs[self.cur_seq_idx].step(action)
+        info["seq_idx"] = self.cur_seq_idx
+
+        self.cur_step += 1
+        if self.cur_step % self.steps_per_env == 0:
+            # If we hit limit for current env, end the episode.
+            # This may cause border episodes to be shorter than 200.
+            truncate = True
+            info["TimeLimit.truncated"] = True
+
+            self.cur_seq_idx += 1
+
+        return obs, reward, truncate, terminate, info
+
+    def reset(self, seed=None, options={}) -> Tuple[np.ndarray, Dict]:
+        self._check_steps_bound()
+        return self.envs[self.cur_seq_idx].reset()
+
+
+
+
 def _init_each_env(
     env_cls: type[SawyerXYZEnv],
     tasks: list[Task],
@@ -818,6 +888,32 @@ def register_mw_envs() -> None:
         ),
         kwargs={},
     )
+
+    for cw in ["CW10", "CW20"]:
+        register(
+            id=f"Meta-World/{cw}",
+            entry_point=lambda steps_per_task=int(1_000_000), reward_function_version=None, *args, **kwargs: ContinualLearningEnv(cw, steps_per_env=steps_per_task, reward_function_version=reward_function_version, *args, **kwargs),
+            kwargs={},
+        )
+
+    cw10_tasks = ["hammer-v3", "push-wall-v3", "faucet-close-v3", "push-back-v3", "stick-pull-v3", "handle-press-side-v3", "push-v3", "shelf-place-v3", "window-close-v3", "peg-unplug-side-v3"]
+    for cw_eval in ["CW10_eval", "CW20_eval"]:
+        register(
+            id=f"Meta-World/{cw_eval}",
+            vector_entry_point=lambda vector_strategy, autoreset_mode=gym.vector.AutoresetMode.SAME_STEP, seed=None, use_one_hot=False, num_envs=None, **kwargs: _custom_mt_vector_entry_point(
+                vector_strategy,
+                cw10_tasks if cw == 'CW10_eval' else cw10_tasks + cw10_tasks,
+                seed,
+                autoreset_mode,
+                use_one_hot,
+                10 if cw == 'CW10_eval' else 20,
+                **kwargs,
+            ),
+            kwargs={},
+        )
+
+
+
 
 
 register_mw_envs()
