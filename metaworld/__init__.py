@@ -226,25 +226,6 @@ class MT10(Benchmark):
         self._test_classes = []
 
 
-class MT25(Benchmark):
-    """
-    The MT25 benchmark.
-    Contains 25 tasks in its train set.
-    Has an empty test set.
-    """
-
-    def __init__(self, seed=None):
-        super().__init__()
-        self._train_classes = _env_dict.MT25_V3
-        train_kwargs = _env_dict.MT25_V3_ARGS_KWARGS
-        self._train_tasks = _make_tasks(
-            self._train_classes, train_kwargs, _MT_OVERRIDE, seed=seed
-        )
-
-        self._test_tasks = []
-        self._test_classes = []
-
-
 class MT50(Benchmark):
     """
     The MT50 benchmark.
@@ -322,29 +303,6 @@ class ML10(Benchmark):
         )
 
 
-class ML25(Benchmark):
-    """
-    The ML10 benchmark.
-    Contains 25 tasks in its train set and 5 tasks in its test set.
-    The goal position is not part of the observation.
-    """
-
-    def __init__(self, seed=None):
-        super().__init__()
-        self._train_classes = _env_dict.ML25_V3["train"]
-        self._test_classes = _env_dict.ML25_V3["test"]
-        train_kwargs = _env_dict.ML25_ARGS_KWARGS["train"]
-
-        test_kwargs = _env_dict.ML25_ARGS_KWARGS["test"]
-        self._train_tasks = _make_tasks(
-            self._train_classes, train_kwargs, _ML_OVERRIDE, seed=seed
-        )
-
-        self._test_tasks = _make_tasks(
-            self._test_classes, test_kwargs, _ML_OVERRIDE, seed=seed
-        )
-
-
 class ML45(Benchmark):
     """
     The ML45 benchmark.
@@ -395,6 +353,71 @@ class CustomML(Benchmark):
         )
 
 
+class ContinualLearningEnv(gym.Env):
+    def __init__(self, env_name, steps_per_env=int(1_000_000), reward_function_version=None, *args, **kwargs) -> None:
+        assert reward_function_version is not None, "Please pass a reward function version to gym.make"
+
+        cw10_tasks = ["hammer-v3", "push-wall-v3", "faucet-close-v3", "push-back-v3", "stick-pull-v3",
+        "handle-press-side-v3", "push-v3", "shelf-place-v3", "window-close-v3", "peg-unplug-side-v3"]
+        envs_list = []
+        self.action_space = None
+        self.observation_space = None
+        if env_name == 'CW10':
+            for idx, name in enumerate(cw10_tasks):
+                env = make_mt_envs(*args, name, use_one_hot=True, vector_strategy='async', env_id=idx, \
+                    num_tasks=10, reward_function_version=reward_function_version, **kwargs)
+                envs_list.append(env)
+        elif env_name == 'CW20':
+            cw10_tasks = cw10_tasks + cw10_tasks
+            for idx, name in enumerate(cw10_tasks):
+                env = make_mt_envs(*args, name, use_one_hot=True, vector_strategy='async', env_id=idx, \
+                    num_tasks=20, reward_function_version=reward_function_version, **kwargs)
+                envs_list.append(env)
+        self.action_space = envs_list[0].action_space
+        self.observation_space = envs_list[0].observation_space
+
+        self.envs = envs_list
+        self.num_envs = len(envs_list)
+        self.steps_per_env = steps_per_env
+        self.steps_limit = self.num_envs * self.steps_per_env
+        self.cur_step = 0
+        self.cur_seq_idx = 0
+
+    def _check_steps_bound(self) -> None:
+        if self.cur_step >= self.steps_limit:
+            raise RuntimeError("Steps limit exceeded for ContinualLearningEnv!")
+
+    def pop_successes(self) -> List[bool]:
+        all_successes = []
+        self.avg_env_success = {}
+        for env in self.envs:
+            successes = env.pop_successes()
+            all_successes += successes
+            if len(successes) > 0:
+                self.avg_env_success[env.name] = np.mean(successes)
+        return all_successes
+
+    def step(self, action: Any) -> Tuple[np.ndarray, float, bool, bool, Dict]:
+        self._check_steps_bound()
+        obs, reward, truncate, terminate, info = self.envs[self.cur_seq_idx].step(action)
+        info["seq_idx"] = self.cur_seq_idx
+
+        self.cur_step += 1
+        if self.cur_step % self.steps_per_env == 0:
+            # If we hit limit for current env, end the episode.
+            # This may cause border episodes to be shorter than 200.
+            truncate = True
+            info["TimeLimit.truncated"] = True
+
+            self.cur_seq_idx += 1
+
+        return obs, reward, truncate, terminate, info
+
+    def reset(self, seed=None, options={}) -> Tuple[np.ndarray, Dict]:
+        self._check_steps_bound()
+        return self.envs[self.cur_seq_idx].reset()
+
+
 def _init_each_env(
     env_cls: type[SawyerXYZEnv],
     tasks: list[Task],
@@ -408,18 +431,10 @@ def _init_each_env(
     reward_function_version: Literal["v1", "v2"] = "v2",
     reward_normalization_method: Literal["gymnasium", "exponential"] | None = None,
     reward_alpha: float = 0.001,
-    render_mode: Literal["human", "rgb_array", "depth_array"] | None = None,
-    camera_name: str | None = None,
-    camera_id: int | None = None,
     *args,
     **kwargs,
 ) -> gym.Env:
-    env: gym.Env = env_cls(
-        reward_function_version=reward_function_version,
-        render_mode=render_mode,
-        camera_name=camera_name,
-        camera_id=camera_id,
-    )
+    env: gym.Env = env_cls(reward_function_version=reward_function_version)
     if seed is not None:
         env.seed(seed)  # type: ignore
     env = gym.wrappers.TimeLimit(env, max_episode_steps or env.max_path_length)  # type: ignore
@@ -478,18 +493,12 @@ def make_mt_envs(
             reward_function_version=reward_function_version,
             **kwargs,
         )
-    elif name == "MT10" or name == "MT25" or name == "MT50":
+    elif name == "MT10" or name == "MT50":
         benchmark = globals()[name](seed=seed)
         vectorizer: type[gym.vector.VectorEnv] = getattr(
             gym.vector, f"{vector_strategy.capitalize()}VectorEnv"
         )
-        if name == "MT10":
-            default_num_tasks = 10
-        elif name == "MT25":
-            default_num_tasks = 25
-        else:
-            default_num_tasks = 50
-
+        default_num_tasks = 10 if name == "MT10" else 50
         return vectorizer(  # type: ignore
             [
                 partial(
@@ -530,7 +539,6 @@ def _make_ml_envs_inner(
     terminate_on_success: bool = False,
     task_select: Literal["random", "pseudorandom"] = "pseudorandom",
     vector_strategy: Literal["sync", "async"] = "sync",
-    reward_function_version: Literal["v1", "v2"] = "v2",
 ):
     all_classes = (
         benchmark.train_classes if split == "train" else benchmark.test_classes
@@ -566,7 +574,6 @@ def _make_ml_envs_inner(
                 max_episode_steps=max_episode_steps,
                 terminate_on_success=terminate_on_success,
                 task_select=task_select,
-                reward_function_version=reward_function_version,
             )
             for env_cls, tasks in env_tuples
         ]
@@ -583,16 +590,15 @@ def make_ml_envs(
     terminate_on_success: bool = False,
     task_select: Literal["random", "pseudorandom"] = "pseudorandom",
     vector_strategy: Literal["sync", "async"] = "sync",
-    reward_function_version: Literal["v1", "v2"] = "v2",
 ) -> gym.vector.VectorEnv:
     benchmark: Benchmark
     if name in ALL_V3_ENVIRONMENTS.keys():
         benchmark = ML1(name, seed=seed)
-    elif name == "ML10" or name == "ML45" or name == "ML25":
+    elif name == "ML10" or name == "ML45":
         benchmark = globals()[name](seed=seed)
     else:
         raise ValueError(
-            "Invalid ML env name. Must either be a valid Metaworld task name (e.g. 'reach-v3'), 'ML10', 'ML25', or 'ML45'."
+            "Invalid ML env name. Must either be a valid Metaworld task name (e.g. 'reach-v3'), 'ML10' or 'ML45'."
         )
     return _make_ml_envs_inner(
         benchmark,
@@ -604,7 +610,6 @@ def make_ml_envs(
         terminate_on_success=terminate_on_success,
         task_select=task_select,
         vector_strategy=vector_strategy,
-        reward_function_version=reward_function_version,
     )
 
 
@@ -676,6 +681,14 @@ def register_mw_envs() -> None:
         kwargs={},
     )
 
+
+    for cw in ["CW10", "CW20"]:
+        register(
+            id=f"Meta-World/{cw}",
+            entry_point=lambda steps_per_task=int(1_000_000), reward_function_version=None, *args, **kwargs: ContinualLearningEnv(cw, steps_per_task=steps_per_task, reward_function_version=reward_function_version, *args, **kwargs),
+            kwargs={},
+        )
+
     for split in ["train", "test"]:
         register(
             id=f"Meta-World/ML1-{split}",
@@ -706,7 +719,7 @@ def register_mw_envs() -> None:
         kwargs={},
     )
 
-    for mt_bench in ["MT10", "MT25", "MT50"]:
+    for mt_bench in ["MT10", "MT50"]:
         register(
             id=f"Meta-World/{mt_bench}",
             vector_entry_point=lambda vector_strategy="sync", seed=None, use_one_hot=False, *args, _mt_bench=mt_bench, **kwargs: _mt_bench_vector_entry_point(
@@ -720,7 +733,7 @@ def register_mw_envs() -> None:
             kwargs={},
         )
 
-    for ml_bench in ["ML10", "ML25", "ML45"]:
+    for ml_bench in ["ML10", "ML45"]:
         for split in ["train", "test"]:
             register(
                 id=f"Meta-World/{ml_bench}-{split}",  # Fixed f-string
@@ -747,20 +760,22 @@ def register_mw_envs() -> None:
         vectorizer: type[gym.vector.VectorEnv] = getattr(
             gym.vector, f"{vector_strategy.capitalize()}VectorEnv"
         )
-        return vectorizer(  # type: ignore
-            [
-                partial(  # type: ignore
-                    make_mt_envs,
-                    env_name,
-                    num_tasks=len(envs_list),
-                    env_id=idx,
-                    seed=None if not seed else seed + idx,
-                    use_one_hot=use_one_hot,
-                    *args,
-                    **lamb_kwargs,
-                )
-                for idx, env_name in enumerate(envs_list)
-            ]
+        return (
+            vectorizer(  # type: ignore
+                [
+                    partial(  # type: ignore
+                        *args,
+                        make_mt_envs,
+                        env_name,
+                        num_tasks=len(envs_list),
+                        env_id=idx,
+                        seed=None if not seed else seed + idx,
+                        use_one_hot=use_one_hot,
+                        **lamb_kwargs,
+                    )
+                    for idx, env_name in enumerate(envs_list)
+                ]
+            ),
         )
 
     register(
