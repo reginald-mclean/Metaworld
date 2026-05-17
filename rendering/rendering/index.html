@@ -14,7 +14,7 @@
     <link rel="shortcut icon" href="../../_static/favicon.svg"/><!-- Generated with Sphinx 7.4.7 and Furo 2023.08.19.dev1 -->
         <title>Rendering - Metaworld Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=3e7f4c72" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=5b1a364e" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=82c8b628" />
     
     
@@ -315,7 +315,7 @@
 
 </pre></div>
 </div>
-<p>The ID of the camera (from Mujoco) can also be passed if known.</p>
+<p>The ID of the camera (from Mujoco) can also be passed.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
 <span class="n">camera_id</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="c1"># this is an integer that represents the camera ID from Mujoco</span>
 
@@ -323,6 +323,39 @@
 
 </pre></div>
 </div>
+<blockquote>
+<div><p>Camera views may be rotated in this documentation for optimal presentation.</p>
+</div></blockquote>
+<p><strong>corner</strong> or <strong>id: 1</strong></p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/corner.png"><img alt="Camera Name Corner" src="../../_images/corner.png" style="width: 200px;" />
+</a>
+</figure>
+<p><strong>corner2</strong> or <strong>id: 2</strong></p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/corner2.png"><img alt="Camera Name Corner2" src="../../_images/corner2.png" style="width: 200px;" />
+</a>
+</figure>
+<p><strong>corner3</strong> or <strong>id: 3</strong></p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/corner3.png"><img alt="Camera Name Corner3" src="../../_images/corner3.png" style="width: 200px;" />
+</a>
+</figure>
+<p><strong>topview</strong> or <strong>id: 0</strong></p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/topview.png"><img alt="Camera Name Topview" src="../../_images/topview.png" style="width: 200px;" />
+</a>
+</figure>
+<p><strong>behindGripper</strong> or <strong>id: 4</strong></p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/behindGripper.png"><img alt="Camera Name BehindGripper" src="../../_images/behindGripper.png" style="width: 200px;" />
+</a>
+</figure>
+<p><strong>gripperPOV</strong> or <strong>id: 5</strong></p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/gripperPOV.png"><img alt="Camera Name GripperPOV" src="../../_images/gripperPOV.png" style="width: 200px;" />
+</a>
+</figure>
 </section>
 </section>
 
@@ -495,14 +528,6 @@
         const jsonResponse = xhr.response;
         const sections = {
           "Core Projects": [],
-          "Mature Projects": {
-            "Documentation": [],
-            "Repositories": [],
-          },
-          "Incubating Projects": {
-            "Documentation": [],
-            "Repositories": [],
-          },
           "Foundation": [
             {
               name: "About",
@@ -516,7 +541,14 @@
               name: "Donate",
               link: "https://farama.org/donations"
             }
-          ]
+          ],
+          "Mature Projects": {
+            "Documentation": [],
+          },
+          "Incubating Projects": {
+            "Documentation": [],
+            "Repositories": [],
+          }
         }
 
         // Categorize projects
@@ -532,8 +564,6 @@
           } else if (projectJson.type == "mature") {
             if (projectJson.website !== null) {
               sections["Mature Projects"]["Documentation"].push(projectJson)
-            } else {
-              sections["Mature Projects"]["Repositories"].push(projectJson)
             }
           } else {
             if (projectJson.website !== null) {
@@ -545,6 +575,13 @@
         })
 
         const menuContainer = document.querySelector(".farama-header-menu__body");
+
+        const stackedColumnElem = Object.assign(
+          document.createElement('div'), {
+            style: 'display: flex; flex-direction: column;'
+          }
+        );
+        const stackedKeys = new Set(["Core Projects", "Foundation"]);
 
         Object.keys(sections).forEach((key, i) => {
           const sectionElem = Object.assign(
@@ -589,7 +626,14 @@
             const ulElem = createProjectsList(projects, true);
             sectionElem.appendChild(ulElem);
           }
-          menuContainer.appendChild(sectionElem)
+          if (stackedKeys.has(key)) {
+            if (!stackedColumnElem.parentNode) {
+              menuContainer.appendChild(stackedColumnElem);
+            }
+            stackedColumnElem.appendChild(sectionElem);
+          } else {
+            menuContainer.appendChild(sectionElem);
+          }
         });
       }
 
